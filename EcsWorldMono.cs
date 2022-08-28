@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace TheTalesOfTwo
+namespace ModulesFrameworkUnity
 {
     public class EcsWorldMono : MonoBehaviour
     {
