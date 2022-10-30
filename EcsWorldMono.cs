@@ -5,10 +5,10 @@ namespace ModulesFrameworkUnity
 {
     public class EcsWorldMono : MonoBehaviour
     {
-        public Action onUpdate;
-        public Action onFixedUpdate;
-        public Action onLateUpdate;
-        public Action onDestroyed;
+        public Action OnUpdate;
+        public Action OnFixedUpdate;
+        public Action OnLateUpdate;
+        public Action OnDestroyed;
 
         private void Awake()
         {
@@ -22,22 +22,22 @@ namespace ModulesFrameworkUnity
 
         private void Update()
         {
-            onUpdate?.Invoke();
+            OnUpdate?.Invoke();
         }
 
         private void FixedUpdate()
         {
-            onFixedUpdate?.Invoke();
+            OnFixedUpdate?.Invoke();
         }
 
         private void LateUpdate()
         {
-            onLateUpdate?.Invoke();
+            OnLateUpdate?.Invoke();
         }
         
         private void OnDestroy()
         {
-            onDestroyed?.Invoke();
+            OnDestroyed?.Invoke();
         }
     }
 }
