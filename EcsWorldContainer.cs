@@ -1,5 +1,6 @@
 ﻿using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFrameworkUnity.Debug;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
@@ -20,6 +21,8 @@ namespace ModulesFrameworkUnity
             ecsMono.OnLateUpdate = _instance.LateUpdate;
             ecsMono.OnDestroyed = _instance.OnDestroy;
             _instance._ecs = new Ecs();
+            var debugViewer = new GameObject("DebugViewer");
+            debugViewer.AddComponent<DebugViewer>().Init(World);
             _instance._ecs.Start();
         }
         
