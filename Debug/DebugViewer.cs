@@ -46,7 +46,13 @@ namespace ModulesFrameworkUnity.Debug
 
         private void OnOneDataCreated(Type type, OneData data)
         {
-            var dataView = new GameObject(type.Name);
+            if (_oneDatas.ContainsKey(type))
+            {
+                _oneDatas[type].Init(type, data);
+                return;
+            }
+
+            var dataView = new GameObject();
             dataView.transform.SetParent(_oneDataParent);
             var viewer = dataView.AddComponent<OneDataViewer>();
             viewer.Init(type, data);
