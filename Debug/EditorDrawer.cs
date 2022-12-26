@@ -45,6 +45,9 @@ namespace ModulesFrameworkUnity.Debug
                 return;
             }
 
+            if (TryDrawStruct(component.FullName + fieldName, fieldName, fieldValue, level))
+                return;
+            
             DrawSimple(fieldName, fieldValue, level);
         }
 
@@ -57,6 +60,26 @@ namespace ModulesFrameworkUnity.Debug
             _foldouts[key] = EditorGUILayout.Foldout(_foldouts[key], fieldName, true, style);
             EditorGUILayout.EndVertical();
             return _foldouts[key];
+        }
+
+        private bool TryDrawStruct(string key, string fieldName, object fieldValue, int level)
+        {
+            if (!fieldValue.GetType().IsValueType || fieldValue.GetType().IsPrimitive)
+                return false;
+            
+            var style = ContainerStyle(level);
+            if (!Foldout(key, fieldName, style))
+                return true;
+            EditorGUILayout.BeginVertical(style);
+            level++;
+            foreach (var fieldInfo in fieldValue.GetType().GetFields())
+            {
+                var innerFieldValue = fieldInfo.GetValue(fieldValue);
+                DrawField(fieldInfo.FieldType, fieldInfo.Name, innerFieldValue, ref level);
+            }
+            level--;
+            EditorGUILayout.EndVertical();
+            return true;
         }
 
         private bool TryDrawContainer(Type component, string fieldName, object fieldValue, ref int level)
