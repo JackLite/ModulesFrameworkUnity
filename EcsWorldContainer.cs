@@ -21,8 +21,10 @@ namespace ModulesFrameworkUnity
             ecsMono.OnLateUpdate = _instance.LateUpdate;
             ecsMono.OnDestroyed = _instance.OnDestroy;
             _instance._ecs = new Ecs();
+            #if UNITY_EDITOR
             var debugViewer = new GameObject("DebugViewer");
             debugViewer.AddComponent<DebugViewer>().Init(World);
+            #endif
             _instance._ecs.Start();
         }
         

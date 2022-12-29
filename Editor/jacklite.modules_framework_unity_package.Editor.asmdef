@@ -1,0 +1,18 @@
+{
+    "name": "JackLite.ModulesFrameworkUnityPackageEditor",
+    "rootNamespace": "ModulesFrameworkUnity",
+    "references": [
+        "JackLite.ModulesFrameworkUnityPackage"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
