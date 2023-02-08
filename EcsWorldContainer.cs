@@ -25,6 +25,7 @@ namespace ModulesFrameworkUnity
             var debugViewer = new GameObject("DebugViewer");
             debugViewer.AddComponent<DebugViewer>().Init(World);
             #endif
+            _instance._ecs.World.SetLogger(new UnityLogger());
             _instance._ecs.Start();
         }
         
