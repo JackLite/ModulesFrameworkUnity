@@ -22,7 +22,7 @@ namespace ModulesFrameworkUnity.Debug
                 {
                     textColor = Color.white
                 },
-                padding = new RectOffset(30, 0, 0, 0)
+                padding = new RectOffset(10, 0, 0, 0)
             };
             _drawer = new EditorDrawer();
         }
@@ -42,7 +42,7 @@ namespace ModulesFrameworkUnity.Debug
             foreach (var kvp in _viewer.components)
             {
                 var type = kvp.Key;
-                if (!_drawer.Foldout(type.ToString(), type.ToString(), _componentNameStyle))
+                if (!_drawer.Foldout(type.ToString(), type.ToString(), _componentNameStyle, -1))
                     continue;
                 
                 var component = kvp.Value;

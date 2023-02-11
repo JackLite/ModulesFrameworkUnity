@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ModulesFrameworkUnity
 {
-    public class EcsWorldMono : MonoBehaviour
+    public class EcsUnityLoopProvider : MonoBehaviour
     {
         public Action OnUpdate;
         public Action OnFixedUpdate;
@@ -14,7 +14,7 @@ namespace ModulesFrameworkUnity
 
         private void Awake()
         {
-            if (FindObjectOfType<EcsWorldMono>() != this)
+            if (FindObjectOfType<EcsUnityLoopProvider>() != this)
             {
                 DestroyImmediate(gameObject);
                 return;

@@ -8,13 +8,13 @@ namespace ModulesFrameworkUnity.Debug
 
         public void LogDebug(string msg, LogFilter logFilter)
         {
-            if((_logFilter & logFilter) != LogFilter.None)
+            if((_logFilter & logFilter) != LogFilter.None && UnityEngine.Debug.isDebugBuild)
                 UnityEngine.Debug.Log($"[Modules] {msg}");
         }
 
         public void LogDebug(object msg, LogFilter logFilter)
         {
-            if((_logFilter & logFilter) != LogFilter.None)
+            if((_logFilter & logFilter) != LogFilter.None && UnityEngine.Debug.isDebugBuild)
                 UnityEngine.Debug.Log($"[Modules] {msg}");
         }
 
