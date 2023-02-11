@@ -2,7 +2,7 @@
     "name": "JackLite.ModulesFrameworkUnityPackageEditor",
     "rootNamespace": "ModulesFrameworkUnity",
     "references": [
-        "Modules"
+        "JackLite.ModulesFrameworkUnityPackage"
     ],
     "includePlatforms": [
         "Editor"
