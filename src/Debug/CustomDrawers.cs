@@ -8,7 +8,7 @@ namespace ModulesFrameworkUnity.Debug
 {
     public static class CustomDrawers
     {
-        private static Dictionary<Type, CustomPropertyDrawer> _drawers = new();
+        private static Dictionary<Type, ModulesFieldDrawer> _drawers = new();
 
         [RuntimeInitializeOnLoadMethod]
         public static void RegisterCustomDrawers()
@@ -16,15 +16,15 @@ namespace ModulesFrameworkUnity.Debug
             _drawers = new();
             var drawers = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes()
-                    .Where(t => t.IsSubclassOf(typeof(CustomPropertyDrawer)) && !t.IsAbstract)
-                    .Select(t => (CustomPropertyDrawer)Activator.CreateInstance(t)));
+                    .Where(t => t.IsSubclassOf(typeof(ModulesFieldDrawer)) && !t.IsAbstract)
+                    .Select(t => (ModulesFieldDrawer)Activator.CreateInstance(t)));
             foreach (var propertyDrawer in drawers)
             {
                 RegisterDrawer(propertyDrawer);
             }
         }
         
-        public static void RegisterDrawer(CustomPropertyDrawer drawer)
+        public static void RegisterDrawer(ModulesFieldDrawer drawer)
         {
             if (_drawers.ContainsKey(drawer.PropertyType))
             {

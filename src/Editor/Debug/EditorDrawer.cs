@@ -48,6 +48,9 @@ namespace ModulesFrameworkUnity.Debug
                 return;
             }
 
+            if (TryDrawEntity(fieldName, fieldValue, ref level))
+                return;
+            
             if (TryDrawStruct(component.FullName + fieldName, fieldName, fieldValue, ref level))
                 return;
             
@@ -65,6 +68,14 @@ namespace ModulesFrameworkUnity.Debug
             return _foldouts[key];
         }
 
+        private bool TryDrawEntity(string fieldName, object fieldValue, ref int level)
+        {
+            if (fieldValue is not Entity e)
+                return false;
+            DrawSimple($"{fieldName} [entity]", e.Id, level);
+            return true;
+        }
+
         private bool TryDrawStruct(string key, string fieldName, object fieldValue, ref int level)
         {
             if (!fieldValue.GetType().IsValueType || fieldValue.GetType().IsPrimitive)
@@ -73,12 +84,6 @@ namespace ModulesFrameworkUnity.Debug
             var style = DrawerUtility.ContainerStyle(level);
             if (!Foldout(key, fieldName, style, level))
                 return true;
-            if (fieldValue is Entity entity)
-            {
-                DrawSimple(fieldName, entity.Id, level);
-                return true;
-            }
-
             EditorGUILayout.BeginVertical(style);
             level++;
             foreach (var fieldInfo in fieldValue.GetType().GetFields())
@@ -96,7 +101,7 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue is IDictionary dictionary)
             {
                 var style = DrawerUtility.ContainerStyle(level);
-                if (!Foldout(component + fieldName, fieldName, style, level))
+                if (!Foldout(component + fieldName, $"{fieldName} ({dictionary.Count})", style, level))
                     return true;
                 EditorGUILayout.BeginVertical(style);
                 var keysArr = dictionary.Keys.Cast<object>().ToArray();
@@ -117,7 +122,8 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue is IEnumerable enumerable)
             {
                 var style = DrawerUtility.ContainerStyle(level);
-                if (!Foldout(component + fieldName, fieldName, style, level))
+                var count = enumerable.Cast<object>().Count();
+                if (!Foldout(component + fieldName, $"{fieldName} ({count})", style, level))
                     return true;
                 EditorGUILayout.BeginVertical(style);
                 var index = 0;
@@ -197,7 +203,7 @@ namespace ModulesFrameworkUnity.Debug
 
             return false;
         }
-        
+
         private void DrawSimple(string fieldName, object fieldValue, int level)
         {
             if (!fieldValue.GetType().IsPrimitive)
@@ -229,6 +235,5 @@ namespace ModulesFrameworkUnity.Debug
             EditorGUILayout.EndVertical();
 
         }
-
     }
 }
