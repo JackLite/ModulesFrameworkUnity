@@ -21,7 +21,9 @@ namespace ModulesFrameworkUnity.Settings
             var serializedSettings = AssetDatabase.LoadAssetAtPath<TextAsset>(PathToSave);
             if (serializedSettings == null)
             {
-                AssetDatabase.CreateAsset(serializedSettings, PathToSave);
+                File.WriteAllText(PathToSave, string.Empty);
+                AssetDatabase.Refresh();
+                serializedSettings = AssetDatabase.LoadAssetAtPath<TextAsset>(PathToSave);
             }
             var contents = JsonUtility.ToJson(this);
             File.WriteAllText(PathToSave, contents);
