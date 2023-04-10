@@ -13,7 +13,7 @@ namespace ModulesFrameworkUnity
             var settings = ModulesSettings.Load();
             if (settings.startMethod != StartMethod.Auto)
                 return;
-            _adapter = new ModulesUnityAdapter(settings.logFilter);
+            _adapter = new ModulesUnityAdapter(settings);
             var ecsMono = new GameObject("EcsWorld").AddComponent<EcsUnityLoopProvider>();
             ecsMono.OnUpdate = _adapter.Update;
             ecsMono.OnFixedUpdate = _adapter.FixedUpdate;

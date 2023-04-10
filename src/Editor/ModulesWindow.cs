@@ -1,5 +1,4 @@
-﻿using System;
-using ModulesFramework;
+﻿using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
 using UnityEditor;
 using UnityEngine;
@@ -24,10 +23,41 @@ namespace ModulesFrameworkUnity.ModulesUnity.Editor
 
         private void OnGUI()
         {
-            EditorGUILayout.Space(20);
+            DrawTitle("Main");
             DrawStartMethod();
             DrawLogType();
+            DrawPerformanceSettings();
             DrawSaveButton();
+        }
+
+        private void DrawPerformanceSettings()
+        {
+            EditorGUILayout.Space(20);
+            EditorGUILayout.BeginVertical();
+            DrawTitle("Performance Monitor");
+            var isDebug = _settings.performanceSettings.debugMode;
+            var debugContent = new GUIContent("Debug mode", "If turn off - only panic messages will be logging");
+            _settings.performanceSettings.debugMode = EditorGUILayout.Toggle(debugContent, isDebug);
+
+            var warn = _settings.performanceSettings.warningAvgFrameMs;
+            var warnContent = new GUIContent("Warning Threshold",
+                "First threshold. Use it to get warning when code too long but not critical");
+            _settings.performanceSettings.warningAvgFrameMs = EditorGUILayout.FloatField(warnContent, warn);
+
+            var panic = _settings.performanceSettings.panicAvgFrameMs;
+            var panicContent = new GUIContent("Panic Threshold",
+                "This is the critical threshold. " +
+                "You should ignore it when scene loading or some expected going on. " +
+                "It's good to set it to 10-20% from 1/targeted frame rate.");
+            _settings.performanceSettings.panicAvgFrameMs = EditorGUILayout.FloatField(panicContent, panic);
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawTitle(string blockTitle)
+        {
+            var labelStyle = EditorStyles.boldLabel;
+            EditorGUILayout.LabelField(blockTitle, labelStyle);
         }
 
         private void DrawLogType()
@@ -43,7 +73,7 @@ namespace ModulesFrameworkUnity.ModulesUnity.Editor
             style.margin = new RectOffset(40, 40, 40, 0);
             style.fixedHeight = 30;
             style.alignment = TextAnchor.MiddleCenter;
-            
+
             if (GUILayout.Button("Save", style))
             {
                 _settings.Save();
