@@ -23,8 +23,8 @@ namespace ModulesFrameworkUnity.Settings
             performanceSettings = new PerformanceSettings
             {
                 debugMode = false,
-                warningAvgFrameMs = (1f / 16f) * 0.1f,
-                panicAvgFrameMs = (1f / 16f) * 0.2f
+                warningAvgFrameMs = (1f / 60f) * 100f, // 10%
+                panicAvgFrameMs = (1f / 60f) * 200f // 20%
             };
         }
         
