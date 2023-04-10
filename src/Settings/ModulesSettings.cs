@@ -35,6 +35,11 @@ namespace ModulesFrameworkUnity.Settings
                 return JsonUtility.FromJson<ModulesSettings>(File.ReadAllText(path));
             return new ModulesSettings();
         }
+        
+        private static string GetFullName()
+        {
+            return Path.Combine(PathToSave, FileName);
+        }
 
         #if UNITY_EDITOR
         public void Save()
@@ -53,11 +58,6 @@ namespace ModulesFrameworkUnity.Settings
             File.WriteAllText(path, contents);
             EditorUtility.SetDirty(serializedSettings);
             AssetDatabase.Refresh();
-        }
-
-        private static string GetFullName()
-        {
-            return Path.Combine(PathToSave, FileName);
         }
 
         private static void CheckFolder()
