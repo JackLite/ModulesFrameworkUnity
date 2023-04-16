@@ -1,6 +1,8 @@
-﻿using ModulesFramework;
+﻿using System.Diagnostics;
+using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
+using ModulesFrameworkUnity.Settings;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
@@ -9,13 +11,18 @@ namespace ModulesFrameworkUnity
     {
         public static DataWorld world;
         private readonly Ecs _ecs;
+        private double _elapsedTimeMs;
+        private int _frames;
+        private readonly Stopwatch _stopwatch = new();
+        private readonly ModulesSettings _settings;
 
-        public ModulesUnityAdapter(LogFilter logFilter = LogFilter.Full)
+        public ModulesUnityAdapter(ModulesSettings settings)
         {
             _ecs = new Ecs();
+            _settings = settings;
             world = _ecs.World;
             world.SetLogger(new UnityLogger());
-            world.SetLogType(logFilter);
+            world.SetLogType(_settings.logFilter);
         }
 
         public void StartDebug()
@@ -31,7 +38,17 @@ namespace ModulesFrameworkUnity
 
         public void Update()
         {
+            #if MODULES_DEBUG
+            _stopwatch.Start();
+            #endif
+            
             _ecs.Run();
+            
+            #if MODULES_DEBUG
+            _stopwatch.Stop();
+            _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
+            _stopwatch.Reset();
+            #endif
         }
 
         public void FixedUpdate()
@@ -41,7 +58,37 @@ namespace ModulesFrameworkUnity
 
         public void LateUpdate()
         {
+            #if MODULES_DEBUG
+            _stopwatch.Start();
+            #endif
+            
             _ecs.PostRun();
+            
+            #if MODULES_DEBUG
+            _stopwatch.Stop();
+            _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
+            _stopwatch.Reset();
+            _frames++;
+            if (_frames > Application.targetFrameRate)
+            {
+                var avgFrameTimeMs = _elapsedTimeMs / _frames;
+                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs)
+                {
+                    world.Logger.LogDebug(
+                        $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold",
+                        LogFilter.Performance);
+                }
+                
+                if (avgFrameTimeMs > _settings.performanceSettings.panicAvgFrameMs)
+                {
+                    world.Logger.LogWarning(
+                        $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than panic threshold");
+                }
+
+                _frames = 0;
+                _elapsedTimeMs = 0;
+            }
+            #endif
         }
 
         public void OnDestroy()

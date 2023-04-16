@@ -20,7 +20,7 @@ namespace ModulesFrameworkUnity
             var settings = ModulesSettings.Load();
             if (settings.startMethod != StartMethod.Manual)
                 return;
-            _adapter = new ModulesUnityAdapter(settings.logFilter);
+            _adapter = new ModulesUnityAdapter(settings);
             #if UNITY_EDITOR
             _adapter.StartDebug();
             #endif
