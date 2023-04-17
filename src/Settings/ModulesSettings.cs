@@ -13,7 +13,9 @@ namespace ModulesFrameworkUnity.Settings
     public class ModulesSettings
     {
         public const string PathToSave = "Assets/Resources/";
-        public const string FileName = "ModulesSettings.json";
+        public const string FileName = "ModulesSettings";
+        public const string FileExt = "json";
+        public const string FileNameWithExt = FileName + "." + FileExt;
         public StartMethod startMethod;
         public LogFilter logFilter = LogFilter.Full;
         public PerformanceSettings performanceSettings;
@@ -30,15 +32,15 @@ namespace ModulesFrameworkUnity.Settings
         
         public static ModulesSettings Load()
         {
-            var path = GetFullName();
-            if (File.Exists(path))
-                return JsonUtility.FromJson<ModulesSettings>(File.ReadAllText(path));
+            var serialized = Resources.Load<TextAsset>(FileName);
+            if (serialized != null)
+                return JsonUtility.FromJson<ModulesSettings>(serialized.text);
             return new ModulesSettings();
         }
         
         private static string GetFullName()
         {
-            return Path.Combine(PathToSave, FileName);
+            return Path.Combine(PathToSave, FileNameWithExt);
         }
 
         #if UNITY_EDITOR
