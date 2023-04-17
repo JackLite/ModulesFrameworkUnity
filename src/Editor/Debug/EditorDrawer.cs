@@ -208,7 +208,8 @@ namespace ModulesFrameworkUnity.Debug
         {
             if (!fieldValue.GetType().IsPrimitive)
             {
-                UnityEngine.Debug.LogWarning($"Type {fieldValue.GetType()} is not supported yet");
+                var message = $"Type {fieldValue.GetType().Name} is not supported";
+                EditorGUILayout.TextField(fieldName, message);
                 return;
             }
 

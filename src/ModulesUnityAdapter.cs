@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
@@ -15,12 +14,10 @@ namespace ModulesFrameworkUnity
         private double _elapsedTimeMs;
         private int _frames;
         private readonly Stopwatch _stopwatch = new();
-        private readonly double _nsPerTick;
         private readonly ModulesSettings _settings;
 
         public ModulesUnityAdapter(ModulesSettings settings)
         {
-            _nsPerTick = Stopwatch.Frequency / Math.Pow(10, 9);
             _ecs = new Ecs();
             _settings = settings;
             world = _ecs.World;

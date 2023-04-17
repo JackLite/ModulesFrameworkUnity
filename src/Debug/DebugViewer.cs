@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFramework.Modules;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity.Debug
@@ -15,6 +16,8 @@ namespace ModulesFrameworkUnity.Debug
         private Dictionary<Type, OneDataViewer> _oneDatas = new Dictionary<Type, OneDataViewer>();
         private Transform _oneDataParent;
         
+        private Transform _modulesParent;
+        
         private void Awake()
         {
             if (FindObjectOfType<DebugViewer>() != this)
@@ -25,6 +28,7 @@ namespace ModulesFrameworkUnity.Debug
             DontDestroyOnLoad(gameObject);
             _entitiesParent = CreateParent("Entities - 0");
             _oneDataParent = CreateParent("One data");
+            _modulesParent = CreateParent("Modules");
         }
 
         private Transform CreateParent(string parentName)
@@ -42,6 +46,11 @@ namespace ModulesFrameworkUnity.Debug
             world.OnEntityDestroyed += OnEntityDestroyed;
 
             world.OnOneDataCreated += OnOneDataCreated;
+
+            foreach (var module in world.GetAllModules())
+            {
+                CreateModuleViewer(module);
+            }
         }
 
         private void OnOneDataCreated(Type type, OneData data)
@@ -57,6 +66,14 @@ namespace ModulesFrameworkUnity.Debug
             var viewer = dataView.AddComponent<OneDataViewer>();
             viewer.Init(type, data);
             _oneDatas.Add(type, viewer);
+        }
+
+        private void CreateModuleViewer(EcsModule module)
+        {
+            var moduleView = new GameObject(module.GetType().Name);
+            moduleView.transform.SetParent(_modulesParent);
+            var viewer = moduleView.AddComponent<ModuleViewer>();
+            viewer.Init(module);
         }
 
         private void OnEntityCreated(int eid)
