@@ -39,7 +39,7 @@ namespace ModulesFrameworkUnity.Debug
         {
             if (!_drawers.ContainsKey(fieldValue.GetType()))
                 return false;
-            var drawer = _drawers[fieldValue.GetType()];
+            var drawer = (ModulesFieldDrawer<T>)_drawers[fieldValue.GetType()];
             drawer.Draw(fieldName, fieldValue, level);
             return true;
         }

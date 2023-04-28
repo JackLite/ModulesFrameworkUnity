@@ -12,7 +12,7 @@ namespace ModulesFrameworkUnity.Debug
     public class EditorDrawer
     {
         private readonly Dictionary<string, bool> _foldouts = new Dictionary<string, bool>();
-        
+
         public void DrawField(Type component, string fieldName, object fieldValue, ref int level)
         {
             if (fieldValue == null)
@@ -50,10 +50,10 @@ namespace ModulesFrameworkUnity.Debug
 
             if (TryDrawEntity(fieldName, fieldValue, ref level))
                 return;
-            
+
             if (TryDrawStruct(component.FullName + fieldName, fieldName, fieldValue, ref level))
                 return;
-            
+
             DrawSimple(fieldName, fieldValue, level);
         }
 
@@ -80,7 +80,7 @@ namespace ModulesFrameworkUnity.Debug
         {
             if (!fieldValue.GetType().IsValueType || fieldValue.GetType().IsPrimitive)
                 return false;
-            
+
             var style = DrawerUtility.ContainerStyle(level);
             if (!Foldout(key, fieldName, style, level))
                 return true;
@@ -91,6 +91,7 @@ namespace ModulesFrameworkUnity.Debug
                 var innerFieldValue = fieldInfo.GetValue(fieldValue);
                 DrawField(fieldInfo.FieldType, fieldInfo.Name, innerFieldValue, ref level);
             }
+
             level--;
             EditorGUILayout.EndVertical();
             return true;
@@ -114,11 +115,12 @@ namespace ModulesFrameworkUnity.Debug
                     var memberName = $"{fieldName} [{key}]";
                     DrawField(component, memberName, val, ref level);
                 }
+
                 level--;
                 EditorGUILayout.EndVertical();
                 return true;
             }
-            
+
             if (fieldValue is IEnumerable enumerable)
             {
                 var style = DrawerUtility.ContainerStyle(level);
@@ -134,6 +136,7 @@ namespace ModulesFrameworkUnity.Debug
                     DrawField(component, memberName, v, ref level);
                     index++;
                 }
+
                 EditorGUILayout.EndVertical();
                 level--;
                 return true;
@@ -151,7 +154,7 @@ namespace ModulesFrameworkUnity.Debug
                 EditorGUILayout.EndVertical();
                 return true;
             }
-            
+
             if (fieldValue.GetType().IsSubclassOf(typeof(Object)))
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
@@ -167,7 +170,7 @@ namespace ModulesFrameworkUnity.Debug
                 EditorGUILayout.EndVertical();
                 return true;
             }
-            
+
             if (fieldValue is Vector2 vector2)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
@@ -175,7 +178,7 @@ namespace ModulesFrameworkUnity.Debug
                 EditorGUILayout.EndVertical();
                 return true;
             }
-            
+
             if (fieldValue is Vector3Int vector3Int)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
@@ -183,7 +186,7 @@ namespace ModulesFrameworkUnity.Debug
                 EditorGUILayout.EndVertical();
                 return true;
             }
-            
+
             if (fieldValue is Vector2Int vector2Int)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
@@ -191,7 +194,7 @@ namespace ModulesFrameworkUnity.Debug
                 EditorGUILayout.EndVertical();
                 return true;
             }
-            
+
             if (fieldValue is Quaternion quaternion)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
@@ -233,8 +236,8 @@ namespace ModulesFrameworkUnity.Debug
                     EditorGUILayout.Toggle(fieldName, value);
                     break;
             }
-            EditorGUILayout.EndVertical();
 
+            EditorGUILayout.EndVertical();
         }
     }
 }
