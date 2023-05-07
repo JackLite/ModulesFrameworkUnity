@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFramework.Modules;
@@ -16,8 +17,11 @@ namespace ModulesFrameworkUnity.Debug
         private Dictionary<Type, OneDataViewer> _oneDatas = new Dictionary<Type, OneDataViewer>();
         private Transform _oneDataParent;
         
-        private Transform _modulesParent;
-        
+        private ModulesDebugParent _modulesParent;
+
+        private Dictionary<Type, ModuleViewer> _modules = new Dictionary<Type, ModuleViewer>();
+        private readonly List<ModulesDebugParent> _modulesDebugParents = new List<ModulesDebugParent>();
+
         private void Awake()
         {
             if (FindObjectOfType<DebugViewer>() != this)
@@ -26,12 +30,27 @@ namespace ModulesFrameworkUnity.Debug
                 return;
             }
             DontDestroyOnLoad(gameObject);
-            _entitiesParent = CreateParent("Entities - 0");
-            _oneDataParent = CreateParent("One data");
-            _modulesParent = CreateParent("Modules");
+            _entitiesParent = CreateRootParent("Entities - 0");
+            _oneDataParent = CreateRootParent("One data");
+            var modulesParent = CreateRootParent("Modules");
+            _modulesParent = modulesParent.gameObject.AddComponent<ModulesDebugParent>();
+            _modulesDebugParents.Add(_modulesParent);
         }
 
-        private Transform CreateParent(string parentName)
+        private void Update()
+        {
+            foreach (var (type, viewer) in _modules)
+            {
+                viewer.UpdateGoName();
+            }
+
+            foreach (var parent in _modulesDebugParents)
+            {
+                parent.UpdateHierarchy();
+            }
+        }
+
+        private Transform CreateRootParent(string parentName)
         {
             var parent = new GameObject(parentName);
             parent.transform.SetParent(transform);
@@ -47,9 +66,75 @@ namespace ModulesFrameworkUnity.Debug
 
             world.OnOneDataCreated += OnOneDataCreated;
 
-            foreach (var module in world.GetAllModules())
+            CreateModulesViewers(world);
+        }
+
+        private void CreateModulesViewers(DataWorld world)
+        {
+            var allModules = world.GetAllModules();
+            var modulesBag = allModules.ToHashSet();
+            while (modulesBag.Count > 0)
             {
+                var module = modulesBag.First();
+                modulesBag.Remove(module);
+                if (module.IsSubmodule)
+                    CreateModuleParent(module, modulesBag);
                 CreateModuleViewer(module);
+            }
+
+            _modules = _modules.OrderBy(kvp => kvp.Key.Name)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            
+            CreateSubmodulesHierarchy();
+        }
+
+        private void CreateModuleParent(EcsModule submodule, HashSet<EcsModule> modules)
+        {
+            if (_modules.ContainsKey(submodule.Parent.GetType()))
+                return;
+            modules.TryGetValue(submodule.Parent, out var parent);
+            modules.Remove(parent);
+            if (parent.IsSubmodule)
+                CreateModuleParent(parent, modules);
+            CreateModuleViewer(parent);
+        }
+
+        private void CreateModuleViewer(EcsModule module)
+        {
+            var moduleView = new GameObject(module.GetType().Name);
+            moduleView.transform.SetParent(_modulesParent.transform);
+            var viewer = moduleView.AddComponent<ModuleViewer>();
+            var parent = GetParentViewerForModule(module);
+            viewer.Init(module, parent);
+            _modules.Add(module.GetType(), viewer);
+        }
+
+        private ModuleViewer GetParentViewerForModule(EcsModule module)
+        {
+            if (!module.IsSubmodule)
+                return null;
+            return _modules[module.Parent.GetType()];
+        }
+
+        private void CreateSubmodulesHierarchy()
+        {
+            foreach (var (type, viewer) in _modules)
+            {
+                if (viewer.Module.IsSubmodule)
+                {
+                    var parentViewer = _modules[viewer.Module.Parent.GetType()];
+                    viewer.transform.SetParent(parentViewer.transform);
+                    if (!parentViewer.TryGetComponent<ModulesDebugParent>(out var modulesDebugParent))
+                    {
+                        modulesDebugParent = parentViewer.gameObject.AddComponent<ModulesDebugParent>();
+                        _modulesDebugParents.Add(modulesDebugParent);
+                    }
+                    modulesDebugParent.AddChild(viewer);
+                }
+                else
+                {
+                    _modulesParent.AddChild(viewer);
+                }
             }
         }
 
@@ -66,14 +151,6 @@ namespace ModulesFrameworkUnity.Debug
             var viewer = dataView.AddComponent<OneDataViewer>();
             viewer.Init(type, data);
             _oneDatas.Add(type, viewer);
-        }
-
-        private void CreateModuleViewer(EcsModule module)
-        {
-            var moduleView = new GameObject(module.GetType().Name);
-            moduleView.transform.SetParent(_modulesParent);
-            var viewer = moduleView.AddComponent<ModuleViewer>();
-            viewer.Init(module);
         }
 
         private void OnEntityCreated(int eid)
