@@ -1,4 +1,0 @@
-﻿{
-  "name": "JackLite.ModulesFramework.UnityAdapter",
-  "references": ["JackLite.ModulesFramework.Core"]
-}

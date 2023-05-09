@@ -1,9 +1,9 @@
 {
-    "name": "JackLite.ModulesFramework.UnityAdpater.Editor",
+    "name": "ModulesFramework.UnityAdpater.Editor",
     "rootNamespace": "ModulesFrameworkUnity",
     "references": [
-        "JackLite.ModulesFramework.UnityAdapter",
-        "JackLite.ModulesFramework.Core"
+        "ModulesFramework.UnityAdapter",
+        "ModulesFramework.Core"
     ],
     "includePlatforms": [
         "Editor"

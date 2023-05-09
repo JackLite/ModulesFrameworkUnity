@@ -1,0 +1,4 @@
+﻿{
+  "name": "ModulesFramework.UnityAdapter",
+  "references": ["ModulesFramework.Core"]
+}

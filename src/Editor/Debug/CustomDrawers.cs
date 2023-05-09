@@ -14,12 +14,14 @@ namespace ModulesFrameworkUnity.Debug
         public static void RegisterCustomDrawers()
         {
             _drawers = new();
+            var commonDrawer = new EditorDrawer();
             var drawers = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes()
                     .Where(t => t.IsSubclassOf(typeof(ModulesFieldDrawer)) && !t.IsAbstract)
                     .Select(t => (ModulesFieldDrawer)Activator.CreateInstance(t)));
             foreach (var propertyDrawer in drawers)
             {
+                propertyDrawer.Init(commonDrawer);
                 RegisterDrawer(propertyDrawer);
             }
         }
