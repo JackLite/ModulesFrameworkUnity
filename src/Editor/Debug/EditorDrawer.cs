@@ -12,6 +12,11 @@ namespace ModulesFrameworkUnity.Debug
     public class EditorDrawer
     {
         private readonly Dictionary<string, bool> _foldouts = new Dictionary<string, bool>();
+
+        public void DrawField(string fieldName, object fieldValue, ref int level)
+        {
+            DrawField(fieldValue.GetType(), fieldName, fieldValue, ref level);
+        }
         
         public void DrawField(Type component, string fieldName, object fieldValue, ref int level)
         {

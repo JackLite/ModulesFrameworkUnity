@@ -2,8 +2,11 @@
 
 This is documentation for Unity Adapter of Modules Framework (MF).
 
-Documentation about Modules Framework you can find 
+You can find documentation about Modules Framework
 [here](https://github.com/JackLite/ModulesFramework).
+
+For install MF like an unity package use this link:
+https://github.com/JackLite/ModulesFrameworkUnityPackage.git
 
 Unity Adapter's goal is to allow start creating game immediately when
 you download Modules Framework Package. It's also provide default logger,
@@ -36,7 +39,7 @@ container with info about entities and one data. It allows you to see
 what entities exists, what components they contains and data in that
 components.
 
-__Important__: you can't change data. It will be added later.
+__Important__: you can't change data.
 
 ![pkg](/doc/Debug_img2.png)
 
@@ -59,25 +62,16 @@ using UnityEditor;
 
 namespace IdleRoad.Editor
 {
-    public class BigIntDrawer : ModulesFieldDrawer
+    public class BigIntDrawer : ModulesFieldDrawer<BigInteger>
     {
-        public override Type PropertyType => typeof(BigInteger);
-        public override void Draw(string fieldName, object fieldValue, int level)
+        public override void Draw(string fieldName, BigInteger value, int level)
         {
-            var val = (BigInteger)fieldValue;
-            EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-            EditorGUILayout.TextField(fieldName, val.FormatUI());
-            EditorGUILayout.EndVertical();
+            Drawer.DrawField(fieldName, value.FormatUI());
         }
     }
 }
 #endif
 ```
-
-`DrawerUtility` has two static methods:
-- `GUIStyle OneFieldStyle(int level)` - return style for simple field;
-- `GUIStyle OneFieldStyle(int level)` - return style for container
-like a `List<T>` or some struct;
 
 _Note_: parameter `level` set the margin from left border. 
 
@@ -85,7 +79,7 @@ _Note_: parameter `level` set the margin from left border.
 
 You can change some settings from Modules -> Unity Adapter Settings.
 
-![pkg](/doc/Settings_img3.png)
+![pkg](/doc/Settings_img1.png)
 
 Start method has two options:
 - Auto - MF will start automatically in any scene;
@@ -108,10 +102,3 @@ it automatically. That logger (`UnityLogger`) shows debug messages
 _only_ in editor and developer builds. Warnings and errors shows in
 any cases. You can choose what messages will be showed in 
 Unity Adapter Settings. By default all messages shows.
-
-### Roadmap
-
-- [ ] Allow to change data in DebugViews;
-- [ ] Ability to add/remove components marked by attribute;
-- [ ] Ability to rise events marked by attribute;
-- [ ] Improvements of visual in debug;
