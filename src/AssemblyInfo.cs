@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("JackLite.ModulesFramework.UnityAdpater.Editor")]
+[assembly: InternalsVisibleTo("ModulesFramework.UnityAdapter.Editor")]
