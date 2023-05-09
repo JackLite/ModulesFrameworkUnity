@@ -1,0 +1,19 @@
+{
+    "name": "ModulesFramework.UnityAdapter.Editor",
+    "rootNamespace": "ModulesFrameworkUnity",
+    "references": [
+        "ModulesFramework.UnityAdapter",
+        "ModulesFramework.Core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
