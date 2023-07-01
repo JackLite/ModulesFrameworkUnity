@@ -1,4 +1,5 @@
-﻿using ModulesFramework;
+﻿using System;
+using ModulesFramework;
 
 namespace ModulesFrameworkUnity.Debug
 {
@@ -36,6 +37,11 @@ namespace ModulesFrameworkUnity.Debug
         public void LogError(object msg)
         {
             UnityEngine.Debug.LogError($"[Modules] {msg}");
+        }
+
+        public void RethrowException(Exception e)
+        {
+            UnityEngine.Debug.LogException(e);
         }
 
         public void SetLogType(LogFilter logFilter)

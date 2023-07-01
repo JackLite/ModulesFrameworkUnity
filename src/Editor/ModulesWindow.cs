@@ -1,4 +1,5 @@
-﻿using ModulesFramework;
+﻿using System;
+using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
 using UnityEditor;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace ModulesFrameworkUnity.ModulesUnity.Editor
         {
             DrawTitle("Main");
             DrawStartMethod();
+            DrawWorldsCount();
             DrawLogType();
             DrawPerformanceSettings();
             DrawSaveButton();
@@ -52,6 +54,14 @@ namespace ModulesFrameworkUnity.ModulesUnity.Editor
             _settings.performanceSettings.panicAvgFrameMs = EditorGUILayout.FloatField(panicContent, panic);
 
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawWorldsCount()
+        {
+            var label = new GUIContent("Worlds count");
+            var currentValue = Mathf.Clamp(_settings.worldsCount, 1, int.MaxValue);
+            var chosen = EditorGUILayout.IntField(label, currentValue);
+            _settings.worldsCount = chosen;
         }
 
         private void DrawTitle(string blockTitle)

@@ -17,6 +17,7 @@ namespace ModulesFrameworkUnity.Settings
         public const string FileExt = "json";
         public const string FileNameWithExt = FileName + "." + FileExt;
         public StartMethod startMethod;
+        public int worldsCount = 1;
         public LogFilter logFilter = LogFilter.Full;
         public PerformanceSettings performanceSettings;
 

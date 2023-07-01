@@ -8,8 +8,8 @@ namespace ModulesFrameworkUnity.Debug
 {
     public class EntityViewer : MonoBehaviour
     {
-        public readonly Dictionary<Type, object> components = new Dictionary<Type, object>();
-
+        public readonly Dictionary<Type, List<object>> components = new Dictionary<Type, List<object>>();
+        private readonly List<object> _cache = new List<object>();
         public int Eid { get; private set; }
         public DataWorld World { get; private set; }
 
@@ -22,7 +22,25 @@ namespace ModulesFrameworkUnity.Debug
         public void AddComponent(object component)
         {
             var type = component.GetType();
-            components[type] = component;
+            if(!components.ContainsKey(type))
+                components[type] = new List<object>();
+            
+            components[type].Add(component);
+        }
+        
+        public void AddComponents(EcsTable table, int eid)
+        {
+            if(!table.IsMultiple)
+            {
+                AddComponent(table.GetDataObject(eid));
+                return;
+            }
+            _cache.Clear();
+            table.GetDataObjects(eid, _cache);
+            foreach (var component in _cache)
+            {
+                AddComponent(component);
+            }
         }
 
         public void UpdateName()

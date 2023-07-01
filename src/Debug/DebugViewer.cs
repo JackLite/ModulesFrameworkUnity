@@ -13,10 +13,10 @@ namespace ModulesFrameworkUnity.Debug
         private DataWorld _world;
         private readonly Dictionary<int, EntityViewer> _viewers = new Dictionary<int, EntityViewer>();
         private Transform _entitiesParent;
-        
+
         private Dictionary<Type, OneDataViewer> _oneDatas = new Dictionary<Type, OneDataViewer>();
         private Transform _oneDataParent;
-        
+
         private ModulesDebugParent _modulesParent;
 
         private Dictionary<Type, ModuleViewer> _modules = new Dictionary<Type, ModuleViewer>();
@@ -29,6 +29,7 @@ namespace ModulesFrameworkUnity.Debug
                 DestroyImmediate(gameObject);
                 return;
             }
+
             DontDestroyOnLoad(gameObject);
             _entitiesParent = CreateRootParent("Entities - 0");
             _oneDataParent = CreateRootParent("One data");
@@ -84,7 +85,7 @@ namespace ModulesFrameworkUnity.Debug
 
             _modules = _modules.OrderBy(kvp => kvp.Key.Name)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            
+
             CreateSubmodulesHierarchy();
         }
 
@@ -129,6 +130,7 @@ namespace ModulesFrameworkUnity.Debug
                         modulesDebugParent = parentViewer.gameObject.AddComponent<ModulesDebugParent>();
                         _modulesDebugParents.Add(modulesDebugParent);
                     }
+
                     modulesDebugParent.AddChild(viewer);
                 }
                 else
@@ -169,8 +171,8 @@ namespace ModulesFrameworkUnity.Debug
             viewer.components.Clear();
             _world.MapTables((type, table) =>
             {
-                if(_world.HasComponent(eid, type))
-                    viewer.AddComponent(table.GetDataObject(eid));
+                if (_world.HasComponent(eid, type))
+                    viewer.AddComponents(table, eid);
             });
             viewer.UpdateName();
         }
@@ -179,10 +181,13 @@ namespace ModulesFrameworkUnity.Debug
         {
             if (_viewers.ContainsKey(eid))
             {
-                Destroy(_viewers[eid].gameObject);
+                if (_viewers[eid] != null)
+                    Destroy(_viewers[eid].gameObject);
                 _viewers.Remove(eid);
             }
-            _entitiesParent.name = $"Entities - {_viewers.Count.ToString()}";
+
+            if (_entitiesParent != null)
+                _entitiesParent.name = $"Entities - {_viewers.Count.ToString()}";
         }
     }
 }

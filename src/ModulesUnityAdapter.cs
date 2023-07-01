@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
@@ -18,17 +19,20 @@ namespace ModulesFrameworkUnity
 
         public ModulesUnityAdapter(ModulesSettings settings)
         {
-            _ecs = new Ecs();
             _settings = settings;
-            world = _ecs.World;
+            _ecs = new Ecs(settings.worldsCount);
+            world = _ecs.MainWorld;
             world.SetLogger(new UnityLogger());
             world.SetLogType(_settings.logFilter);
         }
 
         public void StartDebug()
         {
-            var debugViewer = new GameObject("DebugViewer");
-            debugViewer.AddComponent<DebugViewer>().Init(world);
+            for (var i = 0; i < _settings.worldsCount; i++)
+            {
+                var debugViewer = new GameObject($"DebugViewer - World {i.ToString(CultureInfo.InvariantCulture)}");
+                debugViewer.AddComponent<DebugViewer>().Init(_ecs.GetWorld(i));
+            }
         }
 
         public void Start()
@@ -41,9 +45,9 @@ namespace ModulesFrameworkUnity
             #if MODULES_DEBUG
             _stopwatch.Start();
             #endif
-            
+
             _ecs.Run();
-            
+
             #if MODULES_DEBUG
             _stopwatch.Stop();
             _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
@@ -61,9 +65,9 @@ namespace ModulesFrameworkUnity
             #if MODULES_DEBUG
             _stopwatch.Start();
             #endif
-            
+
             _ecs.PostRun();
-            
+
             #if MODULES_DEBUG
             _stopwatch.Stop();
             _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
@@ -78,7 +82,7 @@ namespace ModulesFrameworkUnity
                         $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold",
                         LogFilter.Performance);
                 }
-                
+
                 if (avgFrameTimeMs > _settings.performanceSettings.panicAvgFrameMs)
                 {
                     world.Logger.LogWarning(
