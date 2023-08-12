@@ -9,6 +9,7 @@ namespace ModulesFrameworkUnity.Debug
     public class EntityViewer : MonoBehaviour
     {
         public readonly Dictionary<Type, List<object>> components = new Dictionary<Type, List<object>>();
+        public readonly Dictionary<Type, List<object>> changedComponents = new Dictionary<Type, List<object>>();
         private readonly List<object> _cache = new List<object>();
         public int Eid { get; private set; }
         public DataWorld World { get; private set; }
@@ -26,6 +27,10 @@ namespace ModulesFrameworkUnity.Debug
                 components[type] = new List<object>();
             
             components[type].Add(component);
+            
+            if(!changedComponents.ContainsKey(type))
+                changedComponents[type] = new List<object>();
+            changedComponents[type].Add(component);
         }
         
         public void AddComponents(EcsTable table, int eid)

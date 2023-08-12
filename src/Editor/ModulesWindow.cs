@@ -28,6 +28,7 @@ namespace ModulesFrameworkUnity.ModulesUnity.Editor
             DrawStartMethod();
             DrawWorldsCount();
             DrawLogType();
+            DrawDataChangeMode();
             DrawPerformanceSettings();
             DrawSaveButton();
         }
@@ -89,6 +90,14 @@ namespace ModulesFrameworkUnity.ModulesUnity.Editor
                 _settings.Save();
                 UnityEngine.Debug.Log("Saved!");
             }
+        }
+        
+        private void DrawDataChangeMode()
+        {
+            const string tooltip = "Set true if you want apply data changes immediately after making them in inspector";
+            var label = new GUIContent("Apply changes immediately", tooltip);
+            var isAuto = EditorGUILayout.Toggle(label, _settings.autoApplyChanges, EditorStyles.toggle);
+            _settings.autoApplyChanges = isAuto;
         }
 
         private void DrawStartMethod()

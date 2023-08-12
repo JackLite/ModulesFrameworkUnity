@@ -11,17 +11,17 @@ namespace ModulesFrameworkUnity.Debug
             Drawer = drawer;
         }
         public abstract Type PropertyType { get; }
-        public abstract void Draw(string fieldName, object fieldValue, int level);
+        public abstract object Draw(string fieldName, object fieldValue, int level);
     }
 
     public abstract class ModulesFieldDrawer<T> : ModulesFieldDrawer
     {
         public override Type PropertyType => typeof(T);
-        public override void Draw(string fieldName, object fieldValue, int level)
+        public override object Draw(string fieldName, object fieldValue, int level)
         {
-            Draw(fieldName, (T) fieldValue, level);
+            return Draw(fieldName, (T) fieldValue, level);
         }
 
-        public abstract void Draw(string fieldName, T fieldValue, int level);
+        public abstract object Draw(string fieldName, T fieldValue, int level);
     }
 }

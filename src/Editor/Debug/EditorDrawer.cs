@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ModulesFramework.Data;
+using ModulesFrameworkUnity.Debug.Drawers;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -11,90 +12,88 @@ namespace ModulesFrameworkUnity.Debug
 {
     public class EditorDrawer
     {
-        private readonly Dictionary<string, bool> _foldouts = new Dictionary<string, bool>();
+        private Dictionary<Type, IFieldDrawer> _drawers = new();
 
-        public void DrawField(string fieldName, object fieldValue, ref int level)
+        public EditorDrawer()
         {
-            DrawField(fieldValue.GetType(), fieldName, fieldValue, ref level);
+            _drawers.Add(typeof(IList), new ListDrawer(this));
+            _drawers.Add(typeof(Array), new ArrayDrawer(this));
+            _drawers.Add(typeof(IDictionary), new DictionaryDrawer(this));
         }
-
-        public void DrawField(Type component, string fieldName, object fieldValue, ref int level)
+        
+        public object DrawField(Type component, string fieldName, object fieldValue, ref int level)
         {
+            object newValue = fieldValue;
             if (fieldValue == null)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
                 EditorGUILayout.LabelField($"{fieldName} is null");
                 EditorGUILayout.EndVertical();
-                return;
+                return newValue;
             }
 
-            if (CustomDrawers.TryDraw(fieldName, fieldValue, ref level))
-                return;
+            if (CustomDrawers.TryDraw(fieldName, fieldValue, ref level, out newValue))
+                return newValue;
 
-            if (TryDrawUnity(fieldName, fieldValue, level))
-                return;
+            if (TryDrawUnity(fieldName, fieldValue, level, out newValue))
+                return newValue;
 
             if (fieldValue is string)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.TextField(fieldName, (string)fieldValue);
+                newValue = EditorGUILayout.TextField(fieldName, (string)fieldValue);
                 EditorGUILayout.EndVertical();
-                return;
+                return newValue;
             }
 
-            if (TryDrawContainer(component, fieldName, fieldValue, ref level))
-                return;
+            if (TryDrawContainer(component, fieldName, fieldValue, ref level, out newValue))
+                return newValue;
 
             if (fieldValue.GetType().IsEnum)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.EnumPopup(fieldName, (Enum)fieldValue);
+                newValue = EditorGUILayout.EnumPopup(fieldName, (Enum)fieldValue);
                 EditorGUILayout.EndVertical();
-                return;
+                return newValue;
             }
 
             if (TryDrawEntity(fieldName, fieldValue, ref level))
-                return;
+                return newValue;
 
-            if (TryDrawStruct(component.FullName + fieldName, fieldName, fieldValue, ref level))
-                return;
+            if (TryDrawStruct(component.FullName + fieldName, fieldName, fieldValue, ref level, out newValue))
+                return newValue;
 
-            DrawSimple(fieldName, fieldValue, level);
-        }
-
-        public bool Foldout(string key, string fieldName, GUIStyle style, int level)
-        {
-            EditorGUILayout.BeginVertical(style);
-            if (!_foldouts.ContainsKey(key))
-                _foldouts[key] = level == -1;
-            EditorGUILayout.Space(10);
-            _foldouts[key] = EditorGUILayout.Foldout(_foldouts[key], fieldName, true, style);
-            EditorGUILayout.EndVertical();
-            return _foldouts[key];
+            newValue = DrawSimple(fieldName, fieldValue, level);
+            return newValue;
         }
 
         private bool TryDrawEntity(string fieldName, object fieldValue, ref int level)
         {
             if (fieldValue is not Entity e)
                 return false;
-            DrawSimple($"{fieldName} [entity]", e.Id, level);
+            EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
+            EditorGUILayout.LabelField($"{fieldName} [entity: {e.Id}]");
+            EditorGUILayout.EndVertical();
             return true;
         }
 
-        private bool TryDrawStruct(string key, string fieldName, object fieldValue, ref int level)
+        private bool TryDrawStruct(string key, string fieldName, object structValue, ref int level,
+            out object newValue)
         {
-            if (!fieldValue.GetType().IsValueType || fieldValue.GetType().IsPrimitive)
+            newValue = structValue;
+            if (!structValue.GetType().IsValueType || structValue.GetType().IsPrimitive)
                 return false;
 
             var style = DrawerUtility.ContainerStyle(level);
-            if (!Foldout(key, fieldName, style, level))
+            if (!EditorDrawerUtility.Foldout(key, fieldName, style, level))
                 return true;
             EditorGUILayout.BeginVertical(style);
             level++;
-            foreach (var fieldInfo in fieldValue.GetType().GetFields())
+            foreach (var fieldInfo in structValue.GetType().GetFields())
             {
-                var innerFieldValue = fieldInfo.GetValue(fieldValue);
-                DrawField(fieldInfo.FieldType, fieldInfo.Name, innerFieldValue, ref level);
+                var innerFieldValue = fieldInfo.GetValue(structValue);
+                var newFieldValue = DrawField(fieldInfo.FieldType, fieldInfo.Name, innerFieldValue, ref level);
+                fieldInfo.SetValue(structValue, newFieldValue);
             }
 
             level--;
@@ -102,35 +101,53 @@ namespace ModulesFrameworkUnity.Debug
             return true;
         }
 
-        private bool TryDrawContainer(Type component, string fieldName, object fieldValue, ref int level)
+        private bool TryDrawContainer(
+            Type component,
+            string fieldName,
+            object fieldValue,
+            ref int level,
+            out object newValue)
         {
-            if (fieldValue is IDictionary dictionary)
+            newValue = fieldValue;
+            if (fieldValue is IDictionary)
             {
-                var style = DrawerUtility.ContainerStyle(level);
-                if (!Foldout(component + fieldName, $"{fieldName} ({dictionary.Count})", style, level))
-                    return true;
-                EditorGUILayout.BeginVertical(style);
-                var keysArr = dictionary.Keys.Cast<object>().ToArray();
-                var valuesArr = dictionary.Values.Cast<object>().ToArray();
-                level++;
-                for (var i = 0; i < keysArr.Length; ++i)
-                {
-                    var key = keysArr[i];
-                    var val = valuesArr[i];
-                    var memberName = $"{fieldName} [{key}]";
-                    DrawField(component, memberName, val, ref level);
-                }
+                return _drawers[typeof(IDictionary)].TryDraw(component, fieldName, fieldValue, ref level, out newValue);
+                // var style = DrawerUtility.ContainerStyle(level);
+                // if (!EditorDrawerUtility.Foldout(component + fieldName, $"{fieldName} ({dictionary.Count})", style,
+                //         level))
+                //     return true;
+                // EditorGUILayout.BeginVertical(style);
+                // var keysArr = dictionary.Keys.Cast<object>().ToArray();
+                // var valuesArr = dictionary.Values.Cast<object>().ToArray();
+                // level++;
+                // for (var i = 0; i < keysArr.Length; ++i)
+                // {
+                //     var key = keysArr[i];
+                //     var val = valuesArr[i];
+                //     var memberName = $"{fieldName} [{key}]";
+                //     valuesArr[i] = DrawField(component, memberName, val, ref level);
+                // }
+                //
+                // level--;
+                // EditorGUILayout.EndVertical();
+                // return true;
+            }
 
-                level--;
-                EditorGUILayout.EndVertical();
-                return true;
+            if (fieldValue is Array)
+            {
+                return _drawers[typeof(Array)].TryDraw(component, fieldName, fieldValue, ref level, out newValue);
+            }
+            
+            if (fieldValue is IList)
+            {
+                return _drawers[typeof(IList)].TryDraw(component, fieldName, fieldValue, ref level, out newValue);
             }
 
             if (fieldValue is IEnumerable enumerable)
             {
                 var style = DrawerUtility.ContainerStyle(level);
                 var count = enumerable.Cast<object>().Count();
-                if (!Foldout(component + fieldName, $"{fieldName} ({count})", style, level))
+                if (!EditorDrawerUtility.Foldout(component + fieldName, $"{fieldName} ({count})", style, level))
                     return true;
                 EditorGUILayout.BeginVertical(style);
                 var index = 0;
@@ -150,12 +167,13 @@ namespace ModulesFrameworkUnity.Debug
             return false;
         }
 
-        private bool TryDrawUnity(string fieldName, object fieldValue, int level)
+        private bool TryDrawUnity(string fieldName, object fieldValue, int level, out object newValue)
         {
+            newValue = fieldValue;
             if (fieldValue.GetType().IsSubclassOf(typeof(Component)))
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.ObjectField(fieldName, (Component)fieldValue, fieldValue.GetType(), true);
+                newValue = EditorGUILayout.ObjectField(fieldName, (Component)fieldValue, fieldValue.GetType(), true);
                 EditorGUILayout.EndVertical();
                 return true;
             }
@@ -163,7 +181,7 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue.GetType().IsSubclassOf(typeof(Object)))
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.ObjectField(fieldName, (Object)fieldValue, fieldValue.GetType(), true);
+                newValue = EditorGUILayout.ObjectField(fieldName, (Object)fieldValue, fieldValue.GetType(), true);
                 EditorGUILayout.EndVertical();
                 return true;
             }
@@ -171,7 +189,7 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue is Vector3 value)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.Vector3Field(fieldName, value);
+                newValue = EditorGUILayout.Vector3Field(fieldName, value);
                 EditorGUILayout.EndVertical();
                 return true;
             }
@@ -179,7 +197,7 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue is Vector2 vector2)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.Vector2Field(fieldName, vector2);
+                newValue = EditorGUILayout.Vector2Field(fieldName, vector2);
                 EditorGUILayout.EndVertical();
                 return true;
             }
@@ -187,7 +205,7 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue is Vector3Int vector3Int)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.Vector3IntField(fieldName, vector3Int);
+                newValue = EditorGUILayout.Vector3IntField(fieldName, vector3Int);
                 EditorGUILayout.EndVertical();
                 return true;
             }
@@ -195,7 +213,7 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue is Vector2Int vector2Int)
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
-                EditorGUILayout.Vector2IntField(fieldName, vector2Int);
+                newValue = EditorGUILayout.Vector2IntField(fieldName, vector2Int);
                 EditorGUILayout.EndVertical();
                 return true;
             }
@@ -204,7 +222,7 @@ namespace ModulesFrameworkUnity.Debug
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
                 var euler = quaternion.eulerAngles;
-                EditorGUILayout.Vector3Field(fieldName, euler);
+                newValue = EditorGUILayout.Vector3Field(fieldName, euler);
                 EditorGUILayout.EndVertical();
                 return true;
             }
@@ -212,37 +230,40 @@ namespace ModulesFrameworkUnity.Debug
             return false;
         }
 
-        private void DrawSimple(string fieldName, object fieldValue, int level)
+        public object DrawSimple(string fieldName, object fieldValue, int level)
         {
             if (!fieldValue.GetType().IsPrimitive)
             {
                 var message = $"Type {fieldValue.GetType().Name} is not supported";
                 EditorGUILayout.TextField(fieldName, message);
-                return;
+                return fieldValue;
             }
 
             var style = DrawerUtility.OneFieldStyle(level);
+            object result = null;
             EditorGUILayout.BeginVertical(style);
             switch (fieldValue)
             {
                 case int value:
-                    EditorGUILayout.IntField(fieldName, value);
+                    result = EditorGUILayout.IntField(fieldName, value);
                     break;
                 case long value:
-                    EditorGUILayout.LongField(fieldName, value);
+                    result = EditorGUILayout.LongField(fieldName, value);
                     break;
                 case float value:
-                    EditorGUILayout.FloatField(fieldName, value);
+                    result = EditorGUILayout.FloatField(fieldName, value);
                     break;
                 case double value:
-                    EditorGUILayout.DoubleField(fieldName, value);
+                    result = EditorGUILayout.DoubleField(fieldName, value);
                     break;
                 case bool value:
-                    EditorGUILayout.Toggle(fieldName, value);
+                    result = EditorGUILayout.Toggle(fieldName, value);
                     break;
             }
 
             EditorGUILayout.EndVertical();
+
+            return result;
         }
     }
 }

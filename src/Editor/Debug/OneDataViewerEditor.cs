@@ -1,3 +1,4 @@
+using ModulesFrameworkUnity.Settings;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,17 +30,33 @@ namespace ModulesFrameworkUnity.Debug
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            
+
             _scrollPos = GUILayout.BeginScrollView(_scrollPos);
             var type = _viewer.DataType;
             GUILayout.Label(type.Name, _dataNameStyle);
-            var component = _viewer.Data.GetDataObject();
+            var changed = _viewer.ChangedData.GetDataObject();
+            var settings = EcsWorldContainer.Settings;
             var level = 0;
             foreach (var fieldInfo in type.GetFields())
             {
-                var fieldValue = fieldInfo.GetValue(component);
-                _drawer.DrawField(type, fieldInfo.Name, fieldValue, ref level);
+                var fieldValue = fieldInfo.GetValue(changed);
+                var val = _drawer.DrawField(fieldInfo.FieldType, fieldInfo.Name, fieldValue, ref level);
+                fieldInfo.SetValue(changed, val);
             }
+
+            _viewer.ChangedData.SetDataObject(changed);
+
+            if (settings.autoApplyChanges)
+            {
+                _viewer.UpdateData(changed);
+            }
+            else
+            {
+                var isApply = GUILayout.Button("Apply", EditorStyles.miniButtonMid);
+                if (isApply)
+                    _viewer.UpdateData(changed);
+            }
+
             GUILayout.EndScrollView();
             Repaint();
         }

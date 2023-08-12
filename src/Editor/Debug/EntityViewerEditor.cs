@@ -39,7 +39,7 @@ namespace ModulesFrameworkUnity.Debug
                 margin = EditorStyles.foldout.margin,
                 padding = EditorStyles.foldout.padding,
             };
-            
+
             _drawer = new EditorDrawer();
         }
 
@@ -53,7 +53,7 @@ namespace ModulesFrameworkUnity.Debug
             });
             _viewer.UpdateName();
             serializedObject.Update();
-
+            var settings = EcsWorldContainer.Settings;
             _scrollPos = GUILayout.BeginScrollView(_scrollPos);
             foreach (var kvp in _viewer.components)
             {
@@ -70,20 +70,39 @@ namespace ModulesFrameworkUnity.Debug
                     continue;
                 }
 
-                if (!_drawer.Foldout(type.ToString(), fieldName, _componentNameStyle, -1))
+                if (!EditorDrawerUtility.Foldout(type.ToString(), fieldName, _componentNameStyle, -1))
                     continue;
 
-                foreach (var component in kvp.Value)
+                for (var index = 0; index < kvp.Value.Count; index++)
                 {
+                    var component = kvp.Value[index];
                     var level = 0;
+                    var changed = _viewer.changedComponents[type][index];
                     foreach (var fieldInfo in type.GetFields())
                     {
-                        var fieldValue = fieldInfo.GetValue(component);
-                        _drawer.DrawField(type, fieldInfo.Name, fieldValue, ref level);
+                        var fieldValue = fieldInfo.GetValue(changed);
+                        var newValue = _drawer.DrawField(type, fieldInfo.Name, fieldValue, ref level);
+                        fieldInfo.SetValue(changed, newValue);
+                    }
+
+                    var ecsTable = _viewer.World.GetEcsTable(type);
+
+                    _viewer.changedComponents[type][index] = changed;
+
+                    if (settings.autoApplyChanges)
+                    {
+                        ecsTable.SetDataObjects(_viewer.Eid, _viewer.changedComponents[type]);
+                    }
+                    else
+                    {
+                        var isApply = GUILayout.Button("Apply", EditorStyles.miniButtonMid);
+                        if (isApply)
+                            ecsTable.SetDataObjects(_viewer.Eid, _viewer.changedComponents[type]);
                     }
 
                     GUILayout.Space(5);
                 }
+
                 GUILayout.Space(15);
             }
 

@@ -36,12 +36,13 @@ namespace ModulesFrameworkUnity.Debug
             _drawers[drawer.PropertyType] = drawer;
         }
 
-        public static bool TryDraw<T>(string fieldName, T fieldValue, ref int level)
+        public static bool TryDraw<T>(string fieldName, T fieldValue, ref int level, out object newValue)
         {
+            newValue = fieldValue;
             if (!_drawers.ContainsKey(fieldValue.GetType()))
                 return false;
             var drawer = _drawers[fieldValue.GetType()];
-            drawer.Draw(fieldName, fieldValue, level);
+            newValue = drawer.Draw(fieldName, fieldValue, level);
             return true;
         }
     }

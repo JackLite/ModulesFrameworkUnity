@@ -6,14 +6,15 @@ namespace ModulesFrameworkUnity
     public class EcsWorldContainer
     {
         private static ModulesUnityAdapter _adapter;
-        
+        internal static ModulesSettings Settings { get; private set; }
+
         [RuntimeInitializeOnLoadMethod]
         private static void Startup()
         {
-            var settings = ModulesSettings.Load();
-            if (settings.startMethod != StartMethod.Auto)
+            Settings = ModulesSettings.Load();
+            if (Settings.startMethod != StartMethod.Auto)
                 return;
-            _adapter = new ModulesUnityAdapter(settings);
+            _adapter = new ModulesUnityAdapter(Settings);
             var ecsMono = new GameObject("EcsWorld").AddComponent<EcsUnityLoopProvider>();
             ecsMono.OnUpdate = _adapter.Update;
             ecsMono.OnFixedUpdate = _adapter.FixedUpdate;
