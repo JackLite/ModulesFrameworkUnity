@@ -168,13 +168,7 @@ namespace ModulesFrameworkUnity.Debug
         private void OnEntityChanged(int eid)
         {
             var viewer = _viewers[eid];
-            viewer.components.Clear();
-            _world.MapTables((type, table) =>
-            {
-                if (_world.HasComponent(eid, type))
-                    viewer.AddComponents(table, eid);
-            });
-            viewer.UpdateName();
+            viewer.UpdateComponents();
         }
 
         private void OnEntityDestroyed(int eid)

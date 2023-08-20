@@ -34,18 +34,14 @@ namespace ModulesFrameworkUnity.Debug.Drawers
             if (!EditorDrawerUtility.Foldout(component + fieldName, $"{fieldName} ({count})", style, level))
                 return true;
 
-            var newList = (IList)Activator.CreateInstance(fieldValue.GetType());
-            foreach (var v in value)
-                newList.Add(v);
-
             EditorGUILayout.BeginVertical(style);
             level++;
-            for (var i = 0; i < newList.Count; i++)
+            for (var i = 0; i < value.Count; i++)
             {
-                var v = newList[i];
+                var v = value[i];
                 var memberName = $"{fieldName} [{i}]";
                 var changedElement = _editorDrawer.DrawField(component, memberName, v, ref level);
-                newList[i] = changedElement;
+                value[i] = changedElement;
             }
 
             level--;
@@ -58,7 +54,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
                 }
                 else
                 {
-                    newList.Add(Activator.CreateInstance(innerType));
+                    value.Add(Activator.CreateInstance(innerType));
                 }
             }
 
@@ -66,7 +62,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers
             EditorGUILayout.EndVertical();
 
 
-            newValue = newList;
             return true;
         }
     }

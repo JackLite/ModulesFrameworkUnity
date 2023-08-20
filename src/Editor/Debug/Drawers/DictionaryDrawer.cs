@@ -30,23 +30,16 @@ namespace ModulesFrameworkUnity.Debug.Drawers
             if (!EditorDrawerUtility.Foldout(component + fieldName, $"{fieldName} ({count})", style, level))
                 return true;
 
-            var newDict = (IDictionary)Activator.CreateInstance(type);
-
-            foreach (var key in value.Keys)
-            {
-                newDict.Add(key, value[key]);
-            }
-
             EditorGUILayout.BeginVertical(style);
             level++;
 
             var keys = value.Keys.Cast<object>().ToArray();
             foreach (var key in keys)
             {
-                var val = newDict[key];
+                var val = value[key];
                 var memberName = $"{fieldName} [{key}]";
                 var changedVal = _editorDrawer.DrawField(component, memberName, val, ref level);
-                newDict[key] = changedVal;
+                value[key] = changedVal;
             }
 
             level--;
@@ -66,7 +59,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
                     _newKeys[cacheKey],
                     ref level);
 
-                DrawAdd(type, newDict, _newKeys[cacheKey]);
+                DrawAdd(type, value, _newKeys[cacheKey]);
             }
 
             if (innerKeyType == typeof(string))
@@ -75,12 +68,11 @@ namespace ModulesFrameworkUnity.Debug.Drawers
                 _newKeys.TryAdd(cacheKey, string.Empty);
                 _newKeys[cacheKey] =
                     (string)_editorDrawer.DrawField(innerKeyType, "New key", _newKeys[cacheKey], ref level);
-                DrawAdd(type, newDict, _newKeys[cacheKey]);
+                DrawAdd(type, value, _newKeys[cacheKey]);
             }
 
             EditorGUILayout.EndVertical();
 
-            newValue = newDict;
             return true;
         }
 

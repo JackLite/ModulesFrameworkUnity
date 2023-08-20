@@ -54,7 +54,9 @@ namespace ModulesFrameworkUnity.Debug
             {
                 var isApply = GUILayout.Button("Apply", EditorStyles.miniButtonMid);
                 if (isApply)
+                {
                     _viewer.UpdateData(changed);
+                }
             }
 
             GUILayout.EndScrollView();

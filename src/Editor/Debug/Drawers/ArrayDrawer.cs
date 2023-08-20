@@ -7,7 +7,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
 {
     public class ArrayDrawer : IFieldDrawer
     {
-        private EditorDrawer _editorDrawer;
+        private readonly EditorDrawer _editorDrawer;
 
         public ArrayDrawer(EditorDrawer editorDrawer)
         {

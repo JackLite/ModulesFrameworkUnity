@@ -8,9 +8,7 @@ You can find documentation about Modules Framework
 For install MF like an unity package use this link:
 https://github.com/JackLite/ModulesFrameworkUnityPackage.git
 
-Unity Adapter's goal is to allow start creating game immediately when
-you download Modules Framework Package. It's also provide default logger,
-debug tools and basic entry point for manual start MF.
+Unity Adapter's goal is to allow start creating game immediately when you download Modules Framework Package. It's also provide default logger, debug tools and basic entry point for manual start MF.
 
 ### Getting Started
 
@@ -39,41 +37,55 @@ container with info about entities and one data. It allows you to see
 what entities exists, what components they contains and data in that
 components.
 
-__Important__: you can't change data.
-
 ![pkg](/doc/Debug_img2.png)
 
 ![pkg](/doc/Debug_img3.png)
 
-Debug view can show primitives, `IDictionary`, `IEnumerable`
-(first it checks if field is `IDictionary` so it should show keys 
-and values), structs, unity game objects and `MonoBehaviour`s.
+Debug view can show primitives, `IDictionary`, `IEnumerable`, structs, unity game objects and `MonoBehaviour`s.
 
 You can add support for any other type by inherited 
 `ModulesFieldDrawer`. Here's example for drawer of `BigInteger`.
 
 ```csharp
-#if UNITY_EDITOR
-using System;
-using System.Numerics;
-using IdleRoad.Utils;
-using ModulesFrameworkUnity.Debug;
-using UnityEditor;
-
-namespace IdleRoad.Editor
-{
-    public class BigIntDrawer : ModulesFieldDrawer<BigInteger>
+// JustClass.cs
+namespace Project
+    public class JustClass
     {
-        public override void Draw(string fieldName, BigInteger value, int level)
+        public float classNumber;
+    }
+}
+
+// JustClassDrawer.cs
+#if UNITY_EDITOR
+using ModulesFrameworkUnity.Debug;
+
+namespace Project.Editor
+{
+    // inherit from generic class 
+    public class JustClassDrawer : ModulesFieldDrawer<JustClass>
+    {
+        // must return changed object
+        // if it's reference type just change object self
+        public override object Draw(string fieldName, JustClass fieldValue, int level)
         {
-            Drawer.DrawField(fieldName, value.FormatUI());
+            var oldVal = fieldValue.classNumber;
+            // use Drawer property for simplify draw fields of object
+            fieldValue.classNumber = (float)Drawer.DrawField(
+                // type of field
+                oldVal.GetType(),
+                // name for inspector
+                nameof(fieldValue.classNumber),
+                // current value
+                fieldValue.classNumber,
+                // level is using for margin in inspector
+                ref level
+            );
+            return fieldValue;
         }
     }
 }
 #endif
 ```
-
-_Note_: parameter `level` set the margin from left border. 
 
 ### Settings
 
@@ -96,7 +108,11 @@ Worlds count allows you to set count of worlds that will be created when MF star
 
 Log filter used for choose what log's messages you need. See details below.
 
-#### Perfomance monitor
+_Auto apply changes_ allow you to change when OneData and Components will be changed using inspector. If it turn off you must press apply button to change data in OneData and Components.
+
+___Note:___In collections changes applies immediately in any change mode to avoid complexity of temporary reference-types and as a consequences - error prone.
+
+#### Performance monitor
 
 When you define the `MODULES_DEBUG` MF will be record elapsed time of `IRunSystem`s and `IPostRunSystem`s. If it more then panic threshold MF will log warning. If you set `Debug mode` MF will also check the warning threshold.
 

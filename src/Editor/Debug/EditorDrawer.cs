@@ -112,25 +112,6 @@ namespace ModulesFrameworkUnity.Debug
             if (fieldValue is IDictionary)
             {
                 return _drawers[typeof(IDictionary)].TryDraw(component, fieldName, fieldValue, ref level, out newValue);
-                // var style = DrawerUtility.ContainerStyle(level);
-                // if (!EditorDrawerUtility.Foldout(component + fieldName, $"{fieldName} ({dictionary.Count})", style,
-                //         level))
-                //     return true;
-                // EditorGUILayout.BeginVertical(style);
-                // var keysArr = dictionary.Keys.Cast<object>().ToArray();
-                // var valuesArr = dictionary.Values.Cast<object>().ToArray();
-                // level++;
-                // for (var i = 0; i < keysArr.Length; ++i)
-                // {
-                //     var key = keysArr[i];
-                //     var val = valuesArr[i];
-                //     var memberName = $"{fieldName} [{key}]";
-                //     valuesArr[i] = DrawField(component, memberName, val, ref level);
-                // }
-                //
-                // level--;
-                // EditorGUILayout.EndVertical();
-                // return true;
             }
 
             if (fieldValue is Array)

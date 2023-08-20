@@ -1,4 +1,7 @@
+using System;
 using System.Globalization;
+using System.Linq;
+using ModulesFramework.Data;
 using UnityEditor;
 using UnityEngine;
 
@@ -45,13 +48,7 @@ namespace ModulesFrameworkUnity.Debug
 
         public override void OnInspectorGUI()
         {
-            _viewer.components.Clear();
-            _viewer.World.MapTables((type, table) =>
-            {
-                if (_viewer.World.HasComponent(_viewer.Eid, type))
-                    _viewer.AddComponents(table, _viewer.Eid);
-            });
-            _viewer.UpdateName();
+            _viewer.UpdateComponents();
             serializedObject.Update();
             var settings = EcsWorldContainer.Settings;
             _scrollPos = GUILayout.BeginScrollView(_scrollPos);
@@ -73,9 +70,8 @@ namespace ModulesFrameworkUnity.Debug
                 if (!EditorDrawerUtility.Foldout(type.ToString(), fieldName, _componentNameStyle, -1))
                     continue;
 
-                for (var index = 0; index < kvp.Value.Count; index++)
+                foreach (var (index, _) in _viewer.components[type])
                 {
-                    var component = kvp.Value[index];
                     var level = 0;
                     var changed = _viewer.changedComponents[type][index];
                     foreach (var fieldInfo in type.GetFields())
@@ -91,13 +87,13 @@ namespace ModulesFrameworkUnity.Debug
 
                     if (settings.autoApplyChanges)
                     {
-                        ecsTable.SetDataObjects(_viewer.Eid, _viewer.changedComponents[type]);
+                        ApplyChanges(ecsTable, type);
                     }
                     else
                     {
                         var isApply = GUILayout.Button("Apply", EditorStyles.miniButtonMid);
                         if (isApply)
-                            ecsTable.SetDataObjects(_viewer.Eid, _viewer.changedComponents[type]);
+                            ApplyChanges(ecsTable, type);
                     }
 
                     GUILayout.Space(5);
@@ -107,6 +103,14 @@ namespace ModulesFrameworkUnity.Debug
             }
 
             GUILayout.EndScrollView();
+        }
+
+        private void ApplyChanges(EcsTable ecsTable, Type type)
+        {
+            if (ecsTable.IsMultiple)
+                ecsTable.SetDataObjects(_viewer.Eid, _viewer.changedComponents[type].Values.ToList());
+            else
+                ecsTable.SetDataObject(_viewer.Eid, _viewer.changedComponents[type].Values.First());
         }
     }
 }

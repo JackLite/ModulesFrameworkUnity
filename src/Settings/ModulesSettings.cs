@@ -20,7 +20,7 @@ namespace ModulesFrameworkUnity.Settings
         public int worldsCount = 1;
         public LogFilter logFilter = LogFilter.Full;
         
-        public bool autoApplyChanges;
+        public bool autoApplyChanges = true;
         
         public PerformanceSettings performanceSettings;
 

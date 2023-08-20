@@ -8,9 +8,13 @@ namespace ModulesFrameworkUnity.Debug
 {
     public class EntityViewer : MonoBehaviour
     {
-        public readonly Dictionary<Type, List<object>> components = new Dictionary<Type, List<object>>();
-        public readonly Dictionary<Type, List<object>> changedComponents = new Dictionary<Type, List<object>>();
-        private readonly List<object> _cache = new List<object>();
+        public readonly Dictionary<Type, Dictionary<int, object>> components
+            = new Dictionary<Type, Dictionary<int, object>>();
+
+        public readonly Dictionary<Type, Dictionary<int, object>> changedComponents
+            = new Dictionary<Type, Dictionary<int, object>>();
+
+        private readonly Dictionary<int, object> _cache = new Dictionary<int, object>();
         public int Eid { get; private set; }
         public DataWorld World { get; private set; }
 
@@ -20,32 +24,76 @@ namespace ModulesFrameworkUnity.Debug
             World = world;
         }
 
-        public void AddComponent(object component)
+        public void AddComponent(int denseIndex, object component)
         {
             var type = component.GetType();
-            if(!components.ContainsKey(type))
-                components[type] = new List<object>();
-            
-            components[type].Add(component);
-            
-            if(!changedComponents.ContainsKey(type))
-                changedComponents[type] = new List<object>();
-            changedComponents[type].Add(component);
+            if (!components.ContainsKey(type))
+                components[type] = new Dictionary<int, object>();
+
+            components[type].TryAdd(denseIndex, component);
         }
-        
+
         public void AddComponents(EcsTable table, int eid)
         {
-            if(!table.IsMultiple)
+            if (table.IsMultiple)
             {
-                AddComponent(table.GetDataObject(eid));
+                AddMultipleComponents(table, eid);
+                UpdateChanged(table);
                 return;
             }
+
+            AddComponent(-1, table.GetDataObject(eid));
+            UpdateChanged(table);
+        }
+
+        private void UpdateChanged(EcsTable table)
+        {
+            if (!components.ContainsKey(table.Type) && changedComponents.ContainsKey(table.Type))
+            {
+                changedComponents.Remove(table.Type);
+                return;
+            }
+
+            changedComponents.TryAdd(table.Type, new Dictionary<int, object>());
+
+            // check if we need remove some from changes
+            var removeIndexes = new HashSet<int>();
+            foreach (var (index, _) in changedComponents[table.Type])
+            {
+                if (!components[table.Type].ContainsKey(index))
+                    removeIndexes.Add(index);
+            }
+
+            foreach (var index in removeIndexes)
+            {
+                changedComponents[table.Type].Remove(index);
+            }
+
+            // check if we need add some to changes
+            foreach (var (index, component) in components[table.Type])
+            {
+                if (!changedComponents[table.Type].ContainsKey(index))
+                    changedComponents[table.Type][index] = component;
+            }
+        }
+
+        private void AddMultipleComponents(EcsTable table, int eid)
+        {
             _cache.Clear();
             table.GetDataObjects(eid, _cache);
-            foreach (var component in _cache)
+            foreach (var (index, component) in _cache)
+                AddComponent(index, component);
+        }
+
+        public void UpdateComponents()
+        {
+            components.Clear();
+            World.MapTables((type, table) =>
             {
-                AddComponent(component);
-            }
+                if (World.HasComponent(Eid, type))
+                    AddComponents(table, Eid);
+            });
+            UpdateName();
         }
 
         public void UpdateName()
