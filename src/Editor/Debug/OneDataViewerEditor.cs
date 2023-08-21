@@ -35,13 +35,23 @@ namespace ModulesFrameworkUnity.Debug
             var type = _viewer.DataType;
             GUILayout.Label(type.Name, _dataNameStyle);
             var changed = _viewer.ChangedData.GetDataObject();
+            var origin = _viewer.Data.GetDataObject();
             var settings = EcsWorldContainer.Settings;
             var level = 0;
             foreach (var fieldInfo in type.GetFields())
             {
-                var fieldValue = fieldInfo.GetValue(changed);
-                var val = _drawer.DrawField(fieldInfo.FieldType, fieldInfo.Name, fieldValue, ref level);
-                fieldInfo.SetValue(changed, val);
+                var changedValue = fieldInfo.GetValue(changed);
+                var originValue = fieldInfo.GetValue(origin);
+                if (settings.AutoApplyChanges)
+                {
+                    var val = _drawer.DrawField(fieldInfo.FieldType, fieldInfo.Name, originValue, ref level);
+                    fieldInfo.SetValue(changed, val);
+                }
+                else
+                {
+                    var val = _drawer.DrawField(fieldInfo.FieldType, fieldInfo.Name, changedValue, ref level);
+                    fieldInfo.SetValue(changed, val);
+                }
             }
 
             _viewer.ChangedData.SetDataObject(changed);
