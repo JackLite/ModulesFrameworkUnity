@@ -94,10 +94,10 @@ namespace ModulesFrameworkUnity.ModulesUnity.Editor
         
         private void DrawDataChangeMode()
         {
-            const string tooltip = "Set true if you want apply data changes immediately after making them in inspector";
+            /*const string tooltip = "Set true if you want apply data changes immediately after making them in inspector";
             var label = new GUIContent("Auto apply changes", tooltip);
-            var isAuto = EditorGUILayout.Toggle(label, _settings.autoApplyChanges, EditorStyles.toggle);
-            _settings.autoApplyChanges = isAuto;
+            var isAuto = EditorGUILayout.Toggle(label, _settings.AutoApplyChanges, EditorStyles.toggle);
+            _settings.AutoApplyChanges = isAuto;*/
         }
 
         private void DrawStartMethod()

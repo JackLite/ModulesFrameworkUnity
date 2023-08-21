@@ -5,6 +5,7 @@ using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFramework.Modules;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ModulesFrameworkUnity.Debug
 {
@@ -14,7 +15,8 @@ namespace ModulesFrameworkUnity.Debug
         private readonly Dictionary<int, EntityViewer> _viewers = new Dictionary<int, EntityViewer>();
         private Transform _entitiesParent;
 
-        private Dictionary<Type, OneDataViewer> _oneDatas = new Dictionary<Type, OneDataViewer>();
+        private SortedDictionary<Type, OneDataViewer> _oneDatas = 
+            new SortedDictionary<Type, OneDataViewer>(new TypeComparer());
         private Transform _oneDataParent;
 
         private ModulesDebugParent _modulesParent;
@@ -66,6 +68,7 @@ namespace ModulesFrameworkUnity.Debug
             world.OnEntityDestroyed += OnEntityDestroyed;
 
             world.OnOneDataCreated += OnOneDataCreated;
+            world.OnOneDataRemoved += OnOneDataRemoved;
 
             CreateModulesViewers(world);
         }
@@ -153,6 +156,19 @@ namespace ModulesFrameworkUnity.Debug
             var viewer = dataView.AddComponent<OneDataViewer>();
             viewer.Init(type, data);
             _oneDatas.Add(type, viewer);
+            foreach (var (_, dataViewer) in _oneDatas)
+            {
+                dataViewer.transform.SetAsLastSibling();
+            }
+        }
+
+        private void OnOneDataRemoved(Type type)
+        {
+            if (!_oneDatas.ContainsKey(type))
+                return;
+
+            Destroy(_oneDatas[type].gameObject);
+            _oneDatas.Remove(type);
         }
 
         private void OnEntityCreated(int eid)

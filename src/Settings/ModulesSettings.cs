@@ -19,9 +19,9 @@ namespace ModulesFrameworkUnity.Settings
         public StartMethod startMethod;
         public int worldsCount = 1;
         public LogFilter logFilter = LogFilter.Full;
-        
-        public bool autoApplyChanges = true;
-        
+
+        public bool AutoApplyChanges => true;
+
         public PerformanceSettings performanceSettings;
 
         public ModulesSettings()
@@ -33,7 +33,7 @@ namespace ModulesFrameworkUnity.Settings
                 panicAvgFrameMs = (1f / 60f) * 200f // 20%
             };
         }
-        
+
         public static ModulesSettings Load()
         {
             var serialized = Resources.Load<TextAsset>(FileName);
@@ -41,7 +41,7 @@ namespace ModulesFrameworkUnity.Settings
                 return JsonUtility.FromJson<ModulesSettings>(serialized.text);
             return new ModulesSettings();
         }
-        
+
         private static string GetFullName()
         {
             return Path.Combine(PathToSave, FileNameWithExt);

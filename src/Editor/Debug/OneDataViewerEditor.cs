@@ -46,7 +46,7 @@ namespace ModulesFrameworkUnity.Debug
 
             _viewer.ChangedData.SetDataObject(changed);
 
-            if (settings.autoApplyChanges)
+            if (settings.AutoApplyChanges)
             {
                 _viewer.UpdateData(changed);
             }

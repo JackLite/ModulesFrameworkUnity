@@ -8,11 +8,11 @@ namespace ModulesFrameworkUnity.Debug
 {
     public class EntityViewer : MonoBehaviour
     {
-        public readonly Dictionary<Type, Dictionary<int, object>> components
-            = new Dictionary<Type, Dictionary<int, object>>();
+        public readonly SortedDictionary<Type, Dictionary<int, object>> components
+            = new SortedDictionary<Type, Dictionary<int, object>>(new TypeComparer());
 
-        public readonly Dictionary<Type, Dictionary<int, object>> changedComponents
-            = new Dictionary<Type, Dictionary<int, object>>();
+        public readonly SortedDictionary<Type, Dictionary<int, object>> changedComponents
+            = new SortedDictionary<Type, Dictionary<int, object>>(new TypeComparer());
 
         private readonly Dictionary<int, object> _cache = new Dictionary<int, object>();
         public int Eid { get; private set; }
