@@ -161,7 +161,14 @@ namespace ModulesFrameworkUnity.Debug
             entityView.transform.SetParent(_entitiesParent);
             var viewer = entityView.AddComponent<EntityViewer>();
             viewer.Init(eid, _world);
-            _viewers.Add(eid, viewer);
+            if (_viewers.ContainsKey(eid))
+            {
+                UnityEngine.Debug.LogError("Entity {eid} already added to viewer and will be replaced");
+                if (_viewers[eid] != null)
+                    Destroy(_viewers[eid]);
+            }
+
+            _viewers[eid] = viewer;
             _entitiesParent.name = $"Entities - {_viewers.Count.ToString()}";
         }
 
