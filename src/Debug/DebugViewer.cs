@@ -163,7 +163,7 @@ namespace ModulesFrameworkUnity.Debug
             viewer.Init(eid, _world);
             if (_viewers.ContainsKey(eid))
             {
-                UnityEngine.Debug.LogError("Entity {eid} already added to viewer and will be replaced");
+                UnityEngine.Debug.LogError($"Entity {eid} already added to viewer and will be replaced");
                 if (_viewers[eid] != null)
                     Destroy(_viewers[eid]);
             }
