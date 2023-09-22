@@ -48,9 +48,11 @@ namespace ModulesFrameworkUnity.Debug
 
         public override void OnInspectorGUI()
         {
+            var settings = EcsWorldContainer.Settings;
+            if (settings.AutoApplyChanges)
+                _viewer.changedComponents.Clear();
             _viewer.UpdateComponents();
             serializedObject.Update();
-            var settings = EcsWorldContainer.Settings;
             _scrollPos = GUILayout.BeginScrollView(_scrollPos);
             foreach (var kvp in _viewer.components)
             {
@@ -74,18 +76,28 @@ namespace ModulesFrameworkUnity.Debug
                 {
                     var level = 0;
                     var changed = _viewer.changedComponents[type][index];
+                    var origin = _viewer.components[type][index];
                     foreach (var fieldInfo in type.GetFields())
                     {
-                        var fieldValue = fieldInfo.GetValue(changed);
-                        var newValue = _drawer.DrawField(type, fieldInfo.Name, fieldValue, ref level);
-                        fieldInfo.SetValue(changed, newValue);
+                        var changedValue = fieldInfo.GetValue(changed);
+                        var originValue = fieldInfo.GetValue(origin);
+                        if (settings.AutoApplyChanges)
+                        {
+                            var newValue = _drawer.DrawField(type, fieldInfo.Name, originValue, ref level);
+                            fieldInfo.SetValue(changed, newValue);
+                        }
+                        else
+                        {
+                            var newValue = _drawer.DrawField(type, fieldInfo.Name, changedValue, ref level);
+                            fieldInfo.SetValue(changed, newValue);
+                        }
                     }
 
                     var ecsTable = _viewer.World.GetEcsTable(type);
 
                     _viewer.changedComponents[type][index] = changed;
 
-                    if (settings.autoApplyChanges)
+                    if (settings.AutoApplyChanges)
                     {
                         ApplyChanges(ecsTable, type);
                     }
@@ -93,7 +105,11 @@ namespace ModulesFrameworkUnity.Debug
                     {
                         var isApply = GUILayout.Button("Apply", EditorStyles.miniButtonMid);
                         if (isApply)
+                        {
                             ApplyChanges(ecsTable, type);
+                            if (_viewer.changedComponents.ContainsKey(type))
+                                _viewer.changedComponents[type].Clear();
+                        }
                     }
 
                     GUILayout.Space(5);
