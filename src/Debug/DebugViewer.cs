@@ -167,7 +167,7 @@ namespace ModulesFrameworkUnity.Debug
             if (!_oneDatas.ContainsKey(type))
                 return;
 
-            Destroy(_oneDatas[type].gameObject);
+            DestroyImmediate(_oneDatas[type].gameObject);
             _oneDatas.Remove(type);
         }
 
@@ -181,7 +181,7 @@ namespace ModulesFrameworkUnity.Debug
             {
                 UnityEngine.Debug.LogError($"Entity {eid} already added to viewer and will be replaced");
                 if (_viewers[eid] != null)
-                    Destroy(_viewers[eid]);
+                    DestroyImmediate(_viewers[eid]);
             }
 
             _viewers[eid] = viewer;
@@ -190,7 +190,11 @@ namespace ModulesFrameworkUnity.Debug
 
         private void OnEntityChanged(int eid)
         {
-            var viewer = _viewers[eid];
+            if(!_viewers.TryGetValue(eid, out var viewer))
+            {
+                UnityEngine.Debug.LogError($"Entity {eid} was changed but there is no viewer for it");
+                return;
+            }
             viewer.UpdateComponents();
         }
 
@@ -199,7 +203,7 @@ namespace ModulesFrameworkUnity.Debug
             if (_viewers.ContainsKey(eid))
             {
                 if (_viewers[eid] != null)
-                    Destroy(_viewers[eid].gameObject);
+                    DestroyImmediate(_viewers[eid].gameObject);
                 _viewers.Remove(eid);
             }
 
