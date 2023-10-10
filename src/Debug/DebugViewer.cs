@@ -53,6 +53,16 @@ namespace ModulesFrameworkUnity.Debug
             }
         }
 
+        private void OnDestroy()
+        {
+            _world.OnEntityCreated -= OnEntityCreated;
+            _world.OnEntityChanged -= OnEntityChanged;
+            _world.OnEntityDestroyed -= OnEntityDestroyed;
+
+            _world.OnOneDataCreated -= OnOneDataCreated;
+            _world.OnOneDataRemoved -= OnOneDataRemoved;
+        }
+
         private Transform CreateRootParent(string parentName)
         {
             var parent = new GameObject(parentName);
