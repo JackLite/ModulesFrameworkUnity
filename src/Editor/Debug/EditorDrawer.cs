@@ -203,7 +203,7 @@ namespace ModulesFrameworkUnity.Debug
             {
                 EditorGUILayout.BeginVertical(DrawerUtility.OneFieldStyle(level));
                 var euler = quaternion.eulerAngles;
-                newValue = EditorGUILayout.Vector3Field(fieldName, euler);
+                newValue = Quaternion.Euler(EditorGUILayout.Vector3Field(fieldName, euler));
                 EditorGUILayout.EndVertical();
                 return true;
             }
