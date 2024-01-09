@@ -20,7 +20,7 @@ namespace ModulesFrameworkUnity.Debug
             _drawers.Add(typeof(Array), new ArrayDrawer(this));
             _drawers.Add(typeof(IDictionary), new DictionaryDrawer(this));
         }
-        
+
         public object DrawField(Type component, string fieldName, object fieldValue, ref int level)
         {
             object newValue = fieldValue;
@@ -93,6 +93,9 @@ namespace ModulesFrameworkUnity.Debug
             {
                 var innerFieldValue = fieldInfo.GetValue(structValue);
                 var newFieldValue = DrawField(fieldInfo.FieldType, fieldInfo.Name, innerFieldValue, ref level);
+                if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
+                    continue;
+
                 fieldInfo.SetValue(structValue, newFieldValue);
             }
 
@@ -118,7 +121,7 @@ namespace ModulesFrameworkUnity.Debug
             {
                 return _drawers[typeof(Array)].TryDraw(component, fieldName, fieldValue, ref level, out newValue);
             }
-            
+
             if (fieldValue is IList)
             {
                 return _drawers[typeof(IList)].TryDraw(component, fieldName, fieldValue, ref level, out newValue);
