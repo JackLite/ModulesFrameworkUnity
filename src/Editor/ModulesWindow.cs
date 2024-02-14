@@ -1,10 +1,9 @@
-﻿using System;
-using ModulesFramework;
+﻿using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
 using UnityEditor;
 using UnityEngine;
 
-namespace ModulesFrameworkUnity.ModulesUnity.Editor
+namespace ModulesFrameworkUnity
 {
     public class ModulesWindow : EditorWindow
     {

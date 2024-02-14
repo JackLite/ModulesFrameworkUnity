@@ -4,6 +4,7 @@ using System.Linq;
 using ModulesFramework.Data;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug
 {
@@ -46,79 +47,46 @@ namespace ModulesFrameworkUnity.Debug
             _drawer = new EditorDrawer();
         }
 
-        public override void OnInspectorGUI()
+        public override VisualElement CreateInspectorGUI()
         {
-            var settings = EcsWorldContainer.Settings;
-            if (settings.AutoApplyChanges)
-                _viewer.changedComponents.Clear();
-            _viewer.UpdateComponents();
             serializedObject.Update();
-            _scrollPos = GUILayout.BeginScrollView(_scrollPos);
+            var root = new VisualElement();
+            _viewer.changedComponents.Clear();
+            _viewer.UpdateComponents();
             foreach (var kvp in _viewer.components)
             {
+                var componentFoldout = new Foldout();
+                root.Add(componentFoldout);
+
                 var type = kvp.Key;
                 var fieldName = type.Name;
                 if (kvp.Value.Count > 1)
                     fieldName += $"({kvp.Value.Count.ToString(CultureInfo.InvariantCulture)})";
 
+                componentFoldout.text = fieldName;
+                componentFoldout.value = false;
                 var fields = type.GetFields();
 
                 if (fields.Length == 0)
-                {
-                    EditorGUILayout.LabelField(fieldName, _tagNameStyle);
-                    continue;
-                }
-
-                if (!EditorDrawerUtility.Foldout(type.ToString(), fieldName, _componentNameStyle, -1))
                     continue;
 
                 foreach (var (index, _) in _viewer.components[type])
                 {
-                    var level = 0;
-                    var changed = _viewer.changedComponents[type][index];
                     var origin = _viewer.components[type][index];
-                    foreach (var fieldInfo in type.GetFields())
-                    {
-                        var changedValue = fieldInfo.GetValue(changed);
-                        var originValue = fieldInfo.GetValue(origin);
-                        if (settings.AutoApplyChanges)
-                        {
-                            var newValue = _drawer.DrawField(type, fieldInfo.Name, originValue, ref level);
-                            fieldInfo.SetValue(changed, newValue);
-                        }
-                        else
-                        {
-                            var newValue = _drawer.DrawField(type, fieldInfo.Name, changedValue, ref level);
-                            fieldInfo.SetValue(changed, newValue);
-                        }
-                    }
-
+                    var componentName = type.Name;
                     var ecsTable = _viewer.World.GetEcsTable(type);
+                    if (ecsTable.IsMultiple)
+                        componentName = $"{componentName}[{index}]";
 
-                    _viewer.changedComponents[type][index] = changed;
-
-                    if (settings.AutoApplyChanges)
+                    _drawer.Draw(componentName, origin, componentFoldout, (_, newVal) =>
                     {
+                        _viewer.changedComponents[type][index] = newVal;
                         ApplyChanges(ecsTable, type);
-                    }
-                    else
-                    {
-                        var isApply = GUILayout.Button("Apply", EditorStyles.miniButtonMid);
-                        if (isApply)
-                        {
-                            ApplyChanges(ecsTable, type);
-                            if (_viewer.changedComponents.ContainsKey(type))
-                                _viewer.changedComponents[type].Clear();
-                        }
-                    }
-
-                    GUILayout.Space(5);
+                    }, () => _viewer.changedComponents[type][index]);
                 }
-
-                GUILayout.Space(15);
             }
 
-            GUILayout.EndScrollView();
+            return root;
         }
 
         private void ApplyChanges(EcsTable ecsTable, Type type)

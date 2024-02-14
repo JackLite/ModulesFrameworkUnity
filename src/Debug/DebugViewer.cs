@@ -4,6 +4,9 @@ using System.Linq;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFramework.Modules;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -15,8 +18,9 @@ namespace ModulesFrameworkUnity.Debug
         private readonly Dictionary<int, EntityViewer> _viewers = new Dictionary<int, EntityViewer>();
         private Transform _entitiesParent;
 
-        private SortedDictionary<Type, OneDataViewer> _oneDatas = 
+        private SortedDictionary<Type, OneDataViewer> _oneDatas =
             new SortedDictionary<Type, OneDataViewer>(new TypeComparer());
+
         private Transform _oneDataParent;
 
         private ModulesDebugParent _modulesParent;
@@ -51,6 +55,7 @@ namespace ModulesFrameworkUnity.Debug
             {
                 parent.UpdateHierarchy();
             }
+            UpdateChosenInspector();
         }
 
         private void OnDestroy()
@@ -200,11 +205,12 @@ namespace ModulesFrameworkUnity.Debug
 
         private void OnEntityChanged(int eid)
         {
-            if(!_viewers.TryGetValue(eid, out var viewer))
+            if (!_viewers.TryGetValue(eid, out var viewer))
             {
                 UnityEngine.Debug.LogError($"Entity {eid} was changed but there is no viewer for it");
                 return;
             }
+
             viewer.UpdateComponents();
         }
 
@@ -219,6 +225,19 @@ namespace ModulesFrameworkUnity.Debug
 
             if (_entitiesParent != null)
                 _entitiesParent.name = $"Entities - {_viewers.Count.ToString()}";
+        }
+
+
+        private void UpdateChosenInspector()
+        {
+            #if UNITY_EDITOR
+            var objects = Selection.GetFiltered<GameObject>(SelectionMode.TopLevel | SelectionMode.ExcludePrefab);
+            foreach (var o in objects)
+            {
+                if (o.TryGetComponent(out OneDataViewer viewer))
+                    viewer.RiseUpdate();
+            }
+            #endif
         }
     }
 }

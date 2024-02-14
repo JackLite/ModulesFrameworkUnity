@@ -1,6 +1,11 @@
-using ModulesFrameworkUnity.Settings;
+using System;
+using System.Linq.Expressions;
+using System.Reflection;
+using ModulesFramework;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug
 {
@@ -10,67 +15,64 @@ namespace ModulesFrameworkUnity.Debug
         private OneDataViewer _viewer;
         private Vector2 _scrollPos;
         private EditorDrawer _drawer;
-        private GUIStyle _dataNameStyle;
 
         void OnEnable()
         {
             _viewer = (OneDataViewer)serializedObject.targetObject;
             _drawer = new EditorDrawer();
-            _dataNameStyle = new GUIStyle
-            {
-                fontStyle = FontStyle.Bold,
-                normal =
-                {
-                    textColor = Color.white
-                },
-                padding = new RectOffset(5, 0, 10, 10)
-            };
+            _viewer.OnUpdate += _drawer.Update;
         }
 
-        public override void OnInspectorGUI()
+        private void OnDisable()
+        {
+            _viewer.OnUpdate -= _drawer.Update;
+        }
+
+        public override VisualElement CreateInspectorGUI()
         {
             serializedObject.Update();
-
-            _scrollPos = GUILayout.BeginScrollView(_scrollPos);
+            var root = new VisualElement();
+            DrawHeader(root);
+            root.Bind(serializedObject);
             var type = _viewer.DataType;
-            GUILayout.Label(type.Name, _dataNameStyle);
-            var changed = _viewer.ChangedData.GetDataObject();
-            var origin = _viewer.Data.GetDataObject();
-            var settings = EcsWorldContainer.Settings;
-            var level = 0;
+            var method = typeof(OneData).GetMethod("GetDataObject", BindingFlags.Instance | BindingFlags.NonPublic);
             foreach (var fieldInfo in type.GetFields())
             {
-                var changedValue = fieldInfo.GetValue(changed);
-                var originValue = fieldInfo.GetValue(origin);
-                if (settings.AutoApplyChanges)
-                {
-                    var val = _drawer.DrawField(fieldInfo.FieldType, fieldInfo.Name, originValue, ref level);
-                    fieldInfo.SetValue(changed, val);
-                }
-                else
-                {
-                    var val = _drawer.DrawField(fieldInfo.FieldType, fieldInfo.Name, changedValue, ref level);
-                    fieldInfo.SetValue(changed, val);
-                }
+                var getter = CreateGetter(fieldInfo, method);
+                var originValue = getter();
+                _drawer.Draw(fieldInfo.Name, originValue, root, (_, val) =>
+                    {
+                        var currentVal = _viewer.Data.GetDataObject();
+                        fieldInfo.SetValue(currentVal, val);
+                        _viewer.UpdateData(currentVal);
+                    },
+                    () => getter.Invoke());
             }
 
-            _viewer.ChangedData.SetDataObject(changed);
+            return root;
+        }
 
-            if (settings.AutoApplyChanges)
+        private Func<object> CreateGetter(FieldInfo field, MethodInfo methodInfo)
+        {
+            var getDataCall = Expression.Call(Expression.Constant(_viewer.Data), methodInfo);
+            var convertData = Expression.Convert(getDataCall, _viewer.DataType);
+            var fieldExp = Expression.Field(convertData, field.Name);
+            var expr = Expression.Lambda<Func<object>>(Expression.Convert(fieldExp, typeof(object)));
+            return expr.Compile();
+        }
+
+        private void DrawHeader(VisualElement root)
+        {
+            var header = new Label(_viewer.DataType.Name)
             {
-                _viewer.UpdateData(changed);
-            }
-            else
-            {
-                var isApply = GUILayout.Button("Apply", EditorStyles.miniButtonMid);
-                if (isApply)
+                style =
                 {
-                    _viewer.UpdateData(changed);
+                    fontSize = new StyleLength(14),
+                    unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.Bold),
+                    marginTop = new StyleLength(5)
                 }
-            }
-
-            GUILayout.EndScrollView();
-            Repaint();
+            };
+            root.Add(header);
         }
     }
 }
