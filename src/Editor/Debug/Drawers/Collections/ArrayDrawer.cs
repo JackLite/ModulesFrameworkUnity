@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using Palmmedia.ReportGenerator.Core;
-using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
@@ -27,9 +22,12 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _foldout = new Foldout
             {
                 text = $"{fieldName} [{value.Length}]",
-                value = false
+                value = false,
+                style =
+                {
+                    marginLeft = 10
+                }
             };
-            _foldout.style.marginLeft = 10;
 
             DrawArray(fieldName, value, _foldout.contentContainer);
 
@@ -49,8 +47,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var elementContainer = new VisualElement();
-                elementContainer.style.flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row);
+                var elementContainer = new VisualElement
+                {
+                    style =
+                    {
+                        flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row)
+                    }
+                };
                 var v = value.GetValue(i);
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
