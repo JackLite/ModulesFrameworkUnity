@@ -25,6 +25,10 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             structContainer.Add(label);
             foreach (var fieldInfo in value.GetType().GetFields())
             {
+                // skip static fields cause anyway you can't change it
+                if (fieldInfo.IsStatic)
+                    continue;
+
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());

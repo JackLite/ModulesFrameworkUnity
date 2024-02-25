@@ -59,6 +59,12 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 return Expression.Lambda<Func<object>>(Expression.Convert(constData, typeof(object))).Compile();
             }
 
+            if (field.IsStatic)
+            {
+                var staticField = Expression.Field(null, field);
+                return Expression.Lambda<Func<object>>(Expression.Convert(staticField, typeof(object))).Compile();
+            }
+
             Expression<Func<object>> getExpr = () => valueGetter();
             var callData = Expression.Invoke(getExpr);
             var converted = Expression.Convert(callData, structType);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
@@ -8,12 +7,15 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     {
         private TextField _field;
 
+        public override bool CanDraw(object value)
+        {
+            return value == null || value is string;
+        }
+
         protected override void Draw(string fieldName, string value, VisualElement parent, Action<string, string> onChanged)
         {
-            _field = new TextField(fieldName)
-            {
-                value = value ?? string.Empty
-            };
+            _field = new TextField(fieldName);
+            _field.SetValueWithoutNotify(value ?? string.Empty);
             _field.RegisterValueChangedCallback(ev =>
             {
                 onChanged?.Invoke(ev.previousValue, ev.newValue);
