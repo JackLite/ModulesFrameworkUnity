@@ -7,9 +7,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     {
         private FloatField _field;
 
-        protected override void Draw(string fieldName, float value, VisualElement parent, Action<float, float> onChanged)
+        protected override void Draw(string labelText, float value, VisualElement parent, Action<float, float> onChanged)
         {
-            _field = new FloatField(fieldName)
+            _field = new FloatField(labelText)
             {
                 value = value
             };

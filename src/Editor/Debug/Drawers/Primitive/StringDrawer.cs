@@ -12,9 +12,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
             return value == null || value is string;
         }
 
-        protected override void Draw(string fieldName, string value, VisualElement parent, Action<string, string> onChanged)
+        protected override void Draw(string labelText, string value, VisualElement parent, Action<string, string> onChanged)
         {
-            _field = new TextField(fieldName);
+            _field = new TextField(labelText);
             _field.SetValueWithoutNotify(value ?? string.Empty);
             _field.RegisterValueChangedCallback(ev =>
             {

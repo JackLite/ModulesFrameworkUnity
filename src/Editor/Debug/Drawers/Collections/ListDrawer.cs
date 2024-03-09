@@ -17,28 +17,37 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }
 
-        public override void Draw(string fieldName, object fieldValue, VisualElement parent)
+        public override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
-            _fieldName = fieldName;
+            _fieldName = labelText;
             var value = (IList)fieldValue;
 
             var container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"{fieldName} [{value.Count}]",
-                value = false
+                text = $"{labelText} [{value.Count}]",
+                value = false,
+                style =
+                {
+                    marginLeft = 10
+                }
             };
-            _foldout.style.marginLeft = 10;
 
-            DrawList(fieldName, value, _foldout.contentContainer);
+            DrawList(labelText, value, _foldout.contentContainer);
 
+            container.Add(_foldout);
+            parent.Add(container);
+        }
+
+        private void DrawAddBtn(string labelText, IList value)
+        {
             var addBtn = new Button
             {
                 text = "Add"
             };
             addBtn.clicked += () =>
             {
-                var innerType = fieldValue.GetType().GetGenericArguments()[0];
+                var innerType = value.GetType().GetGenericArguments()[0];
                 if (!innerType.IsValueType && innerType.GetConstructor(Type.EmptyTypes) == null)
                 {
                     UnityEngine.Debug.LogError($"There is no parameterless constructor for {innerType.Name}");
@@ -47,12 +56,10 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 {
                     value.Add(Activator.CreateInstance(innerType));
                     _foldout.contentContainer.Clear();
-                    DrawList(fieldName, value, _foldout.contentContainer);
+                    DrawList(labelText, value, _foldout.contentContainer);
                 }
             };
-            container.Add(_foldout);
-            container.Add(addBtn);
-            parent.Add(container);
+            _foldout.Add(addBtn);
         }
 
         public override void Update()
@@ -73,7 +80,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var v = value[i];
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
-                var drawer = mainDrawer.Draw(memberName, v, elementContainer, (prev, newVal) =>
+                var drawer = mainDrawer.Draw(memberName, v, elementContainer, (_, newVal) =>
                 {
                     value[index] = newVal;
                 }, () =>
@@ -97,6 +104,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 elementContainer.Add(removeBtn);
                 container.Add(elementContainer);
             }
+
+            DrawAddBtn(fieldName, value);
         }
     }
 }

@@ -8,9 +8,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Unity
     {
         private Vector3Field _field;
 
-        protected override void Draw(string fieldName, Quaternion value, VisualElement parent, Action<Quaternion, Quaternion> onChanged)
+        protected override void Draw(string labelText, Quaternion value, VisualElement parent, Action<Quaternion, Quaternion> onChanged)
         {
-            _field = new Vector3Field(fieldName)
+            _field = new Vector3Field(labelText)
             {
                 value = value.eulerAngles
             };

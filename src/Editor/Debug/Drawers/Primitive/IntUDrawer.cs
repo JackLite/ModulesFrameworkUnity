@@ -7,9 +7,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     {
         private UnsignedIntegerField _field;
 
-        protected override void Draw(string fieldName, uint value, VisualElement parent, Action<uint, uint> onChanged)
+        protected override void Draw(string labelText, uint value, VisualElement parent, Action<uint, uint> onChanged)
         {
-            _field = new UnsignedIntegerField(fieldName)
+            _field = new UnsignedIntegerField(labelText)
             {
                 value = value
             };

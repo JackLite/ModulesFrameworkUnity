@@ -13,37 +13,12 @@ namespace ModulesFrameworkUnity.Debug
     {
         private EntityViewer _viewer;
         private Vector2 _scrollPos;
-        private GUIStyle _componentNameStyle;
-        private GUIStyle _tagNameStyle;
         private GUIStyle _fieldStyle;
         private EditorDrawer _drawer;
 
-        void OnEnable()
+        private void OnEnable()
         {
             _viewer = (EntityViewer)serializedObject.targetObject;
-            _componentNameStyle = new GUIStyle
-            {
-                fontStyle = FontStyle.Bold,
-                normal =
-                {
-                    textColor = Color.white
-                },
-                alignment = TextAnchor.MiddleLeft,
-                margin = EditorStyles.foldout.margin,
-                padding = EditorStyles.foldout.padding,
-            };
-            _tagNameStyle = new GUIStyle
-            {
-                fontStyle = FontStyle.Bold,
-                normal =
-                {
-                    textColor = Color.white
-                },
-                alignment = TextAnchor.MiddleLeft,
-                margin = EditorStyles.foldout.margin,
-                padding = EditorStyles.foldout.padding,
-            };
-
             _drawer = new EditorDrawer();
         }
 

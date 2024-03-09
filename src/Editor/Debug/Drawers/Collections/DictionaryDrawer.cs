@@ -22,27 +22,27 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             return type.IsGenericType && value is IDictionary;
         }
 
-        public override void Draw(string fieldName, object fieldValue, VisualElement parent)
+        public override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
-            _fieldName = fieldName;
+            _fieldName = labelText;
             _addBlock = CreateAddBlock();
             var value = (IDictionary)fieldValue;
 
             var container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"{fieldName} [{value.Count}]",
+                text = $"{labelText} [{value.Count}]",
                 value = false
             };
             _foldout.style.marginLeft = 10;
             _elements = new VisualElement();
             _foldout.Add(_elements);
 
-            DrawDict(fieldName, value);
+            DrawDict(labelText, value);
             container.Add(_foldout);
             _foldout.Add(_addBlock);
 
-            DrawAddBlock(fieldName, value);
+            DrawAddBlock(labelText, value);
 
 
             parent.Add(container);

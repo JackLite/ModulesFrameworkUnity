@@ -8,9 +8,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Unity
     {
         private Vector2IntField _field;
 
-        protected override void Draw(string fieldName, Vector2Int value, VisualElement parent, Action<Vector2Int, Vector2Int> onChanged)
+        protected override void Draw(string labelText, Vector2Int value, VisualElement parent, Action<Vector2Int, Vector2Int> onChanged)
         {
-            _field = new Vector2IntField(fieldName)
+            _field = new Vector2IntField(labelText)
             {
                 value = value
             };

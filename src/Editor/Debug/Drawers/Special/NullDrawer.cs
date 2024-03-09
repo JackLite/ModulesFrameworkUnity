@@ -11,9 +11,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
             return value == null;
         }
 
-        public override void Draw(string fieldName, object value, VisualElement parent)
+        public override void Draw(string labelText, object value, VisualElement parent)
         {
-            var label = new Label($"{fieldName} is null");
+            var label = new Label(labelText);
             parent.Add(label);
         }
 

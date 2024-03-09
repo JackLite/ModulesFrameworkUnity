@@ -12,7 +12,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Unity
             return value is Object;
         }
 
-        public override void Draw(string fieldName, object value, VisualElement parent)
+        public override void Draw(string labelText, object value, VisualElement parent)
         {
             _field = new ObjectField
             {

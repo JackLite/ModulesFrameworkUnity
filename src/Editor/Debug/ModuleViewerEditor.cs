@@ -13,7 +13,7 @@ namespace ModulesFrameworkUnity.Debug
         private ModuleViewer _viewer;
         private static bool _systemsExpand;
 
-        void OnEnable()
+        private void OnEnable()
         {
             _viewer = (ModuleViewer)serializedObject.targetObject;
         }

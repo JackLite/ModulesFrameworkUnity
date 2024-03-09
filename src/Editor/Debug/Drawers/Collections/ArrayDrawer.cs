@@ -15,13 +15,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             return value is Array;
         }
 
-        public override void Draw(string fieldName, object fieldValue, VisualElement parent)
+        public override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
             var value = (Array) fieldValue;
             var container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"{fieldName} [{value.Length}]",
+                text = $"{labelText} [{value.Length}]",
                 value = false,
                 style =
                 {
@@ -29,7 +29,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 }
             };
 
-            DrawArray(fieldName, value, _foldout.contentContainer);
+            DrawArray(labelText, value, _foldout.contentContainer);
 
             container.Add(_foldout);
             parent.Add(container);

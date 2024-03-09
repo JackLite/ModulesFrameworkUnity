@@ -9,7 +9,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
             return false;
         }
 
-        public override void Draw(string fieldName, object value, VisualElement parent)
+        public override void Draw(string labelText, object value, VisualElement parent)
         {
             var label = new Label($"{value.GetType().Name} is not supported. You can create your own drawer");
             parent.Add(label);

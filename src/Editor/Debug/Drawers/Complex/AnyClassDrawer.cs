@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Complex
@@ -21,17 +22,16 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                    && type.GetConstructor(Type.EmptyTypes) != null;
         }
 
-        public override void Draw(string fieldName, object value, VisualElement parent)
+        public override void Draw(string labelText, object value, VisualElement parent)
         {
-            var structContainer = new VisualElement();
-            var label = new Label($"{fieldName}:{value.GetType().Name}");
-            structContainer.Add(label);
+            var root = new VisualElement();
+            DrawHeader(labelText, root);
             foreach (var fieldInfo in value.GetType().GetFields())
             {
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, structContainer, (prev, newVal) =>
+                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, root, (prev, newVal) =>
                 {
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     {
@@ -48,7 +48,22 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 _drawers.Add(drawer);
             }
 
-            parent.Add(structContainer);
+            parent.Add(root);
+        }
+        
+        private void DrawHeader(string labelText, VisualElement root)
+        {
+            var label = new Label(labelText)
+            {
+                style =
+                {
+                    fontSize = mainDrawer.Level > 1 ? 12 : 14,
+                    unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.BoldAndItalic),
+                    marginTop = new StyleLength(8),
+                    marginBottom = new StyleLength(8)
+                }
+            };
+            root.Add(label);
         }
 
         private Func<object> CreateGetter(FieldInfo field, Type structType)

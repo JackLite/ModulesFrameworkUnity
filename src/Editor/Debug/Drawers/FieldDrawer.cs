@@ -20,7 +20,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
 
         public abstract bool CanDraw(object value);
 
-        public abstract void Draw(string fieldName, object value, VisualElement parent);
+        public abstract void Draw(string labelText, object value, VisualElement parent);
 
         public abstract void Update();
         public virtual void SetReadOnly(bool isReadOnly)
@@ -30,11 +30,11 @@ namespace ModulesFrameworkUnity.Debug.Drawers
 
     public abstract class FieldDrawer<T> : FieldDrawer
     {
-        protected abstract void Draw(string fieldName, T value, VisualElement parent, Action<T, T> onChanged);
+        protected abstract void Draw(string labelText, T value, VisualElement parent, Action<T, T> onChanged);
 
-        public override void Draw(string fieldName, object value, VisualElement parent)
+        public override void Draw(string labelText, object value, VisualElement parent)
         {
-            Draw(fieldName, (T)value, parent, (prev, newVal) => valueChangedCb?.Invoke(prev, newVal));
+            Draw(labelText, (T)value, parent, (prev, newVal) => valueChangedCb?.Invoke(prev, newVal));
         }
 
         public override bool CanDraw(object value)

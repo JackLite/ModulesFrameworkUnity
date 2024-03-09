@@ -21,6 +21,8 @@ namespace ModulesFrameworkUnity.Debug
 
         private readonly List<FieldDrawer> _createdDrawers = new();
 
+        public int Level { get; private set; }
+
         public EditorDrawer()
         {
             var drawers = from type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(asm => asm.GetTypes())
@@ -43,6 +45,7 @@ namespace ModulesFrameworkUnity.Debug
             Func<object> getter,
             bool updateDrawer = true)
         {
+            Level++;
             foreach (var defaultDrawer in _defaultDrawers)
             {
                 if (!defaultDrawer.CanDraw(fieldValue))
@@ -52,10 +55,12 @@ namespace ModulesFrameworkUnity.Debug
                 d.Draw(fieldName, fieldValue, parent);
                 if (updateDrawer)
                     _createdDrawers.Add(d);
+                Level--;
                 return d;
             }
 
             _unsupportedDrawer.Draw(fieldName, fieldValue, parent);
+            Level--;
             return _unsupportedDrawer;
         }
 

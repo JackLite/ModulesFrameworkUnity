@@ -6,9 +6,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     public class IntDrawer : FieldDrawer<int>
     {
         private IntegerField _field;
-        protected override void Draw(string fieldName, int value, VisualElement parent, Action<int, int> onChanged)
+        protected override void Draw(string labelText, int value, VisualElement parent, Action<int, int> onChanged)
         {
-            _field = new IntegerField(fieldName)
+            _field = new IntegerField(labelText)
             {
                 value = value
             };

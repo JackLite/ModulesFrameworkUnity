@@ -12,7 +12,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
             return value is Enum;
         }
 
-        public override void Draw(string fieldName, object value, VisualElement parent)
+        public override void Draw(string labelText, object value, VisualElement parent)
         {
             _field = new EnumField();
             var values = Enum.GetValues(value.GetType());
@@ -20,6 +20,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
                 return;
 
             _field.Init((Enum)values.GetValue(0));
+            _field.label = labelText;
             _field.SetValueWithoutNotify((Enum)value);
             _field.RegisterValueChangedCallback(ev =>
             {

@@ -7,9 +7,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     {
         private LongField _field;
 
-        protected override void Draw(string fieldName, long value, VisualElement parent, Action<long, long> onChanged)
+        protected override void Draw(string labelText, long value, VisualElement parent, Action<long, long> onChanged)
         {
-            _field = new LongField(fieldName)
+            _field = new LongField(labelText)
             {
                 value = value
             };
