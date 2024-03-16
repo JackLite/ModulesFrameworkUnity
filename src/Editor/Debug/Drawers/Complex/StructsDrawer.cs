@@ -4,6 +4,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
+#if !UNITY_2022_1_OR_NEWER
+using UnityEditor.UIElements;
+#endif
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 {

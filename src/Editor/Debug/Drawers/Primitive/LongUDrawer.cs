@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_2022_1_OR_NEWER
+using System;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
@@ -31,3 +32,4 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
         }
     }
 }
+#endif
