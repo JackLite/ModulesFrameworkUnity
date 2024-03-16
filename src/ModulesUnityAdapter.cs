@@ -73,10 +73,11 @@ namespace ModulesFrameworkUnity
             _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
             _stopwatch.Reset();
             _frames++;
-            if (_frames > Application.targetFrameRate)
+            var targetFrameRate = Application.targetFrameRate > 0 ? Application.targetFrameRate : 60;
+            if (_frames > targetFrameRate)
             {
                 var avgFrameTimeMs = _elapsedTimeMs / _frames;
-                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs)
+                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs && _settings.performanceSettings.debugMode)
                 {
                     world.Logger.LogDebug(
                         $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold",
