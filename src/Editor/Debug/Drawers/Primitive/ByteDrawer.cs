@@ -9,30 +9,31 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     public class ByteDrawer : FieldDrawer<byte>
     {
         private IntDrawer _intDrawer;
-        private IntegerField _intField;
+        private IntegerField _field;
 
         protected override void Draw(string labelText, byte value, VisualElement parent, Action<byte, byte> onChanged)
         {
-            _intField = new IntegerField(labelText)
+            _field = new IntegerField(labelText)
             {
                 value = value
             };
-            _intField.RegisterValueChangedCallback(ev =>
+            DrawersUtil.InitNumberFieldStyle(_field.style);
+            _field.RegisterValueChangedCallback(ev =>
             {
-                _intField.value = (byte)ev.newValue;
+                _field.value = (byte)ev.newValue;
                 onChanged?.Invoke((byte)ev.previousValue, (byte)ev.newValue);
             });
-            parent.Add(_intField);
+            parent.Add(_field);
         }
 
         protected override void Update(Func<byte> getter)
         {
-            _intField.SetValueWithoutNotify(getter());
+            _field.SetValueWithoutNotify(getter());
         }
         
         public override void SetReadOnly(bool isReadOnly)
         {
-            _intField.isReadOnly = isReadOnly;
+            _field.isReadOnly = isReadOnly;
         }
     }
 }

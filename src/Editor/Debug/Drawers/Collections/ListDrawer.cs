@@ -25,21 +25,15 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _fieldName = labelText;
             var value = (IList)fieldValue;
 
-            var container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"{labelText} [{value.Count}]",
+                text = $"List: {labelText} [{value.Count}]",
                 value = false,
-                style =
-                {
-                    marginLeft = 10
-                }
             };
 
             DrawList(labelText, value, _foldout.contentContainer);
 
-            container.Add(_foldout);
-            parent.Add(container);
+            parent.Add(_foldout);
         }
 
         private void DrawAddBtn(string labelText, IList value)
@@ -67,7 +61,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override void Update()
         {
-            _foldout.text = $"{_fieldName} [{((IList)valueGetter()).Count}]";
+            _foldout.text = $"List: {_fieldName} [{((IList)valueGetter()).Count}]";
             foreach (var drawer in _drawers)
             {
                 drawer.Update();
@@ -78,8 +72,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var elementContainer = new VisualElement();
-                elementContainer.style.flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row);
+                var elementContainer = new VisualElement
+                {
+                    style =
+                    {
+                        flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row),
+                    }
+                };
                 var v = value[i];
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
@@ -91,12 +90,10 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                     if (index < value.Count)
                         return value[index];
                     return default;
-                }, false);
+                }, Level + 1, false);
                 _drawers.Add(drawer);
-                var removeBtn = new Button
-                {
-                    text = "R"
-                };
+                var removeBtn = DrawersUtil.CreateRemoveBtn();
+
                 removeBtn.clicked += () =>
                 {
                     value.RemoveAt(index);

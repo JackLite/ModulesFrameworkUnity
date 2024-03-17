@@ -21,7 +21,7 @@ namespace ModulesFrameworkUnity.Debug
 
         private readonly List<FieldDrawer> _createdDrawers = new();
 
-        public int Level { get; private set; }
+        private int _level;
 
         public EditorDrawer()
         {
@@ -36,6 +36,32 @@ namespace ModulesFrameworkUnity.Debug
                 _factories.Add(drawer.GetType(), () => Activator.CreateInstance(drawer.GetType()) as FieldDrawer);
             }
         }
+        
+        public FieldDrawer Draw(
+            string fieldName,
+            object fieldValue,
+            VisualElement parent,
+            Action<object, object> onChanged,
+            Func<object> getter,
+            int level,
+            bool updateDrawer = true)
+        {
+            foreach (var defaultDrawer in _defaultDrawers)
+            {
+                if (!defaultDrawer.CanDraw(fieldValue))
+                    continue;
+                var d = _factories[defaultDrawer.GetType()]();
+                d.Level = level;
+                d.Init(this, onChanged, getter);
+                d.Draw(fieldName, fieldValue, parent);
+                if (updateDrawer)
+                    _createdDrawers.Add(d);
+                return d;
+            }
+
+            _unsupportedDrawer.Draw(fieldName, fieldValue, parent);
+            return _unsupportedDrawer;
+        }
 
         public FieldDrawer Draw(
             string fieldName,
@@ -45,23 +71,10 @@ namespace ModulesFrameworkUnity.Debug
             Func<object> getter,
             bool updateDrawer = true)
         {
-            Level++;
-            foreach (var defaultDrawer in _defaultDrawers)
-            {
-                if (!defaultDrawer.CanDraw(fieldValue))
-                    continue;
-                var d = _factories[defaultDrawer.GetType()]();
-                d.Init(this, onChanged, getter);
-                d.Draw(fieldName, fieldValue, parent);
-                if (updateDrawer)
-                    _createdDrawers.Add(d);
-                Level--;
-                return d;
-            }
-
-            _unsupportedDrawer.Draw(fieldName, fieldValue, parent);
-            Level--;
-            return _unsupportedDrawer;
+            _level++;
+            var drawer = Draw(fieldName, fieldValue, parent, onChanged, getter, _level, updateDrawer);
+            _level--;
+            return drawer;
         }
 
         public void Update()

@@ -8,12 +8,15 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     {
         private UnsignedLongField _field;
 
-        protected override void Draw(string labelText, ulong value, VisualElement parent, Action<ulong, ulong> onChanged)
+        protected override void Draw(string labelText, ulong value, VisualElement parent,
+            Action<ulong, ulong> onChanged)
         {
             _field = new UnsignedLongField(labelText)
             {
                 value = value
             };
+            DrawersUtil.InitNumberFieldStyle(_field.style);
+
             _field.RegisterValueChangedCallback(ev =>
             {
                 onChanged?.Invoke(ev.previousValue, ev.newValue);
@@ -25,7 +28,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
         {
             _field.SetValueWithoutNotify(getter());
         }
-        
+
         public override void SetReadOnly(bool isReadOnly)
         {
             _field.isReadOnly = isReadOnly;

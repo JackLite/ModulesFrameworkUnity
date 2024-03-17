@@ -24,7 +24,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         public override void Draw(string labelText, object value, VisualElement parent)
         {
-            var structContainer = new VisualElement();
+            var structContainer = new Foldout();
             DrawHeader(labelText, structContainer);
             foreach (var fieldInfo in value.GetType().GetFields())
             {
@@ -45,7 +45,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
                     fieldInfo.SetValue(value, newVal);
                     valueChangedCb(value, value);
-                }, getter, false);
+                }, getter, Level + 1, false);
 
                 if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     drawer.SetReadOnly(true);
@@ -55,19 +55,10 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             parent.Add(structContainer);
         }
 
-        private void DrawHeader(string labelText, VisualElement root)
+        private void DrawHeader(string labelText, Foldout root)
         {
-            var label = new Label(labelText)
-            {
-                style =
-                {
-                    fontSize = mainDrawer.Level > 1 ? 12 : 14,
-                    unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.Bold),
-                    marginTop = new StyleLength(8),
-                    marginBottom = new StyleLength(8)
-                }
-            };
-            root.Add(label);
+            DrawersUtil.InitObjectFieldStyle(root, Level, labelText);
+            root.style.unityFontStyleAndWeight = FontStyle.Italic;
         }
 
         private Func<object> CreateGetter(FieldInfo field, Type structType)

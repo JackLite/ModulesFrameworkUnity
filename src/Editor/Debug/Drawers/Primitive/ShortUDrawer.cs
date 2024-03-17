@@ -9,30 +9,33 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     public class ShortUDrawer : FieldDrawer<ushort>
     {
         private IntDrawer _intDrawer;
-        private IntegerField _intField;
+        private IntegerField _field;
 
-        protected override void Draw(string labelText, ushort value, VisualElement parent, Action<ushort, ushort> onChanged)
+        protected override void Draw(string labelText, ushort value, VisualElement parent,
+            Action<ushort, ushort> onChanged)
         {
-            _intField = new IntegerField(labelText)
+            _field = new IntegerField(labelText)
             {
                 value = value
             };
-            _intField.RegisterValueChangedCallback(ev =>
+            DrawersUtil.InitNumberFieldStyle(_field.style);
+
+            _field.RegisterValueChangedCallback(ev =>
             {
-                _intField.value = (ushort)ev.newValue;
+                _field.value = (ushort)ev.newValue;
                 onChanged?.Invoke((ushort)ev.previousValue, (ushort)ev.newValue);
             });
-            parent.Add(_intField);
+            parent.Add(_field);
         }
 
         protected override void Update(Func<ushort> getter)
         {
-            _intField.SetValueWithoutNotify(getter());
+            _field.SetValueWithoutNotify(getter());
         }
-        
+
         public override void SetReadOnly(bool isReadOnly)
         {
-            _intField.isReadOnly = isReadOnly;
+            _field.isReadOnly = isReadOnly;
         }
     }
 }

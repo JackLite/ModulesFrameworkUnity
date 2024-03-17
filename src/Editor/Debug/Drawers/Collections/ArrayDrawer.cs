@@ -10,6 +10,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
     public class ArrayDrawer : FieldDrawer
     {
         private Foldout _foldout;
+        private VisualElement _elements;
         private string _fieldName;
         private readonly List<FieldDrawer> _drawers = new();
         
@@ -24,22 +25,20 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             var container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"{labelText} [{value.Length}]",
+                text = $"Array: {labelText} [{value.Length}]",
                 value = false,
-                style =
-                {
-                    marginLeft = 10
-                }
             };
 
-            DrawArray(labelText, value, _foldout.contentContainer);
+            _elements = new VisualElement();
+            _foldout.Add(_elements);
+            DrawArray(labelText, value, _elements);
 
             container.Add(_foldout);
             parent.Add(container);
         }
         public override void Update()
         {
-            _foldout.text = $"{_fieldName} [{((Array)valueGetter()).Length}]";
+            _foldout.text = $"Array: {_fieldName} [{((Array)valueGetter()).Length}]";
             foreach (var drawer in _drawers)
             {
                 drawer.Update();
@@ -68,7 +67,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                     if (index < value.Length)
                         return value.GetValue(index);
                     return default;
-                }, false);
+                }, Level + 1, false);
                 _drawers.Add(drawer);
                 container.Add(elementContainer);
             }

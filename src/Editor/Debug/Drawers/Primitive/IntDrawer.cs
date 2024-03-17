@@ -15,7 +15,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
             {
                 value = value
             };
-            _field.style.minWidth = new StyleLength(300);
+            DrawersUtil.InitNumberFieldStyle(_field.style);
+
             _field.RegisterValueChangedCallback(ev =>
             {
                 onChanged?.Invoke(ev.previousValue, ev.newValue);

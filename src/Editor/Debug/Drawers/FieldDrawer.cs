@@ -13,6 +13,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
         protected Action<object, object> valueChangedCb;
 
         public virtual int Order => 0;
+        public int Level { get; set; }
 
         public void Init(EditorDrawer drawer, Action<object, object> onChanged, Func<object> getter)
         {

@@ -34,10 +34,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             var container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"{labelText} [{value.Count}]",
+                text = $"Dictionary: {labelText} [{value.Count}]",
                 value = false
             };
-            _foldout.style.marginLeft = 10;
             _elements = new VisualElement();
             _foldout.Add(_elements);
 
@@ -69,10 +68,11 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 _newKeys[cacheKey] = Activator.CreateInstance(innerKeyType);
             }
 
-            mainDrawer.Draw("New key", _newKeys[cacheKey], _addBlock, (_, newVal) =>
+            var keyType = _newKeys[cacheKey].GetType().Name;
+            mainDrawer.Draw($"New key [{keyType}]", _newKeys[cacheKey], _addBlock, (_, newVal) =>
             {
                 _newKeys[cacheKey] = newVal;
-            }, () => _newKeys[cacheKey], false);
+            }, () => _newKeys[cacheKey], Level + 1, false);
 
             DrawAddBtn(() =>
             {
@@ -103,10 +103,10 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var cacheKey = value.GetType().FullName + fieldName;
                 _newKeys.TryAdd(cacheKey, string.Empty);
 
-                mainDrawer.Draw("New key", _newKeys[cacheKey], _addBlock, (_, newVal) =>
+                mainDrawer.Draw("New key [string]", _newKeys[cacheKey], _addBlock, (_, newVal) =>
                 {
                     _newKeys[cacheKey] = newVal;
-                }, () => _newKeys[cacheKey], false);
+                }, () => _newKeys[cacheKey], Level + 1, false);
 
                 DrawAddBtn(() =>
                 {
@@ -164,19 +164,43 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             var keys = value.Keys.Cast<object>().ToArray();
             foreach (var key in keys)
             {
+                var elementContainer = new VisualElement
+                {
+                    style =
+                    {
+                        flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row),
+                        alignItems = Align.FlexStart
+                    }
+                };
+                
                 var val = value[key];
                 var memberName = $"{fieldName} [{key}]";
-                var drawer = mainDrawer.Draw(memberName, val, _elements, (_, newVal) =>
+                var drawer = mainDrawer.Draw(memberName, val, elementContainer, (_, newVal) =>
                 {
                     value[key] = newVal;
-                }, () => val, false);
+                }, () => val, Level + 1, false);
                 _drawers.Add(drawer);
+                
+                var removeBtn = DrawersUtil.CreateRemoveBtn();
+                
+                removeBtn.clicked += () =>
+                {
+                    value.Remove(key);
+                    _elements.Clear();
+                    _drawers.Clear();
+                    _addBlock.Clear();
+                    DrawDict(fieldName, value);
+                    DrawAddBlock(fieldName, value);
+                };
+                
+                elementContainer.Add(removeBtn);
+                _elements.Add(elementContainer);
             }
         }
 
         public override void Update()
         {
-            _foldout.text = $"{_fieldName} [{((IDictionary)valueGetter()).Count}]";
+            _foldout.text = $"Dictionary: {_fieldName} [{((IDictionary)valueGetter()).Count}]";
             foreach (var drawer in _drawers)
             {
                 drawer.Update();
