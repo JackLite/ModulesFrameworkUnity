@@ -236,6 +236,8 @@ namespace ModulesFrameworkUnity.Debug
             {
                 if (o.TryGetComponent(out OneDataViewer viewer))
                     viewer.RiseUpdate();
+                if (o.TryGetComponent(out EntityViewer entityViewer))
+                    entityViewer.RiseUpdate();
             }
             #endif
         }

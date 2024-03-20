@@ -17,6 +17,9 @@ namespace ModulesFrameworkUnity.Debug
         private readonly Dictionary<int, object> _cache = new Dictionary<int, object>();
         public int Eid { get; private set; }
         public DataWorld World { get; private set; }
+        
+        internal event Action OnComponentsSetChanged;
+        internal event Action OnUpdate;
 
         public void Init(int eid, DataWorld world)
         {
@@ -94,6 +97,7 @@ namespace ModulesFrameworkUnity.Debug
                     AddComponents(table, Eid);
             });
             UpdateName();
+            OnComponentsSetChanged?.Invoke();
         }
 
         public void UpdateName()
@@ -106,6 +110,11 @@ namespace ModulesFrameworkUnity.Debug
             }
 
             name = sb.ToString();
+        }
+
+        internal void RiseUpdate()
+        {
+            OnUpdate?.Invoke();
         }
     }
 }

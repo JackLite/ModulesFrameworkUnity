@@ -47,45 +47,58 @@ You can add support for any other type by inherited
 `ModulesFieldDrawer`. Here's example for drawer of `BigInteger`.
 
 ```csharp
-// JustClass.cs
-namespace Project
-    public class JustClass
-    {
-        public float classNumber;
-    }
-}
-
-// JustClassDrawer.cs
+// DateTimeDrawer.cs
 #if UNITY_EDITOR
-using ModulesFrameworkUnity.Debug;
+using System;
+using ModulesFrameworkUnity.Debug.Drawers;
+using UnityEngine.UIElements;
 
 namespace Project.Editor
 {
-    // inherit from generic class 
-    public class JustClassDrawer : ModulesFieldDrawer<JustClass>
+    public class DateTimeDrawer : FieldDrawer<DateTime>
     {
-        // must return changed object
-        // if it's reference type just change object self
-        public override object Draw(string fieldName, JustClass fieldValue, int level)
+        // save field for update
+        private TextField _field;
+
+        protected override void Draw(
+            // usually field name
+            string label, 
+            // current value
+            DateTime value, 
+            // parent element
+            VisualElement parent, 
+            // callback for updating field from inspector
+            Action<DateTime, DateTime> onChanged)
         {
-            var oldVal = fieldValue.classNumber;
-            // use Drawer property for simplify draw fields of object
-            fieldValue.classNumber = (float)Drawer.DrawField(
-                // type of field
-                oldVal.GetType(),
-                // name for inspector
-                nameof(fieldValue.classNumber),
-                // current value
-                fieldValue.classNumber,
-                // level is using for margin in inspector
-                ref level
-            );
-            return fieldValue;
+            // based on text field
+            _field = new TextField(label)
+            {
+                value = value.ToString("O")
+            };
+            
+            // register callback for updating field from inspector
+            _field.RegisterValueChangedCallback(evt =>
+            {
+                if (DateTime.TryParse(evt.newValue, out var newDate))
+                    onChanged(value, newDate);
+            });
+            
+            // don't forget to add element to parent
+            parent.Add(_field);
+        }
+
+        // use this method to dynamic update of inspector
+        // cause UIToolkit doesn't redraw inspector every frame
+        // getter() is lambda to get actual value
+        protected override void Update(Func<DateTime> getter)
+        {
+            _field.value = getter().ToString("O");
         }
     }
 }
 #endif
 ```
+For more information about drawers see implementations of different drawers in this repository.
 
 ### Settings
 

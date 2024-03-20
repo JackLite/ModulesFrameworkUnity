@@ -172,17 +172,22 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                         alignItems = Align.FlexStart
                     }
                 };
-                
+
                 var val = value[key];
                 var memberName = $"{fieldName} [{key}]";
-                var drawer = mainDrawer.Draw(memberName, val, elementContainer, (_, newVal) =>
-                {
-                    value[key] = newVal;
-                }, () => val, Level + 1, false);
+
+                var drawer = mainDrawer.Draw(
+                    memberName, 
+                    val, 
+                    elementContainer,
+                    OnChanged,
+                    Getter,
+                    Level + 1, 
+                    false);
                 _drawers.Add(drawer);
-                
+
                 var removeBtn = DrawersUtil.CreateRemoveBtn();
-                
+
                 removeBtn.clicked += () =>
                 {
                     value.Remove(key);
@@ -192,9 +197,22 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                     DrawDict(fieldName, value);
                     DrawAddBlock(fieldName, value);
                 };
-                
+
                 elementContainer.Add(removeBtn);
                 _elements.Add(elementContainer);
+                continue;
+
+                void OnChanged(object _, object newVal)
+                {
+                    value[key] = newVal;
+                }
+
+                object Getter()
+                {
+                    if (value.Contains(key))
+                        return value[key];
+                    return default;
+                }
             }
         }
 

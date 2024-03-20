@@ -15,23 +15,36 @@ namespace ModulesFrameworkUnity.Debug
         private Vector2 _scrollPos;
         private GUIStyle _fieldStyle;
         private EditorDrawer _drawer;
+        private VisualElement _root;
 
         private void OnEnable()
         {
             _viewer = (EntityViewer)serializedObject.targetObject;
             _drawer = new EditorDrawer();
+            _viewer.OnComponentsSetChanged += Draw;
+            _viewer.OnUpdate += _drawer.Update;
         }
 
         public override VisualElement CreateInspectorGUI()
         {
-            serializedObject.Update();
-            var root = new VisualElement();
-            _viewer.changedComponents.Clear();
-            _viewer.UpdateComponents();
+            _root = new VisualElement();
+            Draw();
+            return _root;
+        }
+
+        private void OnDisable()
+        {
+            _viewer.OnComponentsSetChanged -= Draw;
+            _viewer.OnUpdate -= _drawer.Update;
+        }
+
+        private void Draw()
+        {
+            _root.Clear();
             foreach (var kvp in _viewer.components)
             {
                 var componentFoldout = new Foldout();
-                root.Add(componentFoldout);
+                _root.Add(componentFoldout);
 
                 var type = kvp.Key;
                 var fieldName = type.Name;
@@ -60,8 +73,6 @@ namespace ModulesFrameworkUnity.Debug
                     }, () => _viewer.changedComponents[type][index]);
                 }
             }
-
-            return root;
         }
 
         private void ApplyChanges(EcsTable ecsTable, Type type)
