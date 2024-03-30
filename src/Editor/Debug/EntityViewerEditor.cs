@@ -119,22 +119,26 @@ namespace ModulesFrameworkUnity.Debug
                 if (components.Count <= 1)
                     continue;
 
-                var oldCount = _drawers[type].Count;
-                if (oldCount != components.Count)
+                if (_drawers.ContainsKey(type) && _drawers[type].Count == components.Count)
+                    continue;
+
+                if (_drawers.TryGetValue(type, out var drawers))
                 {
-                    if (_drawers.TryGetValue(type, out var drawers))
+                    foreach (var (_, drawer) in drawers)
                     {
-                        foreach (var (_, drawer) in drawers)
-                        {
-                            _drawer.RemoveDrawer(drawer);
-                        }
+                        _drawer.RemoveDrawer(drawer);
                     }
-                    _drawers[type].Clear();
-                    var fd = _componentsElements[type];
+
+                    drawers.Clear();
+                }
+
+                if (_componentsElements.TryGetValue(type, out var fd))
+                {
                     _foldoutPool.Return(fd);
                     _componentsElements.Remove(type);
-                    DrawOneComponent(type, components);
                 }
+
+                DrawOneComponent(type, components);
             }
         }
 
