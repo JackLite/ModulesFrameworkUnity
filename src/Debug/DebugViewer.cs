@@ -55,6 +55,7 @@ namespace ModulesFrameworkUnity.Debug
             {
                 parent.UpdateHierarchy();
             }
+
             UpdateChosenInspector();
         }
 
@@ -234,12 +235,25 @@ namespace ModulesFrameworkUnity.Debug
             var objects = Selection.GetFiltered<GameObject>(SelectionMode.TopLevel | SelectionMode.ExcludePrefab);
             foreach (var o in objects)
             {
+                if (!IsParentOf(o))
+                    continue;
+
                 if (o.TryGetComponent(out OneDataViewer viewer))
                     viewer.RiseUpdate();
                 if (o.TryGetComponent(out EntityViewer entityViewer))
                     entityViewer.RiseUpdate();
             }
             #endif
+        }
+
+        private bool IsParentOf(GameObject child)
+        {
+            if (child.transform.parent == null)
+                return false;
+            if (child.transform.parent == transform)
+                return true;
+
+            return IsParentOf(child.transform.parent.gameObject);
         }
     }
 }

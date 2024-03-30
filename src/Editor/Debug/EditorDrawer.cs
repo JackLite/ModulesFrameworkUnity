@@ -84,5 +84,15 @@ namespace ModulesFrameworkUnity.Debug
                 drawer.Update();
             }
         }
+        
+        public void Clear()
+        {
+            _createdDrawers.Clear();
+        }
+        
+        public void RemoveDrawer(FieldDrawer drawer)
+        {
+            _createdDrawers.Remove(drawer);
+        }
     }
 }

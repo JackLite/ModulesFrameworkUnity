@@ -30,7 +30,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _fieldName = labelText;
             _addBlock = CreateAddBlock();
             var value = (IDictionary)fieldValue;
-
             var container = new VisualElement();
             _foldout = new Foldout
             {
@@ -175,14 +174,14 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
                 var val = value[key];
                 var memberName = $"{fieldName} [{key}]";
-
+                var valuesType = val.GetType();
                 var drawer = mainDrawer.Draw(
-                    memberName, 
-                    val, 
+                    memberName,
+                    val,
                     elementContainer,
                     OnChanged,
                     Getter,
-                    Level + 1, 
+                    Level + 1,
                     false);
                 _drawers.Add(drawer);
 
@@ -211,14 +210,27 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 {
                     if (value.Contains(key))
                         return value[key];
-                    return default;
+                    if (valuesType.IsValueType)
+                        return Activator.CreateInstance(valuesType);
+                    return null;
                 }
             }
         }
 
         public override void Update()
         {
-            _foldout.text = $"Dictionary: {_fieldName} [{((IDictionary)valueGetter()).Count}]";
+            var dictionary = (IDictionary)valueGetter();
+            _foldout.text = $"Dictionary: {_fieldName} [{dictionary.Count}]";
+            if (_drawers.Count != dictionary.Count)
+            {
+                _drawers.Clear();
+                _elements.Clear();
+                DrawDict(_fieldName, dictionary);
+                _addBlock.Clear();
+                DrawAddBlock(_fieldName, dictionary);
+                return;
+            }
+
             foreach (var drawer in _drawers)
             {
                 drawer.Update();

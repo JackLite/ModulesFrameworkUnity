@@ -114,6 +114,12 @@ namespace ModulesFrameworkUnity.Debug
 
         internal void RiseUpdate()
         {
+            components.Clear();
+            World.MapTables((type, table) =>
+            {
+                if (World.HasComponent(Eid, type))
+                    AddComponents(table, Eid);
+            });
             OnUpdate?.Invoke();
         }
     }
