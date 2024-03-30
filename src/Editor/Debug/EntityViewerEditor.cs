@@ -193,8 +193,13 @@ namespace ModulesFrameworkUnity.Debug
             componentFoldout.text = fieldName;
 
             var fields = type.GetFields();
+            componentFoldout.RegisterValueChangedCallback(ev =>
+            {
+                if(ev.newValue && componentFoldout.childCount == 0)
+                    DrawFields(type, componentFoldout);
+            });
 
-            if (fields.Length == 0)
+            if (fields.Length == 0 || !componentFoldout.value)
                 return;
 
             DrawFields(type, componentFoldout);
@@ -202,19 +207,28 @@ namespace ModulesFrameworkUnity.Debug
 
         private void DrawFields(Type type, Foldout componentFoldout)
         {
+            var number = 0;
             foreach (var (index, _) in _viewer.components[type])
             {
                 var origin = _viewer.components[type][index];
                 var componentName = type.Name;
                 var ecsTable = _viewer.World.GetEcsTable(type);
                 if (ecsTable.IsMultiple)
-                    componentName = $"{componentName}[{index}]";
+                    componentName = $"{componentName}[{number++}]";
 
                 var drawer = _drawer.Draw(componentName, origin, componentFoldout, (_, newVal) =>
-                {
-                    _viewer.changedComponents[type][index] = newVal;
-                    ApplyChanges(ecsTable, type);
-                }, () => _viewer.components[type][index]);
+                    {
+                        _viewer.changedComponents[type][index] = newVal;
+                        ApplyChanges(ecsTable, type);
+                    },
+                    () =>
+                    {
+                        if (!_viewer.components.TryGetValue(type, out var components))
+                            return Activator.CreateInstance(type);
+                        if (!components.TryGetValue(index, out var comp))
+                            return Activator.CreateInstance(type);
+                        return comp;
+                    });
 
                 if (_drawers.TryGetValue(type, out var drawers))
                 {

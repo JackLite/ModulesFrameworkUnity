@@ -27,6 +27,7 @@ namespace ModulesFrameworkUnity.Debug
                 Fill(_incCount);
             var fd = _foldouts.First.Value;
             fd.style.opacity = 1;
+            fd.value = false;
             _foldouts.RemoveFirst();
             return fd;
         }
