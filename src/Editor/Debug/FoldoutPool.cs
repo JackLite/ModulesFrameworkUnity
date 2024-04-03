@@ -5,7 +5,7 @@ namespace ModulesFrameworkUnity.Debug
 {
     public class FoldoutPool
     {
-        private readonly LinkedList<Foldout> _foldouts = new();
+        private readonly LinkedList<FoldoutWrapper> _foldouts = new();
         private readonly int _incCount;
         private readonly VisualElement _parent;
         public FoldoutPool (int size, VisualElement parent)
@@ -15,19 +15,20 @@ namespace ModulesFrameworkUnity.Debug
             Fill(size);
         }
         
-        public void Return(Foldout foldout)
+        public void Return(FoldoutWrapper wrapper)
         {
-            foldout.style.opacity = 0;
-            _foldouts.AddFirst(foldout);
+            wrapper.foldout.style.opacity = 0;
+            _foldouts.AddFirst(wrapper);
         }
         
-        public Foldout Pop()
+        public FoldoutWrapper Pop()
         {
             if(_foldouts.First == null)
                 Fill(_incCount);
             var fd = _foldouts.First.Value;
-            fd.style.opacity = 1;
-            fd.value = false;
+            fd.foldout.style.opacity = 1;
+            fd.foldout.SetValueWithoutNotify(false);
+            fd.Reset();
             _foldouts.RemoveFirst();
             return fd;
         }
@@ -38,7 +39,7 @@ namespace ModulesFrameworkUnity.Debug
             {
                 var foldout = new Foldout();
                 foldout.style.opacity = 0;
-                _foldouts.AddLast(foldout);
+                _foldouts.AddLast(new FoldoutWrapper(foldout));
                 _parent.Add(foldout);
             }
         }

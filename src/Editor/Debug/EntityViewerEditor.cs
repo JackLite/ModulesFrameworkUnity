@@ -21,7 +21,7 @@ namespace ModulesFrameworkUnity.Debug
         /// <summary>
         ///     Foldout elements per component type
         /// </summary>
-        private readonly Dictionary<Type, Foldout> _componentsElements = new();
+        private readonly Dictionary<Type, FoldoutWrapper> _componentsElements = new();
 
         /// <summary>
         ///     Drawers per component
@@ -181,28 +181,24 @@ namespace ModulesFrameworkUnity.Debug
 
         private void DrawOneComponent(Type type, ICollection components)
         {
-            var componentFoldout = _foldoutPool.Pop();
-            componentFoldout.Clear();
-            componentFoldout.style.opacity = 1;
-            _componentsElements.Add(type, componentFoldout);
+            var wrapper = _foldoutPool.Pop();
+            wrapper.foldout.style.opacity = 1;
+            _componentsElements.Add(type, wrapper);
 
             var fieldName = type.Name;
             if (components.Count > 1)
                 fieldName += $"({components.Count.ToString(CultureInfo.InvariantCulture)})";
 
-            componentFoldout.text = fieldName;
+            wrapper.foldout.text = fieldName;
 
             var fields = type.GetFields();
-            componentFoldout.RegisterValueChangedCallback(ev =>
-            {
-                if(ev.newValue && componentFoldout.childCount == 0)
-                    DrawFields(type, componentFoldout);
-            });
 
-            if (fields.Length == 0 || !componentFoldout.value)
+            wrapper.type = type;
+            wrapper.OnShowedFirstTime += t => DrawFields(t, wrapper.foldout);
+            if (fields.Length == 0 || !wrapper.foldout.value)
                 return;
 
-            DrawFields(type, componentFoldout);
+            DrawFields(type, wrapper.foldout);
         }
 
         private void DrawFields(Type type, Foldout componentFoldout)
