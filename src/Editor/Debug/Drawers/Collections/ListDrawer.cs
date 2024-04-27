@@ -61,7 +61,16 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override void Update()
         {
-            _foldout.text = $"List: {_fieldName} [{((IList)valueGetter()).Count}]";
+            var count = ((IList)valueGetter()).Count;
+            if (count != _drawers.Count)
+            {
+                _drawers.Clear();
+                _foldout.contentContainer.Clear();
+                DrawList(_fieldName, (IList)valueGetter(), _foldout.contentContainer);
+                return;
+            }
+
+            _foldout.text = $"List: {_fieldName} [{count}]";
             foreach (var drawer in _drawers)
             {
                 drawer.Update();
