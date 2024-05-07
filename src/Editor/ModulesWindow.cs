@@ -27,8 +27,8 @@ namespace ModulesFrameworkUnity
             DrawStartMethod();
             DrawWorldsCount();
             DrawLogType();
-            DrawDataChangeMode();
             DrawPerformanceSettings();
+            DrawCheckEntity();
             DrawSaveButton();
         }
 
@@ -54,6 +54,15 @@ namespace ModulesFrameworkUnity
             _settings.performanceSettings.panicAvgFrameMs = EditorGUILayout.FloatField(panicContent, panic);
 
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawCheckEntity()
+        {
+            EditorGUILayout.Space(20);
+            var content = new GUIContent(
+                "Delete empty entities", 
+                "If true - when you remove last component from entity it will be destroyed");
+            _settings.deleteEmptyEntities = EditorGUILayout.Toggle(content, _settings.deleteEmptyEntities);
         }
 
         private void DrawWorldsCount()
@@ -89,14 +98,6 @@ namespace ModulesFrameworkUnity
                 _settings.Save();
                 UnityEngine.Debug.Log("Saved!");
             }
-        }
-        
-        private void DrawDataChangeMode()
-        {
-            /*const string tooltip = "Set true if you want apply data changes immediately after making them in inspector";
-            var label = new GUIContent("Auto apply changes", tooltip);
-            var isAuto = EditorGUILayout.Toggle(label, _settings.AutoApplyChanges, EditorStyles.toggle);
-            _settings.AutoApplyChanges = isAuto;*/
         }
 
         private void DrawStartMethod()

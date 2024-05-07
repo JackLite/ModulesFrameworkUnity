@@ -21,6 +21,8 @@ namespace ModulesFrameworkUnity.Settings
         public LogFilter logFilter = LogFilter.Full;
 
         public PerformanceSettings performanceSettings;
+        
+        public bool deleteEmptyEntities;
 
         public ModulesSettings()
         {

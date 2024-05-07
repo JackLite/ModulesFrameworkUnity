@@ -22,6 +22,14 @@ namespace ModulesFrameworkUnity
             _settings = settings;
             _ecs = new Ecs(settings.worldsCount);
             world = _ecs.MainWorld;
+            if (_settings.deleteEmptyEntities)
+            {
+                foreach (var dataWorld in _ecs.Worlds)
+                {
+                    dataWorld.OnEntityChanged += (eid) => CheckEmptiness(dataWorld.GetEntity(eid));
+                }
+            }
+
             world.SetLogger(new UnityLogger());
             world.SetLogType(_settings.logFilter);
         }
@@ -77,7 +85,8 @@ namespace ModulesFrameworkUnity
             if (_frames > targetFrameRate)
             {
                 var avgFrameTimeMs = _elapsedTimeMs / _frames;
-                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs && _settings.performanceSettings.debugMode)
+                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs &&
+                    _settings.performanceSettings.debugMode)
                 {
                     world.Logger.LogDebug(
                         $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold",
@@ -99,6 +108,15 @@ namespace ModulesFrameworkUnity
         public void OnDestroy()
         {
             _ecs.Destroy();
+        }
+
+        private static void CheckEmptiness(Entity entity)
+        {
+            if (!entity.IsAlive())
+                return;
+
+            if (entity.IsEmpty())
+                entity.Destroy();
         }
     }
 }
