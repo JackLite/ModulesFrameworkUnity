@@ -9,10 +9,11 @@ namespace ModulesFrameworkUnity
     {
         private ModulesSettings _settings;
 
-        [MenuItem("Modules/Unity Adapter Settings")]
-        public new static void Show()
+        [MenuItem("Modules/Settings")]
+        private static void ShowWindow()
         {
             var window = GetWindow<ModulesWindow>();
+            window.titleContent = new GUIContent("MF Settings");
             window.LoadSettings();
         }
 
