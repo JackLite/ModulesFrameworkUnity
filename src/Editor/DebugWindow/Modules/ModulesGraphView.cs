@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,7 +11,9 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
     {
         private readonly Dictionary<Type, ModuleNode> _nodes = new();
         private readonly SortedDictionary<int, float> _levelWidths = new();
-        private readonly Dictionary<Type, float> _rowHeights = new();
+        private Dictionary<int, float> _rowY = new();
+        
+        public IReadOnlyCollection<ModuleNode> Nodes => _nodes.Values;
 
         public ModulesGraphView()
         {
@@ -19,6 +22,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new ContentZoomer());
+            this.AddManipulator(new RectangleSelector());
 
             var grid = new GridBackground();
             Insert(0, grid);
@@ -31,7 +35,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             if (_nodes.TryGetValue(module, out var createdNode))
                 return createdNode;
-            var node = new ModuleNode(level)
+            var node = new ModuleNode(level, module)
             {
                 title = module.Name
             };
@@ -46,38 +50,68 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             return _nodes[module];
         }
-        
+
         public void RefreshNodesPositions()
         {
-            // first step - calculate max width at every level
-            foreach (var node in _nodes.Values)
+            _rowY = _nodes.Values.Select(n => n.Level).Distinct().ToDictionary(l => l, _ => 0f);
+            foreach (var node in _nodes.Values.OrderByDescending(n => n.Level))
+            {
+                node.RefreshAdjustedHeight();
+            }
+
+            AlignNodesFirstStep();
+            AlignNodesSecondStep();
+
+            foreach (var node in _nodes.Values.OrderByDescending(n => n.Level))
             {
                 _levelWidths.TryAdd(node.Level, node.Width);
                 _levelWidths[node.Level] = Math.Max(_levelWidths[node.Level], node.Width);
             }
-            
-            // second step - calculate max height for every parent module
-            
-            // third step - place parent modules based on max height starting from min
-            // fourth step - place submodules at their level based on their count for parent
+
             foreach (var node in _nodes.Values)
             {
-                var x = SumLevelsWidth(node.Level) + 30 * node.Level;
-                node.SetPosition(new Rect(x, 0, 0, 0));
+                var x = SumLevelsWidth(node.Level) + 100 * node.Level;
+                node.SetX(x);
             }
         }
-        
+
+        private void AlignNodesFirstStep()
+        {
+            var roots = _nodes.Values.Where(n => n.Level == 0)
+                .OrderBy(n => n.SubmodulesCount)
+                .ThenBy(n => n.ModuleType.Name);
+            foreach (var node in roots)
+            {
+                node.SetY(_rowY[0]);
+                node.AlignChildren(_rowY[0], ref _rowY);
+                _rowY[0] += node.SelfHeight;
+                _rowY[0] = _rowY.Values.Max();
+            }
+        }
+
+        private void AlignNodesSecondStep()
+        {
+            foreach (var node in _nodes.Values.OrderByDescending(n => n.Level).ThenBy(n => n.ModuleType.Name))
+            {
+                var diff = node.CalculateChildrenOffset();
+                if (node.ParentModule == null)
+                    node.AddY(diff);
+                else
+                    node.ParentModule.OffsetChildrenY(diff, node);
+            }
+        }
+
         private float SumLevelsWidth(int targetLevel)
         {
             var res = 0f;
             foreach (var (lvl, width) in _levelWidths)
             {
-                if(lvl >= targetLevel)
+                if (lvl >= targetLevel)
                     break;
-                
+
                 res += width;
             }
-            
+
             return res;
         }
     }

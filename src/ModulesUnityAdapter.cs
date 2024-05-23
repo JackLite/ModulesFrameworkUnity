@@ -11,7 +11,7 @@ namespace ModulesFrameworkUnity
     public class ModulesUnityAdapter
     {
         public static DataWorld world;
-        private readonly Ecs _ecs;
+        private readonly MF _modules;
         private double _elapsedTimeMs;
         private int _frames;
         private readonly Stopwatch _stopwatch = new();
@@ -20,11 +20,11 @@ namespace ModulesFrameworkUnity
         public ModulesUnityAdapter(ModulesSettings settings)
         {
             _settings = settings;
-            _ecs = new Ecs(settings.worldsCount);
-            world = _ecs.MainWorld;
+            _modules = new MF(settings.worldsCount);
+            world = _modules.MainWorld;
             if (_settings.deleteEmptyEntities)
             {
-                foreach (var dataWorld in _ecs.Worlds)
+                foreach (var dataWorld in _modules.Worlds)
                 {
                     dataWorld.OnEntityChanged += (eid) => CheckEmptiness(dataWorld.GetEntity(eid));
                 }
@@ -39,13 +39,13 @@ namespace ModulesFrameworkUnity
             for (var i = 0; i < _settings.worldsCount; i++)
             {
                 var debugViewer = new GameObject($"DebugViewer - World {i.ToString(CultureInfo.InvariantCulture)}");
-                debugViewer.AddComponent<DebugViewer>().Init(_ecs.GetWorld(i));
+                debugViewer.AddComponent<DebugViewer>().Init(_modules.GetWorld(i));
             }
         }
 
         public void Start()
         {
-            _ecs.Start();
+            _modules.Start();
         }
 
         public void Update()
@@ -54,7 +54,7 @@ namespace ModulesFrameworkUnity
             _stopwatch.Start();
             #endif
 
-            _ecs.Run();
+            _modules.Run();
 
             #if MODULES_DEBUG
             _stopwatch.Stop();
@@ -65,7 +65,7 @@ namespace ModulesFrameworkUnity
 
         public void FixedUpdate()
         {
-            _ecs.RunPhysic();
+            _modules.RunPhysic();
         }
 
         public void LateUpdate()
@@ -74,7 +74,7 @@ namespace ModulesFrameworkUnity
             _stopwatch.Start();
             #endif
 
-            _ecs.PostRun();
+            _modules.PostRun();
 
             #if MODULES_DEBUG
             _stopwatch.Stop();
@@ -107,7 +107,7 @@ namespace ModulesFrameworkUnity
 
         public void OnDestroy()
         {
-            _ecs.Destroy();
+            _modules.Destroy();
         }
 
         private static void CheckEmptiness(Entity entity)
