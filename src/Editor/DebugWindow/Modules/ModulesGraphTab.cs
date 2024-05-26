@@ -5,40 +5,35 @@ using ModulesFramework;
 using ModulesFramework.Attributes;
 using ModulesFramework.Modules;
 using ModulesFramework.Utils;
-using ModulesFrameworkUnity.DebugWindow.Modules;
+using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace ModulesFrameworkUnity.DebugWindow
+namespace ModulesFrameworkUnity.DebugWindow.Modules
 {
-    public class ModulesDebugWindow : EditorWindow
+    /// <summary>
+    ///     View for modules visualized as graph
+    /// </summary>
+    public class ModulesGraphTab
     {
-        private ModulesDebugWindowTabs _tabs;
-        private bool _initialized;
         private ModulesGraphView _graph;
+        private readonly VisualElement _root = new();
 
-        [MenuItem("Modules/Data Viewer")]
-        private static void ShowWindow()
-        {
-            var window = GetWindow<ModulesDebugWindow>();
-            window.titleContent = new GUIContent("MF Data Viewer");
-            window.Init();
-            window.Show();
-        }
+        public VisualElement Root => _root;
 
-        private void Init()
-        {
-            _tabs = new ModulesDebugWindowTabs();
-        }
-
-        private void OnEnable()
+        public void Show()
         {
             DrawModules();
             EditorApplication.playModeStateChanged += OnPlayModeChanges;
             if (Application.isPlaying)
                 UpdateForPlayMode();
+        }
+
+        public void Hide()
+        {
+            _root.Clear();
         }
 
         private void OnPlayModeChanges(PlayModeStateChange change)
@@ -58,7 +53,6 @@ namespace ModulesFrameworkUnity.DebugWindow
         {
             foreach (var node in _graph.Nodes)
             {
-                // add activate/deactivate btns to nodes
                 node.SetPlayMode();
                 var module = MF.Instance.MainWorld.GetModule(node.ModuleType);
                 module.OnInitialized += node.OnModuleInit;
@@ -74,8 +68,9 @@ namespace ModulesFrameworkUnity.DebugWindow
 
         private void DrawModules()
         {
-            rootVisualElement.Clear();
-            var modules = AppDomain.CurrentDomain.GetAssemblies()
+            _root.Clear();
+            var filter = new UnityAssemblyFilter();
+            var modules = AppDomain.CurrentDomain.GetAssemblies().Where(filter.Filter)
                 .SelectMany(a => a.GetTypes()
                     .Where(t => t != typeof(EmbeddedGlobalModule) && ModuleUtil.GetWorldIndex(t).Contains(0))
                     .Where(t => t.IsSubclassOf(typeof(EcsModule)) && !t.IsAbstract)
@@ -84,7 +79,7 @@ namespace ModulesFrameworkUnity.DebugWindow
             _graph = new ModulesGraphView();
             _graph.StretchToParentSize();
 
-            // first create usual modules cause they may not have submodules
+            // first, create usual modules because they may not have submodules
             foreach (var module in modules)
             {
                 if (module.GetCustomAttribute<SubmoduleAttribute>() != null)
@@ -129,7 +124,7 @@ namespace ModulesFrameworkUnity.DebugWindow
             }
 
             _graph.RefreshNodesPositions();
-            rootVisualElement.Add(_graph);
+            _root.Add(_graph);
         }
 
         private int CalculateLvl(Type module, int startLevel = 0)
@@ -147,11 +142,6 @@ namespace ModulesFrameworkUnity.DebugWindow
                 module = parent;
                 startLevel += 1;
             }
-        }
-
-        private void OnDisable()
-        {
-            rootVisualElement.Clear();
         }
     }
 }

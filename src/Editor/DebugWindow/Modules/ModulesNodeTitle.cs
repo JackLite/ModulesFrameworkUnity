@@ -24,6 +24,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                     justifyContent = Justify.SpaceAround
                 }
             };
+            _initDestroyBtn.text = "Init";
+            _activateBtn.text = "Activate";
             _buttonsPanel.Add(_initDestroyBtn);
             _buttonsPanel.Add(_activateBtn);
             _activateBtn.style.display = DisplayStyle.None;

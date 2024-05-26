@@ -4,13 +4,13 @@ using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Settings;
+using ModulesFrameworkUnity.Utils;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
 {
     public class ModulesUnityAdapter
     {
-        public static DataWorld world;
         private readonly MF _modules;
         private double _elapsedTimeMs;
         private int _frames;
@@ -20,8 +20,7 @@ namespace ModulesFrameworkUnity
         public ModulesUnityAdapter(ModulesSettings settings)
         {
             _settings = settings;
-            _modules = new MF(settings.worldsCount);
-            world = _modules.MainWorld;
+            _modules = new MF(settings.worldsCount, new UnityAssemblyFilter());
             if (_settings.deleteEmptyEntities)
             {
                 foreach (var dataWorld in _modules.Worlds)
@@ -30,8 +29,8 @@ namespace ModulesFrameworkUnity
                 }
             }
 
-            world.SetLogger(new UnityLogger());
-            world.SetLogType(_settings.logFilter);
+            _modules.MainWorld.SetLogger(new UnityLogger());
+            _modules.MainWorld.SetLogType(_settings.logFilter);
         }
 
         public void StartDebug()
@@ -45,7 +44,7 @@ namespace ModulesFrameworkUnity
 
         public void Start()
         {
-            _modules.Start();
+            _modules.Start().Forget();
         }
 
         public void Update()
@@ -88,14 +87,14 @@ namespace ModulesFrameworkUnity
                 if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs &&
                     _settings.performanceSettings.debugMode)
                 {
-                    world.Logger.LogDebug(
+                    _modules.MainWorld.Logger.LogDebug(
                         $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold",
                         LogFilter.Performance);
                 }
 
                 if (avgFrameTimeMs > _settings.performanceSettings.panicAvgFrameMs)
                 {
-                    world.Logger.LogWarning(
+                    _modules.MainWorld.Logger.LogWarning(
                         $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than panic threshold");
                 }
 

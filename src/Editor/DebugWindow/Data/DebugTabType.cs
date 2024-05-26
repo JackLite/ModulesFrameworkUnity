@@ -3,7 +3,7 @@
     public enum DebugTabType
     {
         Modules,
-            OneData,
-                Entities
+        OneData,
+        Entities
     }
 }
