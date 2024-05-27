@@ -54,7 +54,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             foreach (var node in _graph.Nodes)
             {
                 node.SetPlayMode();
-                var module = MF.Instance.MainWorld.GetModule(node.ModuleType);
+                var module = MF.World.GetModule(node.ModuleType);
                 module.OnInitialized += node.OnModuleInit;
                 module.OnActivated += node.OnModuleActivated;
                 module.OnDeactivated += node.OnModuleDeactivated;

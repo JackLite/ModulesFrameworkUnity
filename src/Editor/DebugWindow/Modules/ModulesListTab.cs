@@ -96,7 +96,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             foreach (var element in _elements)
             {
                 element.SetPlayMode();
-                var module = MF.Instance.MainWorld.GetModule(element.ModuleType);
+                var module = MF.World.GetModule(element.ModuleType);
                 module.OnInitialized += element.OnModuleInit;
                 module.OnActivated += element.OnModuleActivated;
                 module.OnDeactivated += element.OnModuleDeactivated;

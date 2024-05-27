@@ -139,27 +139,27 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         private void OnActivateClicked()
         {
-            var module = MF.Instance.MainWorld.GetModule(ModuleType);
+            var module = MF.World.GetModule(ModuleType);
             if (module.IsActive)
             {
-                MF.Instance.MainWorld.DeactivateModule(ModuleType);
+                MF.World.DeactivateModule(ModuleType);
             }
             else
             {
-                MF.Instance.MainWorld.ActivateModule(ModuleType);
+                MF.World.ActivateModule(ModuleType);
             }
         }
 
         private void OnInitClicked()
         {
-            var module = MF.Instance.MainWorld.GetModule(ModuleType);
+            var module = MF.World.GetModule(ModuleType);
             if (module.IsInitialized)
             {
-                MF.Instance.MainWorld.DestroyModule(ModuleType);
+                MF.World.DestroyModule(ModuleType);
             }
             else
             {
-                MF.Instance.MainWorld.InitModule(ModuleType);
+                MF.World.InitModule(ModuleType);
             }
         }
     }
