@@ -16,7 +16,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
     public class ModulesListTab
     {
         private readonly List<ModulesListElement> _elements = new List<ModulesListElement>();
-        public VisualElement Root { get; } = new();
+        public ScrollView Root { get; } = new();
 
         public void Show()
         {
@@ -35,7 +35,9 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 .SelectMany(a => a.GetTypes()
                     .Where(t => t != typeof(EmbeddedGlobalModule) && ModuleUtil.GetWorldIndex(t).Contains(0))
                     .Where(t => t.IsSubclassOf(typeof(EcsModule)) && !t.IsAbstract)
-                ).ToArray();
+                )
+                .OrderBy(t => t.Name)
+                .ToArray();
 
             var modulesRoot = new VisualElement
             {
