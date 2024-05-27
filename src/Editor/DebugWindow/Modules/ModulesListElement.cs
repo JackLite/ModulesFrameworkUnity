@@ -105,22 +105,30 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             _initDestroyBtn.text = "Destroy";
             _activateBtn.visible = true;
+            var foldoutText = _foldout.Q<Label>(className: "unity-foldout__text");
+            foldoutText.style.unityFontStyleAndWeight = FontStyle.Italic;
         }
 
         public void OnModuleActivated()
         {
             _activateBtn.text = "Deactivate";
+            var foldoutText = _foldout.Q<Label>(className: "unity-foldout__text");
+            foldoutText.style.unityFontStyleAndWeight = FontStyle.BoldAndItalic;
         }
 
         public void OnModuleDeactivated()
         {
             _activateBtn.text = "Activate";
+            var foldoutText = _foldout.Q<Label>(className: "unity-foldout__text");
+            foldoutText.style.unityFontStyleAndWeight = FontStyle.Italic;
         }
 
         public void OnModuleDestroyed()
         {
             _initDestroyBtn.text = "Init";
             _activateBtn.visible = false;
+            var foldoutText = _foldout.Q<Label>(className: "unity-foldout__text");
+            foldoutText.style.unityFontStyleAndWeight = FontStyle.Normal;
         }
 
         public void SetPlayMode()
