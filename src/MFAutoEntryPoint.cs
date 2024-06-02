@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ModulesFrameworkUnity
 {
-    public class EcsWorldContainer
+    public class MFAutoEntryPoint
     {
         private static ModulesUnityAdapter _adapter;
         internal static ModulesSettings Settings { get; private set; }
@@ -15,7 +15,7 @@ namespace ModulesFrameworkUnity
             if (Settings.startMethod != StartMethod.Auto)
                 return;
             _adapter = new ModulesUnityAdapter(Settings);
-            var ecsMono = new GameObject("EcsWorld").AddComponent<EcsUnityLoopProvider>();
+            var ecsMono = new GameObject("EcsWorld").AddComponent<MFUnityLoopProvider>();
             ecsMono.OnUpdate = _adapter.Update;
             ecsMono.OnFixedUpdate = _adapter.FixedUpdate;
             ecsMono.OnLateUpdate = _adapter.LateUpdate;

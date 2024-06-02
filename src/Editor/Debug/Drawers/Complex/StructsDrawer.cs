@@ -15,6 +15,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
         public override int Order => 100;
         private readonly List<FieldDrawer> _drawers = new();
 
+        public event Action<bool> OnChangeOpenState;
+
         public override bool CanDraw(object value)
         {
             if (value == null)
@@ -25,6 +27,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
         public override void Draw(string labelText, object value, VisualElement parent)
         {
             var structContainer = new Foldout();
+            structContainer.RegisterValueChangedCallback(ev => OnChangeOpenState?.Invoke(ev.newValue));
             DrawHeader(labelText, structContainer);
             foreach (var fieldInfo in value.GetType().GetFields())
             {

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ModulesFrameworkUnity
 {
-    public class EcsUnityLoopProvider : MonoBehaviour
+    public class MFUnityLoopProvider : MonoBehaviour
     {
         public Action OnUpdate;
         public Action OnFixedUpdate;
@@ -14,7 +14,7 @@ namespace ModulesFrameworkUnity
 
         private void Awake()
         {
-            if (FindObjectOfType<EcsUnityLoopProvider>() != this)
+            if (FindObjectOfType<MFUnityLoopProvider>() != this)
             {
                 DestroyImmediate(gameObject);
                 return;
@@ -36,7 +36,7 @@ namespace ModulesFrameworkUnity
         {
             OnLateUpdate?.Invoke();
         }
-        
+
         private void OnDestroy()
         {
             OnDestroyed?.Invoke();

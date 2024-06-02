@@ -1,5 +1,6 @@
 ﻿using ModulesFrameworkUnity.DebugWindow.Modules;
 using ModulesFrameworkUnity.DebugWindow.Modules.Data;
+using ModulesFrameworkUnity.DebugWindow.OneData;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace ModulesFrameworkUnity.DebugWindow
     {
         private DebugWindowTabs _tabs;
         private ModulesTab _modulesTab;
+        private OneDataTab _oneDataTab;
 
         [SerializeField]
         private ModulesTabMode _modulesTabMode;
@@ -31,12 +33,19 @@ namespace ModulesFrameworkUnity.DebugWindow
             _modulesTab.Show(rootVisualElement);
             _modulesTab.OnSwitchMode += OnSwitchMode;
             _tabs.Draw(rootVisualElement);
+
+            if (Application.isPlaying)
+            {
+                _oneDataTab ??= new OneDataTab();
+                rootVisualElement.Add(_oneDataTab);
+                _modulesTab.Hide();
+            }
         }
 
         private void OnSwitchMode(ModulesTabMode mode)
         {
             _modulesTabMode = mode;
-            EditorPrefs.SetInt("MF.ModulesTabMode", (int) mode);
+            EditorPrefs.SetInt("MF.ModulesTabMode", (int)mode);
         }
 
         private void OnDisable()

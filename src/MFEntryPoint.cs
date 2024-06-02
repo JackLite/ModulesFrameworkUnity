@@ -1,10 +1,9 @@
-﻿using System;
-using ModulesFrameworkUnity.Settings;
+﻿using ModulesFrameworkUnity.Settings;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
 {
-    public class EcsEntry : MonoBehaviour
+    public class MFEntryPoint : MonoBehaviour
     {
         private ModulesUnityAdapter _adapter;
         private static bool _created;
