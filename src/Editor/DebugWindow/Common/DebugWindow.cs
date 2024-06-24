@@ -39,10 +39,10 @@ namespace ModulesFrameworkUnity.DebugWindow
             _modulesTab.Hide();
             rootVisualElement.Add(_modulesTab);
 
-            var oneDataScroll = new ScrollView();
+            var oneDataRoot = new VisualElement();
             _oneDataTab ??= new OneDataTab();
-            rootVisualElement.Add(oneDataScroll);
-            _oneDataTab.Draw(oneDataScroll);
+            rootVisualElement.Add(oneDataRoot);
+            _oneDataTab.Draw(oneDataRoot);
             _oneDataTab.Show();
 
             _tabs ??= new DebugWindowTabs();

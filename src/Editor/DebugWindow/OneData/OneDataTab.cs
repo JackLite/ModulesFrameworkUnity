@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ModulesFramework;
 using UnityEditor;
 using UnityEngine;
@@ -13,20 +14,30 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
     [Serializable]
     public class OneDataTab
     {
-        private List<OneDataDrawer> _viewers;
+        private Dictionary<Type, OneDataDrawer> _drawers = new();
         private TextField _searchField;
 
         [SerializeField]
         private string _searchStr;
 
-        private ScrollView _root;
+        [SerializeField]
+        private List<string> _pinnedData;
 
-        public void Draw(ScrollView root)
+        private VisualElement _root;
+        private ScrollView _scrollView;
+
+        public void Draw(VisualElement root)
         {
             _root = root;
-            _viewers ??= new List<OneDataDrawer>();
-            _viewers.Clear();
+            _root.AddToClassList("modules-one-data-tab");
+            var styles = Resources.Load<StyleSheet>("OneDataTabUSS");
+            _root.styleSheets.Add(styles);
+
             CreateSearch();
+
+            _scrollView = new ScrollView();
+            _root.Add(_scrollView);
+            _drawers.Clear();
             if (!MF.IsInitialized)
                 return;
             CreateViewersForExisted();
@@ -36,23 +47,10 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         {
             _searchField = new TextField
             {
-                style =
-                {
-                    marginBottom = 10,
-                    marginLeft = 10,
-                    marginRight = 300,
-                    marginTop = 10
-                },
                 label = "Filter",
                 value = _searchStr
             };
-            var inputText = _searchField.Query().Class("unity-text-element--inner-input-field-component").First();
-            inputText.style.fontSize = 14;
-
-            var label = _searchField.Query().Class("unity-text-field__label").First();
-            label.style.fontSize = 16;
-            label.style.minWidth = 0;
-            label.style.marginRight = 15;
+            _searchField.AddToClassList("modules-search-field");
             _searchField.RegisterValueChangedCallback(ev => OnSearch(ev.newValue));
             _root.Add(_searchField);
         }
@@ -67,7 +65,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         {
             if (string.IsNullOrWhiteSpace(searchStr))
             {
-                foreach (var dataDrawer in _viewers)
+                foreach (var (_, dataDrawer) in _drawers)
                 {
                     dataDrawer.SetVisible(true);
                 }
@@ -75,7 +73,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
                 return;
             }
 
-            foreach (var dataDrawer in _viewers)
+            foreach (var (_, dataDrawer) in _drawers)
             {
                 var isMatch = dataDrawer.DataType.Name.Contains(searchStr, StringComparison.InvariantCultureIgnoreCase);
                 dataDrawer.SetVisible(isMatch);
@@ -93,6 +91,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         private void CreateViewersForExisted()
         {
             MF.World.OnOneDataCreated += OnCreated;
+            MF.World.OnOneDataRemoved += OnRemoved;
             foreach (var data in MF.World.OneDataCollection)
             {
                 OnCreated(data.GetDataObject().GetType(), data);
@@ -103,8 +102,28 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
 
         private void OnCreated(Type dataType, ModulesFramework.OneData data)
         {
-            var dataDrawer = new OneDataDrawer(data, _root);
-            _viewers.Add(dataDrawer);
+            var dataDrawer = new OneDataDrawer(data, _scrollView);
+            _drawers.Add(dataType, dataDrawer);
+            ResortDrawers();
+        }
+
+        private void OnRemoved(Type dataType)
+        {
+            if (_drawers.TryGetValue(dataType, out var drawer))
+            {
+                drawer.Destroy();
+                _drawers.Remove(dataType);
+            }
+
+            ResortDrawers();
+        }
+
+        private void ResortDrawers()
+        {
+            foreach (var dataDrawer in _drawers.Values.OrderByDescending(d => d.DataType.Name))
+            {
+                dataDrawer.SetFirst();
+            }
         }
 
         public void Show()

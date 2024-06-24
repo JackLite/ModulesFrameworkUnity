@@ -13,7 +13,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
     {
         private readonly StructsDrawer _structsDrawer;
 
-        public Type DataType { get; private set; }
+        public Type DataType { get; }
 
         public OneDataDrawer(ModulesFramework.OneData data, VisualElement root)
         {
@@ -32,6 +32,19 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
             _structsDrawer.Draw(typeName + gen, dataObject, root);
             _structsDrawer.SetOpenState(false);
             _structsDrawer.OnChangeOpenState += OnChanged;
+
+            CreatePinBtn();
+        }
+
+        private void CreatePinBtn()
+        {
+            var toggle = _structsDrawer.Foldout.Q<Toggle>();
+            var pinBtn = new Button
+            {
+                text = "Pin"
+            };
+            pinBtn.AddToClassList("modules-pin-btn");
+            toggle.Add(pinBtn);
         }
 
         private void OnChanged(bool isOpened)
@@ -50,6 +63,16 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         public void SetVisible(bool isMatch)
         {
             _structsDrawer.SetVisible(isMatch);
+        }
+
+        public void SetFirst()
+        {
+            _structsDrawer.Foldout.SendToBack();
+        }
+
+        public void Destroy()
+        {
+            _structsDrawer.Foldout.RemoveFromHierarchy();
         }
     }
 }

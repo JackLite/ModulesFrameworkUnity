@@ -16,6 +16,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
         private readonly List<FieldDrawer> _drawers = new();
         private Foldout _foldout;
 
+        public Foldout Foldout => _foldout;
+
         public event Action<bool> OnChangeOpenState;
 
         public override bool CanDraw(object value)
@@ -39,7 +41,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, _foldout, (prev, newVal) =>
+                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, _foldout, (_, newVal) =>
                 {
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     {

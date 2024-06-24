@@ -1,0 +1,19 @@
+﻿.modules-search-field {
+    margin: 10 300 10 10;
+}
+
+.modules-search-field > * > .unity-text-element--inner-input-field-component {
+    font-size: 14;
+}
+
+.modules-search-field > .unity-text-field__label {
+    font-size: 16;
+    min-width: 0;
+    margin-right: 15;
+}
+
+.modules-pin-btn {
+    margin: 5;
+    padding: 4 5;
+    cursor: link;
+}
