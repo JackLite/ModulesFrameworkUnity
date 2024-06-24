@@ -96,8 +96,6 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
             {
                 OnCreated(data.GetDataObject().GetType(), data);
             }
-
-            FilterOneData(_searchStr);
         }
 
         private void OnCreated(Type dataType, ModulesFramework.OneData data)
@@ -105,6 +103,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
             var dataDrawer = new OneDataDrawer(data, _scrollView);
             _drawers.Add(dataType, dataDrawer);
             ResortDrawers();
+            FilterOneData(_searchStr);
         }
 
         private void OnRemoved(Type dataType)
