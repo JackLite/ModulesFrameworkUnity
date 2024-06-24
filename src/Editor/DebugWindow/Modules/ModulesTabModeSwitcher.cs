@@ -44,5 +44,16 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 return "Switch to List";
             return "Switch to Graph";
         }
+
+        public void Show(ModulesTabMode currentMode)
+        {
+            UpdateMode(currentMode);
+            _switchButton.visible = true;
+        }
+
+        public void Hide()
+        {
+            _switchButton.visible = false;
+        }
     }
 }

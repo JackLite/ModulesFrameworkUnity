@@ -17,13 +17,11 @@ namespace ModulesFrameworkUnity.Debug
             name = $"{type.Name} [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
             DataType = type;
             Data = oneData;
-            oneData.Copy();
         }
 
         public void UpdateData(object changed)
         {
             Data.SetDataObject(changed);
-            Data.Copy();
         }
 
         internal void RiseUpdate()

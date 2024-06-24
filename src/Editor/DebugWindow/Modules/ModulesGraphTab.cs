@@ -33,6 +33,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public void Hide()
         {
+            EditorApplication.playModeStateChanged -= OnPlayModeChanges;
             _root.Clear();
         }
 

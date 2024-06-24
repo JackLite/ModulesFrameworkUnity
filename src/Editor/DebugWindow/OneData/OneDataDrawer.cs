@@ -1,4 +1,6 @@
-﻿using ModulesFrameworkUnity.Debug;
+﻿using System;
+using System.Globalization;
+using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using UnityEngine.UIElements;
 
@@ -9,22 +11,32 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
     /// </summary>
     public class OneDataDrawer
     {
-        private readonly EditorDrawer _drawer;
         private readonly StructsDrawer _structsDrawer;
+
+        public Type DataType { get; private set; }
 
         public OneDataDrawer(ModulesFramework.OneData data, VisualElement root)
         {
             _structsDrawer = new StructsDrawer();
-            _drawer = new EditorDrawer();
-            _structsDrawer.Init(_drawer, (o, o1) => {}, data.GetDataObject);
+            var drawer = new EditorDrawer();
             var dataObject = data.GetDataObject();
-            _structsDrawer.Draw(dataObject.GetType().Name, dataObject, root);
+            DataType = dataObject.GetType();
+            var typeName = DataType.Name;
+            _structsDrawer.Init(drawer, (_, newVal) =>
+            {
+                var gen = $" [Gen {data.generation.ToString(CultureInfo.InvariantCulture)}]";
+                data.SetDataObject(newVal);
+                _structsDrawer.UpdateLabel(typeName + gen);
+            }, data.GetDataObject);
+            var gen = $" [Gen {data.generation.ToString(CultureInfo.InvariantCulture)}]";
+            _structsDrawer.Draw(typeName + gen, dataObject, root);
+            _structsDrawer.SetOpenState(false);
             _structsDrawer.OnChangeOpenState += OnChanged;
         }
 
         private void OnChanged(bool isOpened)
         {
-            if(isOpened)
+            if (isOpened)
                 DebugEventBus.Update += UpdateData;
             else
                 DebugEventBus.Update -= UpdateData;
@@ -32,8 +44,12 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
 
         private void UpdateData()
         {
-            UnityEngine.Debug.Log("test");
             _structsDrawer.Update();
+        }
+
+        public void SetVisible(bool isMatch)
+        {
+            _structsDrawer.SetVisible(isMatch);
         }
     }
 }

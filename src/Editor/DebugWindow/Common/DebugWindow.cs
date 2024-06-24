@@ -1,8 +1,11 @@
-﻿using ModulesFrameworkUnity.DebugWindow.Modules;
+﻿using System;
+using ModulesFrameworkUnity.DebugWindow.Data;
+using ModulesFrameworkUnity.DebugWindow.Modules;
 using ModulesFrameworkUnity.DebugWindow.Modules.Data;
 using ModulesFrameworkUnity.DebugWindow.OneData;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow
 {
@@ -10,6 +13,8 @@ namespace ModulesFrameworkUnity.DebugWindow
     {
         private DebugWindowTabs _tabs;
         private ModulesTab _modulesTab;
+
+        [SerializeField]
         private OneDataTab _oneDataTab;
 
         [SerializeField]
@@ -26,19 +31,43 @@ namespace ModulesFrameworkUnity.DebugWindow
         private void OnEnable()
         {
             hideFlags = HideFlags.HideAndDontSave;
-            _tabs ??= new DebugWindowTabs();
             if (EditorPrefs.HasKey("MF.ModulesTabMode") && _modulesTabMode == ModulesTabMode.Undefined)
                 _modulesTabMode = (ModulesTabMode)EditorPrefs.GetInt("MF.ModulesTabMode");
             _modulesTab ??= new ModulesTab(_modulesTabMode);
-            _modulesTab.Show(rootVisualElement);
+            _modulesTab.Show();
             _modulesTab.OnSwitchMode += OnSwitchMode;
-            _tabs.Draw(rootVisualElement);
+            _modulesTab.Hide();
+            rootVisualElement.Add(_modulesTab);
 
-            if (Application.isPlaying)
+            var oneDataScroll = new ScrollView();
+            _oneDataTab ??= new OneDataTab();
+            rootVisualElement.Add(oneDataScroll);
+            _oneDataTab.Draw(oneDataScroll);
+            _oneDataTab.Show();
+
+            _tabs ??= new DebugWindowTabs();
+            _tabs.Draw(rootVisualElement);
+            _tabs.SwitchTab += SwitchTab;
+        }
+
+        private void SwitchTab(DebugTabType type)
+        {
+            switch (type)
             {
-                _oneDataTab ??= new OneDataTab();
-                rootVisualElement.Add(_oneDataTab);
-                _modulesTab.Hide();
+                case DebugTabType.Modules:
+                    _modulesTab.Show();
+                    _oneDataTab.Hide();
+                    break;
+                case DebugTabType.OneData:
+                    _modulesTab.Hide();
+                    _oneDataTab.Show();
+                    break;
+                case DebugTabType.Entities:
+                    _modulesTab.Hide();
+                    _oneDataTab.Hide();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
 
@@ -51,6 +80,7 @@ namespace ModulesFrameworkUnity.DebugWindow
         private void OnDisable()
         {
             _modulesTab.Hide();
+            _oneDataTab.Hide();
             _modulesTab.OnSwitchMode -= OnSwitchMode;
             rootVisualElement.Clear();
         }

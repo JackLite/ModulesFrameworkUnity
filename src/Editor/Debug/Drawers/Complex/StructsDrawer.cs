@@ -14,6 +14,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
     {
         public override int Order => 100;
         private readonly List<FieldDrawer> _drawers = new();
+        private Foldout _foldout;
 
         public event Action<bool> OnChangeOpenState;
 
@@ -26,9 +27,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         public override void Draw(string labelText, object value, VisualElement parent)
         {
-            var structContainer = new Foldout();
-            structContainer.RegisterValueChangedCallback(ev => OnChangeOpenState?.Invoke(ev.newValue));
-            DrawHeader(labelText, structContainer);
+            _foldout = new Foldout();
+            _foldout.RegisterValueChangedCallback(ev => OnChangeOpenState?.Invoke(ev.newValue));
+            DrawHeader(labelText, _foldout);
             foreach (var fieldInfo in value.GetType().GetFields())
             {
                 // skip static fields cause anyway you can't change it
@@ -38,7 +39,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, structContainer, (prev, newVal) =>
+                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, _foldout, (prev, newVal) =>
                 {
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     {
@@ -55,7 +56,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 _drawers.Add(drawer);
             }
 
-            parent.Add(structContainer);
+            parent.Add(_foldout);
         }
 
         private void DrawHeader(string labelText, Foldout root)
@@ -85,6 +86,21 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             {
                 fieldDrawer.Update();
             }
+        }
+
+        internal void UpdateLabel(string label)
+        {
+            _foldout.text = label;
+        }
+
+        internal void SetOpenState(bool state)
+        {
+            _foldout.value = state;
+        }
+
+        internal void SetVisible(bool isVisible)
+        {
+            _foldout.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }
