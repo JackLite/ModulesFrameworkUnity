@@ -21,7 +21,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         private string _searchStr;
 
         [SerializeField]
-        private List<string> _pinnedData;
+        private List<string> _pinnedData = new();
 
         private VisualElement _root;
         private ScrollView _scrollView;
@@ -76,7 +76,8 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
             foreach (var (_, dataDrawer) in _drawers)
             {
                 var isMatch = dataDrawer.DataType.Name.Contains(searchStr, StringComparison.InvariantCultureIgnoreCase);
-                dataDrawer.SetVisible(isMatch);
+                var isPinned = _pinnedData.Contains(dataDrawer.DataType.Name);
+                dataDrawer.SetVisible(isMatch || isPinned);
             }
         }
 
@@ -105,8 +106,21 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
                 drawer.Destroy();
 
             _drawers[dataType] = dataDrawer;
+            dataDrawer.SetPinned(_pinnedData.Contains(dataType.Name));
+            dataDrawer.OnPin += () => OnPin(dataDrawer);
             ResortDrawers();
             FilterOneData(_searchStr);
+        }
+
+        private void OnPin(OneDataDrawer dataDrawer)
+        {
+            var isPinned = _pinnedData.Contains(dataDrawer.DataType.Name);
+            if (isPinned)
+                _pinnedData.Remove(dataDrawer.DataType.Name);
+            else
+                _pinnedData.Add(dataDrawer.DataType.Name);
+            dataDrawer.SetPinned(!isPinned);
+            ResortDrawers();
         }
 
         private void OnRemoved(Type dataType)
@@ -122,7 +136,10 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
 
         private void ResortDrawers()
         {
-            foreach (var dataDrawer in _drawers.Values.OrderByDescending(d => d.DataType.Name))
+            var orderedDrawers = _drawers.Values
+                .OrderBy(d => _pinnedData.Contains(d.DataType.Name))
+                .ThenByDescending(d => d.DataType.Name);
+            foreach (var dataDrawer in orderedDrawers)
             {
                 dataDrawer.SetFirst();
             }

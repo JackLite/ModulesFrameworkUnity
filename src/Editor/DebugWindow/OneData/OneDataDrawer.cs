@@ -12,8 +12,11 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
     public class OneDataDrawer
     {
         private readonly StructsDrawer _structsDrawer;
+        private Button _pinBtn;
 
         public Type DataType { get; }
+
+        public event Action OnPin;
 
         public OneDataDrawer(ModulesFramework.OneData data, VisualElement root)
         {
@@ -39,12 +42,18 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         private void CreatePinBtn()
         {
             var toggle = _structsDrawer.Foldout.Q<Toggle>();
-            var pinBtn = new Button
+            _pinBtn = new Button
             {
                 text = "Pin"
             };
-            pinBtn.AddToClassList("modules-pin-btn");
-            toggle.Add(pinBtn);
+            _pinBtn.AddToClassList("modules-pin-btn");
+            toggle.Add(_pinBtn);
+            _pinBtn.clicked += () => OnPin?.Invoke();
+        }
+
+        public void SetPinned(bool isPinned)
+        {
+            _pinBtn.text = isPinned ? "Unpin" : "Pin";
         }
 
         private void OnChanged(bool isOpened)
