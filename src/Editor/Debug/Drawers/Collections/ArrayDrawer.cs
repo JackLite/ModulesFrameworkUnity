@@ -7,13 +7,10 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
-    public class ArrayDrawer : FieldDrawer
+    public class ArrayDrawer : BaseCollectionDrawer
     {
-        private Foldout _foldout;
         private VisualElement _elements;
-        private string _fieldName;
-        private readonly List<FieldDrawer> _drawers = new();
-        
+
         public override bool CanDraw(object value)
         {
             return value is Array;
@@ -21,8 +18,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
-            var value = (Array) fieldValue;
-            var container = new VisualElement();
+            var value = (Array)fieldValue;
+            _container = new VisualElement();
             _foldout = new Foldout
             {
                 text = $"Array: {labelText} [{value.Length}]",
@@ -33,18 +30,22 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _foldout.Add(_elements);
             DrawArray(labelText, value, _elements);
 
-            container.Add(_foldout);
-            parent.Add(container);
+            _container.Add(_foldout);
+            parent.Add(_container);
         }
+
         public override void Update()
         {
+            ProceedNull();
+            if (_isNull)
+                return;
             _foldout.text = $"Array: {_fieldName} [{((Array)valueGetter()).Length}]";
             foreach (var drawer in _drawers)
             {
                 drawer.Update();
             }
         }
-        
+
         private void DrawArray(string fieldName, Array value, VisualElement container)
         {
             for (var i = 0; i < value.Length; i++)

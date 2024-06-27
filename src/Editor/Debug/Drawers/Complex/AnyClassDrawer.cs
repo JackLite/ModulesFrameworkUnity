@@ -10,10 +10,12 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 {
-    public class AnyClassDrawer : FieldDrawer
+    public class AnyClassDrawer : FieldRefDrawer
     {
         public override int Order => 10000;
         private readonly List<FieldDrawer> _drawers = new();
+        private Foldout _foldout;
+        private string _labelText;
 
         public override bool CanDraw(object value)
         {
@@ -21,20 +23,28 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 return false;
             var type = value.GetType();
             return !type.IsValueType
-                   && !type.IsPrimitive
-                   && type.GetConstructor(Type.EmptyTypes) != null;
+                   && !type.IsPrimitive;
         }
 
         public override void Draw(string labelText, object value, VisualElement parent)
         {
-            var root = new Foldout();
-            DrawHeader(labelText, root);
+            _container = new();
+            _foldout = new Foldout();
+            _container.Add(_foldout);
+            _labelText = labelText;
+            DrawInternal(value);
+            parent.Add(_container);
+        }
+
+        private void DrawInternal(object value)
+        {
+            DrawHeader(_labelText, _foldout);
             foreach (var fieldInfo in value.GetType().GetFields())
             {
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, root, (prev, newVal) =>
+                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, _foldout, (prev, newVal) =>
                 {
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     {
@@ -50,8 +60,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                     drawer.SetReadOnly(true);
                 _drawers.Add(drawer);
             }
-
-            parent.Add(root);
         }
 
         private void DrawHeader(string labelText, Foldout root)
@@ -82,9 +90,28 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         public override void Update()
         {
+            ProceedNull();
+            if (_isNull)
+                return;
+
             foreach (var fieldDrawer in _drawers)
             {
                 fieldDrawer.Update();
+            }
+        }
+
+        protected override void OnNullChanged()
+        {
+            if (_isNull)
+            {
+                _foldout.Clear();
+                _drawers.Clear();
+                nullDrawer.Draw(_labelText, null, _container);
+            }
+            else
+            {
+                _foldout.Clear();
+                Draw(_labelText, valueGetter(), _container);
             }
         }
     }

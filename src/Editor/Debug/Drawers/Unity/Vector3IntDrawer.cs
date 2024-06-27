@@ -26,7 +26,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Unity
 
         protected override void Update(Func<Vector3Int> getter)
         {
-            _field.value = getter();
+            _field.SetValueWithoutNotify(getter());
         }
     }
 }

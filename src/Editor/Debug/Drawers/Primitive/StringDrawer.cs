@@ -12,7 +12,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
 
         public override bool CanDraw(object value)
         {
-            return value == null || value is string;
+            return value is string;
         }
 
         protected override void Draw(string labelText, string value, VisualElement parent, Action<string, string> onChanged)

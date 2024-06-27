@@ -101,7 +101,10 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         private void OnCreated(Type dataType, ModulesFramework.OneData data)
         {
             var dataDrawer = new OneDataDrawer(data, _scrollView);
-            _drawers.Add(dataType, dataDrawer);
+            if (_drawers.TryGetValue(dataType, out var drawer))
+                drawer.Destroy();
+
+            _drawers[dataType] = dataDrawer;
             ResortDrawers();
             FilterOneData(_searchStr);
         }

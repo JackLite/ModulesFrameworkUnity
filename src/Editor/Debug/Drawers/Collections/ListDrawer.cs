@@ -8,12 +8,8 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
-    public class ListDrawer : FieldDrawer
+    public class ListDrawer : BaseCollectionDrawer
     {
-        private Foldout _foldout;
-        private string _fieldName;
-        private readonly List<FieldDrawer> _drawers = new();
-
         public override bool CanDraw(object value)
         {
             var type = value.GetType();

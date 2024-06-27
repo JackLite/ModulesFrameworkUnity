@@ -10,13 +10,10 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
-    public class DictionaryDrawer : FieldDrawer
+    public class DictionaryDrawer : BaseCollectionDrawer
     {
-        private Foldout _foldout;
         private VisualElement _elements;
         private VisualElement _addBlock;
-        private string _fieldName;
-        private readonly List<FieldDrawer> _drawers = new();
         private readonly Dictionary<string, object> _newKeys = new();
 
         public override bool CanDraw(object value)
@@ -30,7 +27,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _fieldName = labelText;
             _addBlock = CreateAddBlock();
             var value = (IDictionary)fieldValue;
-            var container = new VisualElement();
+            _container = new VisualElement();
             _foldout = new Foldout
             {
                 text = $"Dictionary: {labelText} [{value.Count}]",
@@ -40,13 +37,12 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _foldout.Add(_elements);
 
             DrawDict(labelText, value);
-            container.Add(_foldout);
+            _container.Add(_foldout);
             _foldout.Add(_addBlock);
 
             DrawAddBlock(labelText, value);
 
-
-            parent.Add(container);
+            parent.Add(_container);
         }
 
         private void DrawAddBlock(string fieldName, IDictionary value)
@@ -219,6 +215,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override void Update()
         {
+            ProceedNull();
+            if (_isNull)
+                return;
             var dictionary = (IDictionary)valueGetter();
             _foldout.text = $"Dictionary: {_fieldName} [{dictionary.Count}]";
             if (_drawers.Count != dictionary.Count)

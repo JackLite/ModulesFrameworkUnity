@@ -28,7 +28,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Unity
 
         protected override void Update(Func<Quaternion> getter)
         {
-            _field.value = getter().eulerAngles;
+            _field.SetValueWithoutNotify(getter().eulerAngles);
         }
     }
 }
