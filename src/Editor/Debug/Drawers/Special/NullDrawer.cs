@@ -7,7 +7,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
 {
     public class NullDrawer : FieldDrawer
     {
-        public override int Order => 10;
+        public override int Order => -10;
 
         public override bool CanDraw(object value)
         {

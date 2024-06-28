@@ -183,7 +183,11 @@ namespace ModulesFrameworkUnity.Debug
             if (!_oneDatas.ContainsKey(type))
                 return;
 
-            DestroyImmediate(_oneDatas[type].gameObject);
+            if (Application.isPlaying)
+                Destroy(_oneDatas[type].gameObject);
+            else
+                DestroyImmediate(_oneDatas[type].gameObject);
+
             _oneDatas.Remove(type);
         }
 
@@ -220,14 +224,19 @@ namespace ModulesFrameworkUnity.Debug
             if (_viewers.ContainsKey(eid))
             {
                 if (_viewers[eid] != null)
-                    DestroyImmediate(_viewers[eid].gameObject);
+                {
+                    if (Application.isPlaying)
+                        Destroy(_viewers[eid].gameObject);
+                    else
+                        DestroyImmediate(_viewers[eid].gameObject);
+                }
+
                 _viewers.Remove(eid);
             }
 
             if (_entitiesParent != null)
                 _entitiesParent.name = $"Entities - {_viewers.Count.ToString()}";
         }
-
 
         private void UpdateChosenInspector()
         {
