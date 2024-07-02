@@ -17,3 +17,10 @@
     padding: 4px 5px;
     cursor: link;
 }
+
+.modules--one-data--pinned-data {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom-color: #969696;
+    border-bottom-width: 2px;
+}

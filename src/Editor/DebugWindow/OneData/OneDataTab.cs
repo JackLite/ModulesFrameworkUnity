@@ -4,6 +4,7 @@ using System.Linq;
 using ModulesFramework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.OneData
@@ -12,7 +13,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
     ///     List of one data-s
     /// </summary>
     [Serializable]
-    public class OneDataTab
+    public class OneDataTab : ISerializationCallbackReceiver
     {
         private Dictionary<Type, OneDataDrawer> _drawers = new();
         private TextField _searchField;
@@ -21,22 +22,31 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         private string _searchStr;
 
         [SerializeField]
-        private List<string> _pinnedData = new();
+        private List<string> _pinnedSerializedData = new();
+
+        private HashSet<string> _pinnedData = new();
 
         private VisualElement _root;
         private ScrollView _scrollView;
+        private VisualElement _pinnedContainer;
 
         public void Draw(VisualElement root)
         {
             _root = root;
-            _root.AddToClassList("modules-one-data-tab");
+            _root.AddToClassList("modules--one-data-tab");
             var styles = Resources.Load<StyleSheet>("OneDataTabUSS");
             _root.styleSheets.Add(styles);
 
             CreateSearch();
 
+            _pinnedContainer = new VisualElement();
+            _pinnedContainer.AddToClassList("modules--one-data--pinned-data");
+            _root.Add(_pinnedContainer);
+            UpdatePinnedContainer();
+
             _scrollView = new ScrollView();
             _root.Add(_scrollView);
+
             _drawers.Clear();
             if (!MF.IsInitialized)
                 return;
@@ -52,6 +62,14 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
             };
             _searchField.AddToClassList("modules-search-field");
             _searchField.RegisterValueChangedCallback(ev => OnSearch(ev.newValue));
+
+            var clearBtn = new Button
+            {
+                text = "Clear"
+            };
+            clearBtn.clicked += () => _searchField.value = string.Empty;
+            _searchField.Add(clearBtn);
+
             _root.Add(_searchField);
         }
 
@@ -87,6 +105,8 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
             {
                 CreateViewersForExisted();
             }
+
+            UpdatePinnedContainer();
         }
 
         private void CreateViewersForExisted()
@@ -101,13 +121,21 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
 
         private void OnCreated(Type dataType, ModulesFramework.OneData data)
         {
-            var dataDrawer = new OneDataDrawer(data, _scrollView);
+            var isPinned = _pinnedData.Contains(dataType.Name);
+            var parent = isPinned ? _pinnedContainer : _scrollView;
+            var dataDrawer = new OneDataDrawer(data, parent);
             if (_drawers.TryGetValue(dataType, out var drawer))
                 drawer.Destroy();
 
             _drawers[dataType] = dataDrawer;
-            dataDrawer.SetPinned(_pinnedData.Contains(dataType.Name));
+            dataDrawer.SetPinned(isPinned);
             dataDrawer.OnPin += () => OnPin(dataDrawer);
+            if (isPinned)
+            {
+                ResortPinnedDrawers();
+                return;
+            }
+
             ResortDrawers();
             FilterOneData(_searchStr);
         }
@@ -116,11 +144,20 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         {
             var isPinned = _pinnedData.Contains(dataDrawer.DataType.Name);
             if (isPinned)
+            {
                 _pinnedData.Remove(dataDrawer.DataType.Name);
+                _scrollView.Add(dataDrawer.Element);
+                ResortDrawers();
+            }
             else
+            {
                 _pinnedData.Add(dataDrawer.DataType.Name);
+                _pinnedContainer.Add(dataDrawer.Element);
+                ResortPinnedDrawers();
+            }
+
+            UpdatePinnedContainer();
             dataDrawer.SetPinned(!isPinned);
-            ResortDrawers();
         }
 
         private void OnRemoved(Type dataType)
@@ -130,19 +167,37 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
                 drawer.Destroy();
                 _drawers.Remove(dataType);
             }
-
-            ResortDrawers();
         }
 
         private void ResortDrawers()
         {
             var orderedDrawers = _drawers.Values
-                .OrderBy(d => _pinnedData.Contains(d.DataType.Name))
-                .ThenByDescending(d => d.DataType.Name);
+                .Where(d => !_pinnedData.Contains(d.DataType.Name))
+                .OrderByDescending(d => d.DataType.Name);
+
             foreach (var dataDrawer in orderedDrawers)
             {
                 dataDrawer.SetFirst();
             }
+        }
+
+        private void ResortPinnedDrawers()
+        {
+            var orderedDrawers = _drawers.Values
+                .Where(d => _pinnedData.Contains(d.DataType.Name))
+                .OrderByDescending(d => d.DataType.Name);
+            foreach (var dataDrawer in orderedDrawers)
+            {
+                dataDrawer.SetFirst();
+            }
+        }
+
+        private void UpdatePinnedContainer()
+        {
+            if (_pinnedData.Count > 0 && Application.isPlaying)
+                _pinnedContainer.style.display = DisplayStyle.Flex;
+            else
+                _pinnedContainer.style.display = DisplayStyle.None;
         }
 
         public void Show()
@@ -155,6 +210,16 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
         {
             _root.visible = false;
             EditorApplication.playModeStateChanged -= OnPlayModeChanges;
+        }
+
+        public void OnBeforeSerialize()
+        {
+            _pinnedSerializedData = _pinnedData.ToList();
+        }
+
+        public void OnAfterDeserialize()
+        {
+            _pinnedData = _pinnedSerializedData.ToHashSet();
         }
     }
 }

@@ -16,6 +16,8 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
 
         public Type DataType { get; }
 
+        public VisualElement Element => _structsDrawer.Foldout;
+
         public event Action OnPin;
 
         public OneDataDrawer(ModulesFramework.OneData data, VisualElement root)
