@@ -6,11 +6,12 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
-    public abstract class BaseCollectionDrawer : FieldRefDrawer
+    public abstract class BaseCollectionDrawer<T> : FieldRefDrawer
     {
         protected Foldout _foldout;
         protected string _fieldName;
         protected readonly List<FieldDrawer> _drawers = new();
+        protected T _oldRef;
         protected override void OnNullChanged()
         {
             if (_isNull)

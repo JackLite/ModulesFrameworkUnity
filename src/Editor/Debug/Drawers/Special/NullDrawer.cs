@@ -10,6 +10,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
         private VisualElement _container;
         private string _fieldName;
         private bool _isNotNull;
+        private FieldDrawer _innerDrawer;
         public override int Order => -10;
 
         public override bool CanDraw(object value)
@@ -37,15 +38,18 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
             if (fieldValue != null && !_isNotNull)
             {
                 _container.Clear();
-                mainDrawer.Draw(_fieldName, fieldValue, _container, valueChangedCb, valueGetter, Level);
+                _innerDrawer = mainDrawer.Draw(_fieldName, fieldValue, _container, valueChangedCb, valueGetter, Level);
                 _isNotNull = true;
             }
             else if (fieldValue == null && _isNotNull)
             {
                 _container.Clear();
                 DrawLabel();
+                _innerDrawer = null;
                 _isNotNull = false;
             }
+
+            _innerDrawer?.Update();
         }
     }
 }

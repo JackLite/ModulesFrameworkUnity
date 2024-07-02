@@ -8,7 +8,7 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
-    public class ListDrawer : BaseCollectionDrawer
+    public class ListDrawer : BaseCollectionDrawer<IList>
     {
         public override bool CanDraw(object value)
         {
@@ -19,20 +19,20 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
         public override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
             _fieldName = labelText;
-            var value = (IList)fieldValue;
+            _oldRef = (IList)fieldValue;
 
             _foldout = new Foldout
             {
-                text = $"List: {labelText} [{value.Count}]",
+                text = $"List: {labelText} [{_oldRef.Count}]",
                 value = false,
             };
 
-            DrawList(labelText, value, _foldout.contentContainer);
+            DrawList(labelText, _foldout.contentContainer);
 
             parent.Add(_foldout);
         }
 
-        private void DrawAddBtn(string labelText, IList value)
+        private void DrawAddBtn(string labelText)
         {
             var addBtn = new Button
             {
@@ -40,16 +40,16 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             };
             addBtn.clicked += () =>
             {
-                var innerType = value.GetType().GetGenericArguments()[0];
+                var innerType = _oldRef.GetType().GetGenericArguments()[0];
                 if (!innerType.IsValueType && innerType.GetConstructor(Type.EmptyTypes) == null)
                 {
                     UnityEngine.Debug.LogError($"There is no parameterless constructor for {innerType.Name}");
                 }
                 else
                 {
-                    value.Add(Activator.CreateInstance(innerType));
+                    _oldRef.Add(Activator.CreateInstance(innerType));
                     _foldout.contentContainer.Clear();
-                    DrawList(labelText, value, _foldout.contentContainer);
+                    DrawList(labelText, _foldout.contentContainer);
                 }
             };
             _foldout.Add(addBtn);
@@ -57,12 +57,18 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override void Update()
         {
-            var count = ((IList)valueGetter()).Count;
-            if (count != _drawers.Count)
+            ProceedNull();
+            if (_isNull)
+                return;
+
+            var list = (IList)valueGetter();
+            var count = list.Count;
+            if (count != _drawers.Count || !ReferenceEquals(_oldRef, list))
             {
+                _oldRef = list;
                 _drawers.Clear();
                 _foldout.contentContainer.Clear();
-                DrawList(_fieldName, (IList)valueGetter(), _foldout.contentContainer);
+                DrawList(_fieldName, _foldout.contentContainer);
                 return;
             }
 
@@ -73,9 +79,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             }
         }
 
-        private void DrawList(string fieldName, IList value, VisualElement container)
+        private void DrawList(string fieldName, VisualElement container)
         {
-            for (var i = 0; i < value.Count; i++)
+            for (var i = 0; i < _oldRef.Count; i++)
             {
                 var elementContainer = new VisualElement
                 {
@@ -84,16 +90,16 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                         flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row),
                     }
                 };
-                var v = value[i];
+                var v = _oldRef[i];
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
                 var drawer = mainDrawer.Draw(memberName, v, elementContainer, (_, newVal) =>
                 {
-                    value[index] = newVal;
+                    _oldRef[index] = newVal;
                 }, () =>
                 {
-                    if (index < value.Count)
-                        return value[index];
+                    if (index < _oldRef.Count)
+                        return _oldRef[index];
                     return default;
                 }, Level + 1, false);
                 _drawers.Add(drawer);
@@ -101,16 +107,16 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
                 removeBtn.clicked += () =>
                 {
-                    value.RemoveAt(index);
+                    _oldRef.RemoveAt(index);
                     _foldout.contentContainer.Clear();
                     _drawers.Clear();
-                    DrawList(fieldName, value, _foldout.contentContainer);
+                    DrawList(fieldName, _foldout.contentContainer);
                 };
                 elementContainer.Add(removeBtn);
                 container.Add(elementContainer);
             }
 
-            DrawAddBtn(fieldName, value);
+            DrawAddBtn(fieldName);
         }
     }
 }
