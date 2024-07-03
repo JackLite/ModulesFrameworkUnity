@@ -10,13 +10,10 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
-    public class DictionaryDrawer : FieldDrawer
+    public class DictionaryDrawer : BaseCollectionDrawer<IDictionary>
     {
-        private Foldout _foldout;
         private VisualElement _elements;
         private VisualElement _addBlock;
-        private string _fieldName;
-        private readonly List<FieldDrawer> _drawers = new();
         private readonly Dictionary<string, object> _newKeys = new();
 
         public override bool CanDraw(object value)
@@ -30,38 +27,38 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _fieldName = labelText;
             _addBlock = CreateAddBlock();
             var value = (IDictionary)fieldValue;
-            var container = new VisualElement();
+            _oldRef = value;
+            _container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"Dictionary: {labelText} [{value.Count}]",
+                text = $"Dictionary: {labelText} [{_oldRef.Count}]",
                 value = false
             };
             _elements = new VisualElement();
             _foldout.Add(_elements);
 
-            DrawDict(labelText, value);
-            container.Add(_foldout);
+            DrawDict(labelText);
+            _container.Add(_foldout);
             _foldout.Add(_addBlock);
 
-            DrawAddBlock(labelText, value);
+            DrawAddBlock(labelText);
 
-
-            parent.Add(container);
+            parent.Add(_container);
         }
 
-        private void DrawAddBlock(string fieldName, IDictionary value)
+        private void DrawAddBlock(string fieldName)
         {
-            TryDrawValueOrSimpleAdd(fieldName, value);
-            TryDrawStringAdd(fieldName, value);
+            TryDrawValueOrSimpleAdd(fieldName);
+            TryDrawStringAdd(fieldName);
         }
 
-        private void TryDrawValueOrSimpleAdd(string fieldName, IDictionary value)
+        private void TryDrawValueOrSimpleAdd(string fieldName)
         {
-            var innerKeyType = value.GetType().GetGenericArguments()[0];
+            var innerKeyType = _oldRef.GetType().GetGenericArguments()[0];
             if (!innerKeyType.IsValueType && innerKeyType.GetConstructor(Type.EmptyTypes) == null)
                 return;
 
-            var cacheKey = value.GetType().FullName + fieldName;
+            var cacheKey = _oldRef.GetType().FullName + fieldName;
             if (!_newKeys.ContainsKey(cacheKey))
             {
                 _newKeys[cacheKey] = Activator.CreateInstance(innerKeyType);
@@ -76,7 +73,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             DrawAddBtn(() =>
             {
                 var newKey = _newKeys[cacheKey];
-                var valueType = value.GetType().GetGenericArguments()[1];
+                var valueType = _oldRef.GetType().GetGenericArguments()[1];
                 if (!valueType.IsValueType && valueType.GetConstructor(Type.EmptyTypes) == null)
                 {
                     UnityEngine.Debug.LogError($"There is no parameterless constructor for {valueType.Name}");
@@ -84,22 +81,22 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 }
 
                 var newValue = Activator.CreateInstance(valueType);
-                value[newKey] = newValue;
+                _oldRef[newKey] = newValue;
                 _newKeys.Remove(cacheKey);
                 _elements.Clear();
-                DrawDict(fieldName, value);
+                DrawDict(fieldName);
                 _addBlock.Clear();
-                DrawAddBlock(fieldName, value);
+                DrawAddBlock(fieldName);
             });
         }
 
-        private void TryDrawStringAdd(string fieldName, IDictionary value)
+        private void TryDrawStringAdd(string fieldName)
         {
-            var innerKeyType = value.GetType().GetGenericArguments()[0];
+            var innerKeyType = _oldRef.GetType().GetGenericArguments()[0];
 
             if (innerKeyType == typeof(string))
             {
-                var cacheKey = value.GetType().FullName + fieldName;
+                var cacheKey = _oldRef.GetType().FullName + fieldName;
                 _newKeys.TryAdd(cacheKey, string.Empty);
 
                 mainDrawer.Draw("New key [string]", _newKeys[cacheKey], _addBlock, (_, newVal) =>
@@ -110,7 +107,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 DrawAddBtn(() =>
                 {
                     var newKey = _newKeys[cacheKey];
-                    var valueType = value.GetType().GetGenericArguments()[1];
+                    var valueType = _oldRef.GetType().GetGenericArguments()[1];
                     if (!valueType.IsValueType && valueType.GetConstructor(Type.EmptyTypes) == null)
                     {
                         UnityEngine.Debug.LogError($"There is no parameterless constructor for {valueType.Name}");
@@ -118,12 +115,12 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                     }
 
                     var newValue = Activator.CreateInstance(valueType);
-                    value[newKey] = newValue;
+                    _oldRef[newKey] = newValue;
                     _newKeys.Remove(cacheKey);
                     _elements.Clear();
-                    DrawDict(fieldName, value);
+                    DrawDict(fieldName);
                     _addBlock.Clear();
-                    DrawAddBlock(fieldName, value);
+                    DrawAddBlock(fieldName);
                 });
             }
         }
@@ -158,9 +155,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _addBlock.Add(addBtn);
         }
 
-        private void DrawDict(string fieldName, IDictionary value)
+        private void DrawDict(string fieldName)
         {
-            var keys = value.Keys.Cast<object>().ToArray();
+            var keys = _oldRef.Keys.Cast<object>().ToArray();
             foreach (var key in keys)
             {
                 var elementContainer = new VisualElement
@@ -172,7 +169,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                     }
                 };
 
-                var val = value[key];
+                var val = _oldRef[key];
                 var memberName = $"{fieldName} [{key}]";
                 var valuesType = val.GetType();
                 var drawer = mainDrawer.Draw(
@@ -189,12 +186,12 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
                 removeBtn.clicked += () =>
                 {
-                    value.Remove(key);
+                    _oldRef.Remove(key);
                     _elements.Clear();
                     _drawers.Clear();
                     _addBlock.Clear();
-                    DrawDict(fieldName, value);
-                    DrawAddBlock(fieldName, value);
+                    DrawDict(fieldName);
+                    DrawAddBlock(fieldName);
                 };
 
                 elementContainer.Add(removeBtn);
@@ -203,13 +200,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
                 void OnChanged(object _, object newVal)
                 {
-                    value[key] = newVal;
+                    _oldRef[key] = newVal;
                 }
 
                 object Getter()
                 {
-                    if (value.Contains(key))
-                        return value[key];
+                    if (_oldRef.Contains(key))
+                        return _oldRef[key];
                     if (valuesType.IsValueType)
                         return Activator.CreateInstance(valuesType);
                     return null;
@@ -219,15 +216,21 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override void Update()
         {
+            ProceedNull();
+            if (_isNull)
+                return;
             var dictionary = (IDictionary)valueGetter();
             _foldout.text = $"Dictionary: {_fieldName} [{dictionary.Count}]";
-            if (_drawers.Count != dictionary.Count)
+            if (_drawers.Count != dictionary.Count || !ReferenceEquals(_oldRef, dictionary))
             {
+                var wasOpen = _foldout.value;
+                _oldRef = dictionary;
                 _drawers.Clear();
                 _elements.Clear();
-                DrawDict(_fieldName, dictionary);
+                DrawDict(_fieldName);
                 _addBlock.Clear();
-                DrawAddBlock(_fieldName, dictionary);
+                DrawAddBlock(_fieldName);
+                _foldout.value = wasOpen;
                 return;
             }
 

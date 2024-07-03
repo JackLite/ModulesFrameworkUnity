@@ -29,7 +29,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
         {
             _field.SetValueWithoutNotify(getter());
         }
-        
+
         public override void SetReadOnly(bool isReadOnly)
         {
             _field.isReadOnly = isReadOnly;

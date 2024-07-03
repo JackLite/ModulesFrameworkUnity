@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -8,22 +10,33 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
 {
     public class EnumDrawer : FieldDrawer
     {
-        private EnumField _field;
+        private BaseField<Enum> _field;
 
         public override bool CanDraw(object value)
         {
-            return value is Enum;
+            if (value is not Enum)
+                return false;
+            var values = Enum.GetValues(value.GetType());
+            return values.Length > 0;
         }
 
         public override void Draw(string labelText, object value, VisualElement parent)
         {
-            _field = new EnumField();
+            var type = value.GetType();
             var values = Enum.GetValues(value.GetType());
-            if (values.Length == 0)
-                return;
+            if (type.GetCustomAttribute<FlagsAttribute>() != null)
+            {
+                var flagsField = new EnumFlagsField(labelText);
+                flagsField.Init((Enum)values.GetValue(0));
+                _field = flagsField;
+            }
+            else
+            {
+                var simpleEnumField = new EnumField(labelText);
+                simpleEnumField.Init((Enum)values.GetValue(0));
+                _field = simpleEnumField;
+            }
 
-            _field.Init((Enum)values.GetValue(0));
-            _field.label = labelText;
             _field.SetValueWithoutNotify((Enum)value);
             _field.RegisterValueChangedCallback(ev =>
             {

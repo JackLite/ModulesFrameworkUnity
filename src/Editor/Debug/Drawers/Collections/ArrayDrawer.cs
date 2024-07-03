@@ -7,13 +7,10 @@ using UnityEditor.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
-    public class ArrayDrawer : FieldDrawer
+    public class ArrayDrawer : BaseCollectionDrawer<Array>
     {
-        private Foldout _foldout;
         private VisualElement _elements;
-        private string _fieldName;
-        private readonly List<FieldDrawer> _drawers = new();
-        
+
         public override bool CanDraw(object value)
         {
             return value is Array;
@@ -21,33 +18,47 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
-            var value = (Array) fieldValue;
-            var container = new VisualElement();
+            _oldRef = (Array)fieldValue;
+            _fieldName = labelText;
+            _container = new VisualElement();
             _foldout = new Foldout
             {
-                text = $"Array: {labelText} [{value.Length}]",
+                text = $"Array: {labelText} [{_oldRef.Length}]",
                 value = false,
             };
 
             _elements = new VisualElement();
             _foldout.Add(_elements);
-            DrawArray(labelText, value, _elements);
+            DrawArray(labelText, _elements);
 
-            container.Add(_foldout);
-            parent.Add(container);
+            _container.Add(_foldout);
+            parent.Add(_container);
         }
+
         public override void Update()
         {
-            _foldout.text = $"Array: {_fieldName} [{((Array)valueGetter()).Length}]";
+            ProceedNull();
+            if (_isNull)
+                return;
+            var array = (Array)valueGetter();
+            _foldout.text = $"Array: {_fieldName} [{array.Length}]";
+
+            if (!ReferenceEquals(_oldRef, array))
+            {
+                _oldRef = array;
+                _elements.Clear();
+                DrawArray(_fieldName, _elements);
+            }
+
             foreach (var drawer in _drawers)
             {
                 drawer.Update();
             }
         }
-        
-        private void DrawArray(string fieldName, Array value, VisualElement container)
+
+        private void DrawArray(string fieldName, VisualElement container)
         {
-            for (var i = 0; i < value.Length; i++)
+            for (var i = 0; i < _oldRef.Length; i++)
             {
                 var elementContainer = new VisualElement
                 {
@@ -56,16 +67,16 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                         flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row)
                     }
                 };
-                var v = value.GetValue(i);
+                var v = _oldRef.GetValue(i);
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
                 var drawer = mainDrawer.Draw(memberName, v, elementContainer, (prev, newVal) =>
                 {
-                    value.SetValue(newVal, index);
+                    _oldRef.SetValue(newVal, index);
                 }, () =>
                 {
-                    if (index < value.Length)
-                        return value.GetValue(index);
+                    if (index < _oldRef.Length)
+                        return _oldRef.GetValue(index);
                     return default;
                 }, Level + 1, false);
                 _drawers.Add(drawer);

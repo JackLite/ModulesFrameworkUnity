@@ -15,7 +15,7 @@ namespace ModulesFrameworkUnity.Debug
         ///     All drawers. We need this collection to check
         ///     if drawer can draw some type to find what drawer we need to create
         /// </summary>
-        private readonly List<FieldDrawer> _defaultDrawers;
+        private static List<FieldDrawer> _defaultDrawers;
 
         private readonly UnsupportedDrawer _unsupportedDrawer = new();
 
@@ -25,18 +25,21 @@ namespace ModulesFrameworkUnity.Debug
 
         public EditorDrawer()
         {
-            var drawers = from type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(asm => asm.GetTypes())
-                where type.IsSubclassOf(typeof(FieldDrawer)) && !type.IsAbstract
-                select Activator.CreateInstance(type) as FieldDrawer;
+            if (_defaultDrawers == null)
+            {
+                var drawers = from type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(asm => asm.GetTypes())
+                    where type.IsSubclassOf(typeof(FieldDrawer)) && !type.IsAbstract
+                    select Activator.CreateInstance(type) as FieldDrawer;
 
-            _defaultDrawers = drawers.OrderBy(d => d.Order).ToList();
+                _defaultDrawers = drawers.OrderBy(d => d.Order).ToList();
+            }
 
             foreach (var drawer in _defaultDrawers)
             {
                 _factories.Add(drawer.GetType(), () => Activator.CreateInstance(drawer.GetType()) as FieldDrawer);
             }
         }
-        
+
         public FieldDrawer Draw(
             string fieldName,
             object fieldValue,
@@ -79,17 +82,18 @@ namespace ModulesFrameworkUnity.Debug
 
         public void Update()
         {
-            foreach (var drawer in _createdDrawers)
+            for (var index = 0; index < _createdDrawers.Count; index++)
             {
+                var drawer = _createdDrawers[index];
                 drawer.Update();
             }
         }
-        
+
         public void Clear()
         {
             _createdDrawers.Clear();
         }
-        
+
         public void RemoveDrawer(FieldDrawer drawer)
         {
             _createdDrawers.Remove(drawer);
