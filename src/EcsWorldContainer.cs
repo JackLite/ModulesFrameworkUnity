@@ -1,5 +1,6 @@
 ﻿using ModulesFrameworkUnity.Settings;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace ModulesFrameworkUnity
 {
@@ -9,6 +10,7 @@ namespace ModulesFrameworkUnity
         internal static ModulesSettings Settings { get; private set; }
 
         [RuntimeInitializeOnLoadMethod]
+        [Preserve]
         private static void Startup()
         {
             Settings = ModulesSettings.Load();
