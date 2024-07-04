@@ -8,6 +8,7 @@ namespace ModulesFrameworkUnity
         private static ModulesUnityAdapter _adapter;
         internal static ModulesSettings Settings { get; private set; }
 
+        [Preserve]
         [RuntimeInitializeOnLoadMethod]
         private static void Startup()
         {
