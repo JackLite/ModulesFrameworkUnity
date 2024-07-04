@@ -1,4 +1,5 @@
 ﻿using System;
+using ModulesFrameworkUnity.Debug.Entities;
 using ModulesFrameworkUnity.DebugWindow.Data;
 using ModulesFrameworkUnity.DebugWindow.Modules;
 using ModulesFrameworkUnity.DebugWindow.Modules.Data;
@@ -16,6 +17,9 @@ namespace ModulesFrameworkUnity.DebugWindow
 
         [SerializeField]
         private OneDataTab _oneDataTab;
+
+        [SerializeField]
+        private EntitiesTab _entitiesTab;
 
         [SerializeField]
         private ModulesTabMode _modulesTabMode;
@@ -43,7 +47,13 @@ namespace ModulesFrameworkUnity.DebugWindow
             _oneDataTab ??= new OneDataTab();
             rootVisualElement.Add(oneDataRoot);
             _oneDataTab.Draw(oneDataRoot);
-            _oneDataTab.Show();
+            _oneDataTab.Hide();
+
+            var entitiesRoot = new VisualElement();
+            _entitiesTab ??= new EntitiesTab();
+            rootVisualElement.Add(entitiesRoot);
+            _entitiesTab.Draw(entitiesRoot);
+            _entitiesTab.Show();
 
             _tabs ??= new DebugWindowTabs();
             _tabs.Draw(rootVisualElement);
@@ -57,14 +67,17 @@ namespace ModulesFrameworkUnity.DebugWindow
                 case DebugTabType.Modules:
                     _modulesTab.Show();
                     _oneDataTab.Hide();
+                    _entitiesTab.Hide();
                     break;
                 case DebugTabType.OneData:
                     _modulesTab.Hide();
                     _oneDataTab.Show();
+                    _entitiesTab.Hide();
                     break;
                 case DebugTabType.Entities:
                     _modulesTab.Hide();
                     _oneDataTab.Hide();
+                    _entitiesTab.Show();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -81,6 +94,7 @@ namespace ModulesFrameworkUnity.DebugWindow
         {
             _modulesTab.Hide();
             _oneDataTab.Hide();
+            _entitiesTab.Hide();
             _modulesTab.OnSwitchMode -= OnSwitchMode;
             rootVisualElement.Clear();
         }
