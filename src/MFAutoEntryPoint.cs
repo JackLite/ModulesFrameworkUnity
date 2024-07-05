@@ -1,5 +1,6 @@
 ﻿using ModulesFrameworkUnity.Settings;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace ModulesFrameworkUnity
 {
