@@ -1,1 +1,38 @@
-﻿
+﻿.modules--entities-tab--data {
+    margin-top: 50px;
+    border-top-color: #555555;
+    border-top-width: 2px;
+    flex-direction: row;
+}
+
+.modules--entities-list {
+    width: 140px;
+    border-right-color: #555555;
+    border-right-width: 1px;
+}
+
+.modules--entities-list > ** > .unity-list-view__item {
+    font-size: 14px;
+    -unity-text-align: middle-left;
+    padding-left: 10px;
+}
+
+.modules--one-entity {
+    width: 100%;
+}
+
+.modules--one-entity--title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 4px 0 4px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: #555555;
+}
+
+.modules--one-entity--components-title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 4px 0 4px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: #555555;
+}

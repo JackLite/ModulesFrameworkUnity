@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using ModulesFramework;
 using ModulesFramework.Data;
-using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -11,40 +10,60 @@ namespace ModulesFrameworkUnity.Debug.Entities
     /// <summary>
     ///     Draws one entity
     /// </summary>
-    public class EntityDrawer
+    public class EntityDrawer : ScrollView
     {
-        private readonly List<Type> _components = new();
-
-        private Foldout _foldout;
-        private EditorDrawer _mainDrawer = new();
         private Entity _entity;
-        private readonly List<ComponentDrawer> _componentDrawers = new();
+
+        private EntitySingleComponents _singleComponents;
+        private EntityMultipleComponents _multipleComponents;
+
+        public EntityDrawer()
+        {
+            AddToClassList("modules--one-entity");
+        }
 
         public void SetEntity(Entity entity)
         {
             _entity = entity;
-            _components.Clear();
-            entity.World.MapTables((compType, table) =>
-            {
-                if (table.Contains(entity.Id))
-                    _components.Add(compType);
-            });
+            _singleComponents?.SetEntity(_entity);
+            _multipleComponents?.SetEntity(_entity);
         }
 
-        public void Draw(VisualElement root, bool isOpened)
+        public void Draw()
         {
-            _foldout = new Foldout();
-            _foldout.AddToClassList("modules--one-entity");
-            root.Add(_foldout);
-
-            var name = _components.Select(t => t.Name).OrderBy(n => n).Aggregate((a, b) => a + ", " + b);
-            _foldout.text = name;
-
-            foreach (var componentType in _components)
+            if (_singleComponents == null)
             {
-                var componentDrawer = new ComponentDrawer();
-                componentDrawer.Draw(_mainDrawer, _entity.Id, componentType, _foldout);
+                _singleComponents ??= new EntitySingleComponents();
+                _singleComponents.SetEntity(_entity);
+                Add(_singleComponents);
             }
+
+            if(_multipleComponents == null)
+            {
+                _multipleComponents ??= new EntityMultipleComponents();
+                _multipleComponents.SetEntity(_entity);
+                Add(_multipleComponents);
+            }
+
+            _singleComponents.Draw();
+            _multipleComponents.Draw();
+
+            MF.World.OnEntityChanged += OnEntityChanged;
+        }
+
+        public void Destroy()
+        {
+            _singleComponents?.Destroy();
+            _multipleComponents?.Destroy();
+            MF.World.OnEntityChanged -= OnEntityChanged;
+        }
+
+        private void OnEntityChanged(int eid)
+        {
+            if (_entity.Id != eid)
+                return;
+
+            _singleComponents?.OnEntityChanged();
         }
     }
 }

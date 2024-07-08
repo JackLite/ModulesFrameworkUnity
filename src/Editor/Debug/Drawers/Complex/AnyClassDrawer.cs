@@ -64,7 +64,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         private void DrawHeader(string labelText, Foldout root)
         {
-            DrawersUtil.InitObjectFieldStyle(root, Level, labelText + valueGetter().GetHashCode());
+            DrawersUtil.InitObjectFieldStyle(root, Level, labelText);
         }
 
         private Func<object> CreateGetter(FieldInfo field, Type structType)

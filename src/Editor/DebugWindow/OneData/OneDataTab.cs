@@ -4,7 +4,6 @@ using System.Linq;
 using ModulesFramework;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.OneData
@@ -32,6 +31,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
 
         public void Draw(VisualElement root)
         {
+            EditorApplication.playModeStateChanged += OnPlayModeChanges;
             _root = root;
             _root.AddToClassList("modules--one-data-tab");
             var styles = Resources.Load<StyleSheet>("OneDataTabUSS");
@@ -202,14 +202,12 @@ namespace ModulesFrameworkUnity.DebugWindow.OneData
 
         public void Show()
         {
-            _root.visible = true;
-            EditorApplication.playModeStateChanged += OnPlayModeChanges;
+            _root.style.display = DisplayStyle.Flex;
         }
 
         public void Hide()
         {
-            _root.visible = false;
-            EditorApplication.playModeStateChanged -= OnPlayModeChanges;
+            _root.style.display = DisplayStyle.None;
         }
 
         public void OnBeforeSerialize()
