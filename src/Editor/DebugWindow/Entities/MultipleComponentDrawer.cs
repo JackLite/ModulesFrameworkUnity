@@ -40,7 +40,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
 
             var table = MF.World.GetEcsTable(_componentType);
-            var count = table.Count(_eid);
+            var count = table.GetMultipleDataLength(_eid);
             _foldout.text = $"{_componentType.Name} ({count})";
             _foldout.value = isOpened;
 
