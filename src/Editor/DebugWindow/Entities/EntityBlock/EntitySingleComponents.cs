@@ -18,6 +18,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private readonly HashSet<Type> _new = new();
         private readonly EditorDrawer _mainDrawer = new();
         private readonly VisualElement _componentsContainer;
+        private bool _isOpenAll;
 
         public EntitySingleComponents()
         {
@@ -36,8 +37,9 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _components.Add(componentType);
         }
 
-        public void Draw()
+        public void Draw(bool isOpenAll)
         {
+            _isOpenAll = isOpenAll;
             _componentsContainer.Clear();
             foreach (var componentType in _components)
                 DrawComponent(componentType);
@@ -80,7 +82,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             drawer.Destroy();
             drawer.SetEntityId(_entity.Id);
-            drawer.Draw(_mainDrawer);
+            drawer.Draw(_mainDrawer, _isOpenAll);
         }
 
         public void Destroy()

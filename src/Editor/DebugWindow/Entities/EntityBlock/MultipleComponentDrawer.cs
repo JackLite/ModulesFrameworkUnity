@@ -84,7 +84,6 @@ namespace ModulesFrameworkUnity.Debug.Entities
                     },
                     () => table.GetAt(index));
                 drawer.Draw($"{component.GetType().Name} [{index}]", component, _foldout);
-                drawer.SetOpenState(true);
                 _drawers.Add(drawer);
             }
         }
@@ -104,6 +103,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
 
             _drawers.Clear();
+            _foldout?.Clear();
         }
     }
 }

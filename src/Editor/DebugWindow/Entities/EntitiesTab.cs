@@ -22,6 +22,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private EntitiesList _entitiesList = new();
         private EntityDrawer _entityDrawer;
+        private EntitiesNameFilter _filter;
+        private EntityDrawerSettings _settings;
 
         public void Draw(VisualElement root)
         {
@@ -31,6 +33,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
             var styles = Resources.Load<StyleSheet>("EntitiesTabUSS");
             _root.styleSheets.Add(styles);
 
+            _filter = new EntitiesNameFilter();
+            _filter.Draw();
+            _root.Add(_filter);
+            _filter.OnInputChanged += OnFilterName;
+
             _dataContainer = new VisualElement();
             _root.Add(_dataContainer);
             _dataContainer.AddToClassList("modules--entities-tab--data");
@@ -38,11 +45,21 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _entitiesList.Draw(_dataContainer);
             _entitiesList.OnEntitySelected += OnEntitySelected;
 
+            _settings = new EntityDrawerSettings();
+            _settings.Draw();
+
+            _entityDrawer.Add(_settings);
             _dataContainer.Add(_entityDrawer);
 
             if (!MF.IsInitialized)
                 return;
             CreateViewersForExisted();
+        }
+
+        private void OnFilterName(string val)
+        {
+            if (MF.IsInitialized)
+                _entitiesList.FilterByComponent(val);
         }
 
         public void Show()
@@ -71,7 +88,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             _entityDrawer.Destroy();
             _entityDrawer.SetEntity(entity);
-            _entityDrawer.Draw();
+            _entityDrawer.Draw(_settings.IsAllOpen);
         }
 
         private void OnPlayModeChanges(PlayModeStateChange change)
@@ -86,12 +103,14 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private void Subscribe()
         {
             MF.World.OnEntityCreated += OnCreated;
+            MF.World.OnEntityChanged += OnChanged;
             MF.World.OnEntityDestroyed += OnDestroyed;
         }
 
         private void Unsubscribe()
         {
             MF.World.OnEntityCreated -= OnCreated;
+            MF.World.OnEntityChanged -= OnChanged;
             MF.World.OnEntityDestroyed -= OnDestroyed;
         }
 
@@ -106,6 +125,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private void OnCreated(int eid)
         {
             CreateDrawer(MF.World.GetEntity(eid));
+        }
+
+        private void OnChanged(int eid)
+        {
+            _entitiesList.OnEntityChanged(eid);
         }
 
         private void OnDestroyed(int eid)

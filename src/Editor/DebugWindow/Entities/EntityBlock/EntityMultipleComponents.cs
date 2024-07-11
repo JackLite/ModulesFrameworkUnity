@@ -34,14 +34,14 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _components.Add(componentType);
         }
 
-        public void Draw()
+        public void Draw(bool isAllOpen)
         {
             _componentsContainer.Clear();
             foreach (var componentType in _components)
-                DrawComponents(componentType);
+                DrawComponents(componentType, isAllOpen);
         }
 
-        private void DrawComponents(Type componentType)
+        private void DrawComponents(Type componentType, bool isOpen)
         {
             if (!_componentDrawers.TryGetValue(componentType, out var drawer))
             {
@@ -51,7 +51,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             drawer.Destroy();
             drawer.SetEntityId(_entity.Id);
-            drawer.Draw(_componentsContainer, true);
+            drawer.Draw(_componentsContainer, isOpen);
         }
 
         public void Destroy()

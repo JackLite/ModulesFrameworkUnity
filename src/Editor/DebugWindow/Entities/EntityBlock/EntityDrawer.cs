@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ModulesFramework;
+﻿using ModulesFramework;
 using ModulesFramework.Data;
 using UnityEngine.UIElements;
 
@@ -14,6 +11,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
     {
         private Entity _entity;
 
+        private EntityDrawerSettings _settings;
         private EntitySingleComponents _singleComponents;
         private EntityMultipleComponents _multipleComponents;
 
@@ -29,24 +27,24 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _multipleComponents?.SetEntity(_entity);
         }
 
-        public void Draw()
+        public void Draw(bool isAllOpen)
         {
             if (_singleComponents == null)
             {
-                _singleComponents ??= new EntitySingleComponents();
+                _singleComponents = new EntitySingleComponents();
                 _singleComponents.SetEntity(_entity);
                 Add(_singleComponents);
             }
 
             if(_multipleComponents == null)
             {
-                _multipleComponents ??= new EntityMultipleComponents();
+                _multipleComponents = new EntityMultipleComponents();
                 _multipleComponents.SetEntity(_entity);
                 Add(_multipleComponents);
             }
 
-            _singleComponents.Draw();
-            _multipleComponents.Draw();
+            _singleComponents.Draw(isAllOpen);
+            _multipleComponents.Draw(isAllOpen);
 
             MF.World.OnEntityChanged += OnEntityChanged;
         }
