@@ -29,7 +29,6 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         public void Draw(EditorDrawer mainDrawer, bool isOpen)
         {
-            _root.Clear();
             _structsDrawer.Init(
                 mainDrawer,
                 (_, newValue) =>
@@ -44,6 +43,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             {
                 var val = MF.World.GetEcsTable(_componentType).GetDataObject(_eid);
                 _structsDrawer.DrawFields(val);
+                DebugEventBus.Update += Update;
             }
 
             _structsDrawer.OnChangeOpenState += OnChanged;
@@ -76,7 +76,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             DebugEventBus.Update -= Update;
             _structsDrawer.Reset();
-            _root?.Clear();
+            _structsDrawer.Foldout.RemoveFromHierarchy();
         }
     }
 }

@@ -45,10 +45,9 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _entitiesList.Draw(_dataContainer);
             _entitiesList.OnEntitySelected += OnEntitySelected;
 
-            _settings = new EntityDrawerSettings();
-            _settings.Draw();
+            _settings ??= new EntityDrawerSettings();
+            _settings.Draw(_entityDrawer);
 
-            _entityDrawer.Add(_settings);
             _dataContainer.Add(_entityDrawer);
 
             if (!MF.IsInitialized)
