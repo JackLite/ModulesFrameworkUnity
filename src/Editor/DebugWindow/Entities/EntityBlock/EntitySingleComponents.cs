@@ -44,6 +44,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _componentsContainer.Clear();
             foreach (var componentType in _components)
                 DrawComponent(componentType);
+            Reorder();
         }
 
         public void OnEntityChanged()
@@ -77,7 +78,6 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private void Reorder()
         {
-
             foreach (var (_, drawer) in _componentDrawers.OrderByDescending(kvp => kvp.Key.Name))
                 drawer.SetFirst();
         }
