@@ -12,12 +12,10 @@ namespace ModulesFrameworkUnity.Debug.Entities
     {
         private readonly StructsDrawer _structsDrawer = new();
         private readonly Type _componentType;
-        private readonly VisualElement _root;
         private int _eid;
 
-        public ComponentSingleDrawer(Type componentType, VisualElement root, int eid)
+        public ComponentSingleDrawer(Type componentType, int eid)
         {
-            _root = root;
             _componentType = componentType;
             _eid = eid;
         }
@@ -27,7 +25,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _eid = eid;
         }
 
-        public void Draw(EditorDrawer mainDrawer, bool isOpen)
+        public void Draw(EditorDrawer mainDrawer, VisualElement root, bool isOpen)
         {
             _structsDrawer.Init(
                 mainDrawer,
@@ -47,7 +45,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
 
             _structsDrawer.OnChangeOpenState += OnChanged;
-            _root.Add(_structsDrawer.Foldout);
+            root.Add(_structsDrawer.Foldout);
         }
 
         private void OnChanged(bool isOpened)
@@ -77,6 +75,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
             DebugEventBus.Update -= Update;
             _structsDrawer.Reset();
             _structsDrawer.Foldout.RemoveFromHierarchy();
+        }
+
+        public void SetFirst()
+        {
+            _structsDrawer.Foldout.SendToBack();
         }
     }
 }

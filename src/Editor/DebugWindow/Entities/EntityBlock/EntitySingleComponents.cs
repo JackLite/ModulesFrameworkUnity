@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ModulesFramework;
 using ModulesFramework.Data;
 using UnityEngine.UIElements;
@@ -70,19 +71,28 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 DrawComponent(componentType);
                 _components.Add(componentType);
             }
+
+            Reorder();
+        }
+
+        private void Reorder()
+        {
+
+            foreach (var (_, drawer) in _componentDrawers.OrderByDescending(kvp => kvp.Key.Name))
+                drawer.SetFirst();
         }
 
         private void DrawComponent(Type componentType)
         {
             if (!_componentDrawers.TryGetValue(componentType, out var drawer))
             {
-                drawer = new ComponentSingleDrawer(componentType, _componentsContainer, _entity.Id);
+                drawer = new ComponentSingleDrawer(componentType, _entity.Id);
                 _componentDrawers[componentType] = drawer;
             }
 
             drawer.Destroy();
             drawer.SetEntityId(_entity.Id);
-            drawer.Draw(_mainDrawer, _isOpenAll);
+            drawer.Draw(_mainDrawer, _componentsContainer, _isOpenAll);
         }
 
         public void Destroy()
