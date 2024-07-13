@@ -120,6 +120,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         public void Reset()
         {
+            _drawers.Clear();
             Foldout.Clear();
             IsDrawn = false;
             OnChangeOpenState = null;

@@ -62,6 +62,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 return;
 
             _singleComponents?.OnEntityChanged();
+            _multipleComponents?.OnEntityChanged();
         }
     }
 }

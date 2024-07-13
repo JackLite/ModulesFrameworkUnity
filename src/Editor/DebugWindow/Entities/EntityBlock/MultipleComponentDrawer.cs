@@ -57,12 +57,13 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             if (isOpened)
             {
-                Destroy();
+                Reset();
                 DrawComponents();
                 DebugEventBus.Update += Update;
             }
             else
             {
+                Reset();
                 DebugEventBus.Update -= Update;
             }
         }
@@ -94,7 +95,19 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 drawer.Update();
         }
 
-        public void Destroy()
+        public void OnEntityChanged()
+        {
+            var table = MF.World.GetEcsTable(_componentType);
+            var currentCount = table.GetMultipleDataLength(_eid);
+            if (_drawers.Count == currentCount)
+                return;
+
+            Reset();
+            _foldout.text = $"{_componentType.Name} ({currentCount})";
+            DrawComponents();
+        }
+
+        private void Reset()
         {
             foreach (var drawer in _drawers)
             {
@@ -104,6 +117,17 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             _drawers.Clear();
             _foldout?.Clear();
+        }
+
+        public void Destroy()
+        {
+            Reset();
+            _foldout?.RemoveFromHierarchy();
+        }
+
+        public void SetFirst()
+        {
+            _foldout.SendToBack();
         }
     }
 }
