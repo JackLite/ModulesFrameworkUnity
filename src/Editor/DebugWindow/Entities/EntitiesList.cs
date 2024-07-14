@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using ModulesFramework;
+using ModulesFramework.Data;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -44,26 +46,35 @@ namespace ModulesFrameworkUnity.Debug.Entities
             root.Add(_scrollView);
         }
 
-        public void AddEntity(int eid)
+        public void AddEntity(Entity entity)
         {
+            var eid = entity.Id;
             _entities.Add(eid);
             var index = _entities.Count - 1;
-            UpdateEntityName(eid);
-            var entityLabel = new EntityLabel(eid);
+
+            var entityLabel = new EntityLabel(entity, index);
+            entityLabel.UpdateName();
+            _entityLabels[eid] = entityLabel;
             entityLabel.AddToClassList("modules--entities-tab--one-list-item");
             entityLabel.RegisterCallback((ClickEvent _, int idx) =>
             {
                 UpdateSelectionIndex(idx);
             }, index);
-            _entityLabels[eid] = entityLabel;
+
             _scrollView.Add(entityLabel);
             UpdateList();
         }
 
         public void OnEntityChanged(int eid)
         {
-            UpdateEntityName(eid);
             UpdateList();
+            UpdateEntityComponents(eid);
+        }
+
+        public void OnCustomIdChanged(int eid)
+        {
+            if (_entityLabels.TryGetValue(eid, out var label))
+                label.UpdateName();
         }
 
         public void RemoveEntity(int eid)
@@ -71,9 +82,9 @@ namespace ModulesFrameworkUnity.Debug.Entities
             if (!EditorApplication.isPlaying)
                 return;
 
-            _entities.Remove(eid);
-
             var label = _entityLabels[eid];
+            _entities.RemoveAt(label.listIndex);
+
             if (label == _currentSelected)
             {
                 _currentSelected = null;
@@ -100,7 +111,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _scrollView.Focus();
         }
 
-        private void UpdateEntityName(int eid)
+        private void UpdateEntityComponents(int eid)
         {
             _stringBuilder.Clear();
             foreach (var componentType in MF.World.GetEntitySingleComponentsType(eid))
@@ -186,17 +197,22 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private class EntityLabel : Label
         {
-            public int eid;
+            public readonly int eid;
+            public readonly int listIndex;
 
-            public EntityLabel(int eid)
+            public EntityLabel(Entity entity, int listIndex)
             {
-                SetEid(eid);
+                eid = entity.Id;
+                this.listIndex = listIndex;
             }
 
-            private void SetEid(int eid)
+            public void UpdateName()
             {
-                this.eid = eid;
-                text = $"Entity {eid}";
+                var ent = MF.World.GetEntity(eid);
+                if (ent.GetCustomId() == ent.Id.ToString(CultureInfo.InvariantCulture))
+                    text = $"Entity ({ent.GetCustomId()})";
+                else
+                    text = $"{ent.GetCustomId()} ({ent.Id})";
             }
         }
     }

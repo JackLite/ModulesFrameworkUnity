@@ -103,6 +103,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             MF.World.OnEntityCreated += OnCreated;
             MF.World.OnEntityChanged += OnChanged;
+            MF.World.OnCustomIdChanged += OnCustomIdChanged;
             MF.World.OnEntityDestroyed += OnDestroyed;
         }
 
@@ -110,6 +111,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             MF.World.OnEntityCreated -= OnCreated;
             MF.World.OnEntityChanged -= OnChanged;
+            MF.World.OnCustomIdChanged -= OnCustomIdChanged;
             MF.World.OnEntityDestroyed -= OnDestroyed;
         }
 
@@ -131,6 +133,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _entitiesList.OnEntityChanged(eid);
         }
 
+        private void OnCustomIdChanged(int eid)
+        {
+            _entitiesList.OnCustomIdChanged(eid);
+        }
+
         private void OnDestroyed(int eid)
         {
             _entitiesList.RemoveEntity(eid);
@@ -142,7 +149,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             if (entity.World != MF.World)
                 return;
 
-            _entitiesList.AddEntity(entity.Id);
+            _entitiesList.AddEntity(entity);
         }
     }
 }

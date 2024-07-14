@@ -1,7 +1,5 @@
 ﻿#if UNITY_2022_1_OR_NEWER
 using System;
-using System.Globalization;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Drawers.Primitive

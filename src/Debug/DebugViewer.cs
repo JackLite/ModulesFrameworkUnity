@@ -8,7 +8,6 @@ using ModulesFramework.Modules;
 using UnityEditor;
 #endif
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace ModulesFrameworkUnity.Debug
 {
