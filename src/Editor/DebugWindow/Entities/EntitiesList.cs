@@ -83,7 +83,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 return;
 
             var label = _entityLabels[eid];
-            _entities.RemoveAt(label.listIndex);
+            if (_entities.Count > label.listIndex)
+                _entities.RemoveAt(label.listIndex);
 
             if (label == _currentSelected)
             {
