@@ -22,7 +22,7 @@ namespace ModulesFrameworkUnity
                 return;
             _adapter = new ModulesUnityAdapter(settings);
             #if UNITY_EDITOR
-            // _adapter.StartDebug();
+            _adapter.StartDebug();
             #endif
             _adapter.Start();
             _created = true;

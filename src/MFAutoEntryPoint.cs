@@ -23,7 +23,7 @@ namespace ModulesFrameworkUnity
             ecsMono.OnLateUpdate = _adapter.LateUpdate;
             ecsMono.OnDestroyed = _adapter.OnDestroy;
             #if UNITY_EDITOR
-            // _adapter.StartDebug();
+            _adapter.StartDebug();
             #endif
             _adapter.Start();
         }
