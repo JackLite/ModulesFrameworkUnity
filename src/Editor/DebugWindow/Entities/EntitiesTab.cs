@@ -25,6 +25,9 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private EntitiesNameFilter _filter;
         private EntityDrawerSettings _settings;
 
+        [SerializeField]
+        private List<string> _pinnedComponents = new();
+
         public void Draw(VisualElement root)
         {
             _entityDrawer = new();
@@ -49,6 +52,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _settings.Draw(_entityDrawer);
 
             _dataContainer.Add(_entityDrawer);
+            _entityDrawer.OnPinComponent += components =>
+            {
+                _pinnedComponents.Clear();
+                _pinnedComponents.AddRange(components);
+            };
 
             if (!MF.IsInitialized)
                 return;
@@ -87,7 +95,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             _entityDrawer.Destroy();
             _entityDrawer.SetEntity(entity);
-            _entityDrawer.Draw(_settings.IsAllOpen);
+            _entityDrawer.Draw(_settings.IsAllOpen, _pinnedComponents);
         }
 
         private void OnPlayModeChanges(PlayModeStateChange change)

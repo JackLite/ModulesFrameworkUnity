@@ -1,4 +1,7 @@
-﻿using ModulesFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ModulesFramework;
 using ModulesFramework.Data;
 using UnityEngine.UIElements;
 
@@ -15,6 +18,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private EntitySingleComponents _singleComponents;
         private EntityMultipleComponents _multipleComponents;
 
+        public event Action<HashSet<string>> OnPinComponent;
+
         public EntityDrawer()
         {
             AddToClassList("modules--one-entity");
@@ -27,19 +32,21 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _multipleComponents?.SetEntity(_entity);
         }
 
-        public void Draw(bool isAllOpen)
+        public void Draw(bool isAllOpen, IEnumerable<string> pinnedComponents)
         {
             if (_singleComponents == null)
             {
-                _singleComponents = new EntitySingleComponents();
+                _singleComponents = new EntitySingleComponents(pinnedComponents);
                 _singleComponents.SetEntity(_entity);
+                _singleComponents.OnPinComponent += OnPin;
                 Add(_singleComponents);
             }
 
             if(_multipleComponents == null)
             {
-                _multipleComponents = new EntityMultipleComponents();
+                _multipleComponents = new EntityMultipleComponents(pinnedComponents);
                 _multipleComponents.SetEntity(_entity);
+                _multipleComponents.OnPinComponent += OnPin;
                 Add(_multipleComponents);
             }
 
@@ -47,6 +54,14 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _multipleComponents.Draw(isAllOpen);
 
             MF.World.OnEntityChanged += OnEntityChanged;
+        }
+
+        private void OnPin()
+        {
+            var allPinned = _singleComponents.pinnedComponents
+                .Union(_multipleComponents.pinnedComponents)
+                .ToHashSet();
+            OnPinComponent?.Invoke(allPinned);
         }
 
         public void Destroy()

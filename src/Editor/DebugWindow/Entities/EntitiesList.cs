@@ -52,7 +52,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _entities.Add(eid);
             var index = _entities.Count - 1;
 
-            var entityLabel = new EntityLabel(entity, index);
+            var entityLabel = new EntityLabel(entity);
             entityLabel.UpdateName();
             _entityLabels[eid] = entityLabel;
             entityLabel.AddToClassList("modules--entities-tab--one-list-item");
@@ -63,6 +63,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             _scrollView.Add(entityLabel);
             UpdateList();
+            UpdateEntityComponents(eid);
         }
 
         public void OnEntityChanged(int eid)
@@ -83,8 +84,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 return;
 
             var label = _entityLabels[eid];
-            if (_entities.Count > label.listIndex)
-                _entities.RemoveAt(label.listIndex);
+            _entities.Remove(eid);
 
             if (label == _currentSelected)
             {
@@ -94,6 +94,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             label.RemoveFromHierarchy();
             _entityLabels.Remove(eid);
+            _entityComponentsMap.Remove(eid);
             UpdateList();
         }
 
@@ -199,12 +200,10 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private class EntityLabel : Label
         {
             public readonly int eid;
-            public readonly int listIndex;
 
-            public EntityLabel(Entity entity, int listIndex)
+            public EntityLabel(Entity entity)
             {
                 eid = entity.Id;
-                this.listIndex = listIndex;
             }
 
             public void UpdateName()

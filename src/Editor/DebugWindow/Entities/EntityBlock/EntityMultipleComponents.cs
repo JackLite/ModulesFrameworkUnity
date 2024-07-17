@@ -10,7 +10,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
     /// <summary>
     ///     Block with multiple components
     /// </summary>
-    public class EntityMultipleComponents : VisualElement
+    public class EntityMultipleComponents : BaseEntityComponents
     {
         private readonly Dictionary<Type, MultipleComponentDrawer> _componentDrawers = new();
         private Entity _entity;
@@ -21,7 +21,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private readonly HashSet<Type> _new = new();
         private bool _isAllOpen;
 
-        public EntityMultipleComponents()
+        public EntityMultipleComponents(IEnumerable<string> pinnedComponents) : base(pinnedComponents)
         {
             var title = new Label("Multiple components");
             title.AddToClassList("modules--one-entity--components-title");
@@ -44,6 +44,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _componentsContainer.Clear();
             foreach (var componentType in _components)
                 DrawComponents(componentType);
+            Reorder();
         }
 
         public void OnEntityChanged()
@@ -79,10 +80,19 @@ namespace ModulesFrameworkUnity.Debug.Entities
             Reorder();
         }
 
-        private void Reorder()
+        protected override void Reorder()
         {
-            foreach (var (_, drawer) in _componentDrawers.OrderByDescending(kvp => kvp.Key.Name))
+            var ordered = _componentDrawers
+                .OrderBy(kvp => pinnedComponents.Contains(kvp.Key.Name))
+                .ThenByDescending(kvp => kvp.Key.Name);
+
+            foreach (var (_, drawer) in ordered)
                 drawer.SetFirst();
+        }
+
+        protected override BaseComponentDrawer GetDrawer(Type componentType)
+        {
+            return _componentDrawers.GetValueOrDefault(componentType);
         }
 
         private void DrawComponents(Type componentType)
@@ -91,6 +101,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
             {
                 drawer = new MultipleComponentDrawer(componentType, _mainDrawer);
                 _componentDrawers[componentType] = drawer;
+                drawer.OnPin += () => UpdatePinStatus(componentType);
+                drawer.SetPinned(pinnedComponents.Contains(componentType.Name));
             }
 
             drawer.Destroy();

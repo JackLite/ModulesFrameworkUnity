@@ -8,21 +8,14 @@ namespace ModulesFrameworkUnity.Debug.Entities
     /// <summary>
     ///     Draws one single component in Debug Window
     /// </summary>
-    public class ComponentSingleDrawer
+    public class ComponentSingleDrawer : BaseComponentDrawer
     {
         private readonly StructsDrawer _structsDrawer = new();
-        private readonly Type _componentType;
-        private int _eid;
 
-        public ComponentSingleDrawer(Type componentType, int eid)
+        public ComponentSingleDrawer(Type componentType) : base(componentType)
         {
-            _componentType = componentType;
-            _eid = eid;
-        }
-
-        public void SetEntityId(int eid)
-        {
-            _eid = eid;
+            _componentContainer.Add(_structsDrawer.Foldout);
+            _pinButton.BringToFront();
         }
 
         public void Draw(EditorDrawer mainDrawer, VisualElement root, bool isOpen)
@@ -45,7 +38,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
 
             _structsDrawer.OnChangeOpenState += OnChanged;
-            root.Add(_structsDrawer.Foldout);
+            root.Add(_componentContainer);
         }
 
         private void OnChanged(bool isOpened)
@@ -74,12 +67,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             DebugEventBus.Update -= Update;
             _structsDrawer.Reset();
-            _structsDrawer.Foldout.RemoveFromHierarchy();
-        }
-
-        public void SetFirst()
-        {
-            _structsDrawer.Foldout.SendToBack();
+            _componentContainer?.RemoveFromHierarchy();
         }
     }
 }

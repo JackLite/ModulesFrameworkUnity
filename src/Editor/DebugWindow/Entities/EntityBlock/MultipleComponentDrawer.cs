@@ -10,25 +10,17 @@ namespace ModulesFrameworkUnity.Debug.Entities
     /// <summary>
     ///     Draws components that marked as multiple
     /// </summary>
-    public class MultipleComponentDrawer
+    public class MultipleComponentDrawer : BaseComponentDrawer
     {
-        private readonly Type _componentType;
         private Foldout _foldout;
-        private int _eid;
         private readonly Stack<StructsDrawer> _drawersPool = new();
         private readonly List<StructsDrawer> _drawers = new();
         private readonly Dictionary<int, object> _values = new();
         private readonly EditorDrawer _mainDrawer;
 
-        public MultipleComponentDrawer(Type componentType, EditorDrawer mainDrawer)
+        public MultipleComponentDrawer(Type componentType, EditorDrawer mainDrawer) : base(componentType)
         {
-            _componentType = componentType;
             _mainDrawer = mainDrawer;
-        }
-
-        public void SetEntityId(int eid)
-        {
-            _eid = eid;
         }
 
         public void Draw(VisualElement root, bool isOpened)
@@ -37,6 +29,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
             {
                 _foldout = new Foldout();
                 _foldout.RegisterValueChangedCallback(ev => OnFoldoutChanged(ev.newValue));
+                _componentContainer.Add(_foldout);
+                _pinButton.BringToFront();
             }
 
             var table = MF.World.GetEcsTable(_componentType);
@@ -44,7 +38,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _foldout.text = $"{_componentType.Name} ({count})";
             _foldout.value = isOpened;
 
-            root.Add(_foldout);
+            root.Add(_componentContainer);
 
             if (isOpened)
             {
@@ -122,12 +116,12 @@ namespace ModulesFrameworkUnity.Debug.Entities
         public void Destroy()
         {
             Reset();
-            _foldout?.RemoveFromHierarchy();
+            _componentContainer?.RemoveFromHierarchy();
         }
 
         public void SetFirst()
         {
-            _foldout.SendToBack();
+            _componentContainer.SendToBack();
         }
     }
 }

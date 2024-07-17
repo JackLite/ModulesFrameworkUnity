@@ -10,7 +10,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
     /// <summary>
     ///     Controls of view for single components
     /// </summary>
-    public class EntitySingleComponents : VisualElement
+    public class EntitySingleComponents : BaseEntityComponents
     {
         private readonly Dictionary<Type, ComponentSingleDrawer> _componentDrawers = new();
         private Entity _entity;
@@ -21,12 +21,13 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private readonly VisualElement _componentsContainer;
         private bool _isOpenAll;
 
-        public EntitySingleComponents()
+        public EntitySingleComponents(IEnumerable<string> pinnedComponents) : base(pinnedComponents)
         {
             var title = new Label("Single components");
             title.AddToClassList("modules--one-entity--components-title");
             Add(title);
             _componentsContainer = new();
+            _componentsContainer.AddToClassList("modules--entities-tab--components-container");
             Add(_componentsContainer);
         }
 
@@ -76,18 +77,29 @@ namespace ModulesFrameworkUnity.Debug.Entities
             Reorder();
         }
 
-        private void Reorder()
+        protected override void Reorder()
         {
-            foreach (var (_, drawer) in _componentDrawers.OrderByDescending(kvp => kvp.Key.Name))
+            var ordered = _componentDrawers
+                .OrderBy(kvp => pinnedComponents.Contains(kvp.Key.Name))
+                .ThenByDescending(kvp => kvp.Key.Name);
+
+            foreach (var (_, drawer) in ordered)
                 drawer.SetFirst();
+        }
+
+        protected override BaseComponentDrawer GetDrawer(Type componentType)
+        {
+            return _componentDrawers.GetValueOrDefault(componentType);
         }
 
         private void DrawComponent(Type componentType)
         {
             if (!_componentDrawers.TryGetValue(componentType, out var drawer))
             {
-                drawer = new ComponentSingleDrawer(componentType, _entity.Id);
+                drawer = new ComponentSingleDrawer(componentType);
                 _componentDrawers[componentType] = drawer;
+                drawer.OnPin += () => UpdatePinStatus(componentType);
+                drawer.SetPinned(pinnedComponents.Contains(componentType.Name));
             }
 
             drawer.Destroy();

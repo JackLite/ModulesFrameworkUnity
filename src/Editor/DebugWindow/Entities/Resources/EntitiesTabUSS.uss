@@ -60,3 +60,20 @@
     border-bottom-width: 1px;
     border-bottom-color: #555555;
 }
+
+.modules--entities-tab--component-container {
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: flex-start;
+    min-height: 30px;
+    padding-top: 4px;
+}
+
+.modules--entities-tab--pin-btn {
+    margin-right: 20px;
+    height: 26px
+}
+
+EntityMultipleComponents ** .unity-foldout > .unity-toggle {
+    font-size: 14px;
+}
