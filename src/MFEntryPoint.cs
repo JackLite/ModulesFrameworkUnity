@@ -5,9 +5,10 @@ namespace ModulesFrameworkUnity
 {
     public class MFEntryPoint : MonoBehaviour
     {
-        private ModulesUnityAdapter _adapter;
-        private static bool _created;
-        private void Awake()
+        protected ModulesUnityAdapter _adapter;
+        protected static bool _created;
+
+        protected virtual void Awake()
         {
             if (_created)
             {
@@ -24,24 +25,25 @@ namespace ModulesFrameworkUnity
             _adapter.StartDebug();
             #endif
             _adapter.Start();
+            _created = true;
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             _adapter.Update();
         }
 
-        private void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             _adapter.FixedUpdate();
         }
 
-        private void LateUpdate()
+        protected virtual void LateUpdate()
         {
             _adapter.LateUpdate();
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             _adapter.OnDestroy();
         }
