@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -17,11 +18,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private ListView _listView;
         private ScrollView _scrollView;
         private readonly Dictionary<int, EntityLabel> _entityLabels = new();
-        private readonly List<int> _entities = new();
+        private readonly LinkedDictionary<int, int> _entities = new();
         private readonly HashSet<int> _filtered = new();
         private readonly Dictionary<int, string> _entityComponentsMap = new();
         private readonly StringBuilder _stringBuilder = new();
-        private int _currentSelectedIdx = -1;
+        private int _currentSelectedEid = -1;
         private EntityLabel _currentSelected;
 
         private string _currentFilter = string.Empty;
@@ -49,17 +50,16 @@ namespace ModulesFrameworkUnity.Debug.Entities
         public void AddEntity(Entity entity)
         {
             var eid = entity.Id;
-            _entities.Add(eid);
-            var index = _entities.Count - 1;
+            _entities.Add(eid, eid);
 
             var entityLabel = new EntityLabel(entity);
             entityLabel.UpdateName();
             _entityLabels[eid] = entityLabel;
             entityLabel.AddToClassList("modules--entities-tab--one-list-item");
-            entityLabel.RegisterCallback((ClickEvent _, int idx) =>
+            entityLabel.RegisterCallback((ClickEvent _, int eid) =>
             {
-                UpdateSelectionIndex(idx);
-            }, index);
+                UpdateSelectionIndex(eid);
+            }, eid);
 
             _scrollView.Add(entityLabel);
             UpdateList();
@@ -89,7 +89,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             if (label == _currentSelected)
             {
                 _currentSelected = null;
-                _currentSelectedIdx = -1;
+                _currentSelectedEid = -1;
             }
 
             label.RemoveFromHierarchy();
@@ -98,12 +98,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
             UpdateList();
         }
 
-        private void UpdateSelectionIndex(int index)
+        private void UpdateSelectionIndex(int eid)
         {
-            if (_currentSelectedIdx == index)
+            if (_currentSelectedEid == eid)
                 return;
-            _currentSelectedIdx = index;
-            var eid = _entities[index];
+            _currentSelectedEid = eid;
             var label = _entityLabels[eid];
             OnEntitySelected?.Invoke(eid);
             const string className = "modules--entities-tab--entity-selected";
@@ -162,39 +161,39 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private void OnNavigation(NavigationMoveEvent ev)
         {
-            if (_currentSelectedIdx == -1 || _entities.Count == 0 || (FilterActive && _filtered.Count == 0))
+            if (_currentSelectedEid == -1 || _entities.Count == 0 || (FilterActive && _filtered.Count == 0))
                 return;
 
-            var newIndex = _currentSelectedIdx;
+            var newEid = _currentSelectedEid;
             if (ev.direction == NavigationMoveEvent.Direction.Down)
             {
                 do
                 {
-                    newIndex++;
-                    if (newIndex >= _entities.Count)
-                        newIndex = 0;
+                    var nextNode = _entities[newEid].Next;
+                    if (nextNode == null)
+                        nextNode = _entities.FirstNode;
 
-                    var eid = _entities[newIndex];
-                    if (!FilterActive || _filtered.Contains(eid))
+                    newEid = nextNode.Value;
+                    if (!FilterActive || _filtered.Contains(newEid))
                         break;
-                } while (newIndex != _currentSelectedIdx);
+                } while (newEid != _currentSelectedEid);
             }
 
             if (ev.direction == NavigationMoveEvent.Direction.Up)
             {
                 do
                 {
-                    newIndex--;
-                    if (newIndex < 0)
-                        newIndex = _entities.Count - 1;
+                    var prevNode = _entities[newEid].Previous;
+                    if (prevNode == null)
+                        prevNode = _entities.LastNode;
 
-                    var eid = _entities[newIndex];
-                    if (!FilterActive || _filtered.Contains(eid))
+                    newEid = prevNode.Value;
+                    if (!FilterActive || _filtered.Contains(newEid))
                         break;
-                } while (newIndex != _currentSelectedIdx);
+                } while (newEid != _currentSelectedEid);
             }
 
-            UpdateSelectionIndex(newIndex);
+            UpdateSelectionIndex(newEid);
         }
 
         private class EntityLabel : Label
