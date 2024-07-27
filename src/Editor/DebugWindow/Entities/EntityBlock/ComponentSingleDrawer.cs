@@ -1,6 +1,8 @@
 ﻿using System;
 using ModulesFramework;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
+using ModulesFrameworkUnity.Debug.Utils;
+using UnityEditor;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -15,7 +17,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         public ComponentSingleDrawer(Type componentType) : base(componentType)
         {
             _componentContainer.Add(_structsDrawer.Foldout);
-            _pinButton.BringToFront();
+            _structsDrawer.Foldout.SendToBack();
         }
 
         public void Draw(EditorDrawer mainDrawer, VisualElement root, bool isOpen)
@@ -29,19 +31,19 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 () => MF.World.GetEcsTable(_componentType).GetDataObject(_eid));
 
             _structsDrawer.DrawHeader(_componentType.Name);
-            _structsDrawer.SetOpenState(isOpen);
-            if (isOpen)
+            _structsDrawer.SetOpenState(isOpen || isAlwaysOpen);
+            if (isOpen || isAlwaysOpen)
             {
                 var val = MF.World.GetEcsTable(_componentType).GetDataObject(_eid);
                 _structsDrawer.DrawFields(val);
                 DebugEventBus.Update += Update;
             }
 
-            _structsDrawer.OnChangeOpenState += OnChanged;
+            _structsDrawer.OnChangeOpenState += OnOpenChanged;
             root.Add(_componentContainer);
         }
 
-        private void OnChanged(bool isOpened)
+        private void OnOpenChanged(bool isOpened)
         {
             if (isOpened)
             {
@@ -68,6 +70,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
             DebugEventBus.Update -= Update;
             _structsDrawer.Reset();
             _componentContainer?.RemoveFromHierarchy();
+        }
+
+        protected override void OnAlwaysOpenChanged()
+        {
+            _structsDrawer.SetOpenState(isAlwaysOpen);
         }
     }
 }

@@ -62,11 +62,14 @@
 }
 
 .modules--entities-tab--component-container {
-    justify-content: space-between;
     flex-direction: row;
     align-items: flex-start;
     min-height: 30px;
     padding-top: 4px;
+}
+
+.modules--entities-tab--component-container > Foldout {
+    flex-grow: 2;
 }
 
 .modules--entities-tab--pin-btn {
@@ -76,4 +79,17 @@
 
 EntityMultipleComponents ** .unity-foldout > .unity-toggle {
     font-size: 14px;
+}
+
+.modules--entities-tab--always-open-toggle {
+    align-self: flex-start;
+    align-items: center;
+    font-size: 14px;
+    margin-right: 10px;
+    height: 26px;
+}
+
+.modules--entities-tab--always-open-toggle > Label {
+    min-width: 0;
+    margin-right: 6px;
 }

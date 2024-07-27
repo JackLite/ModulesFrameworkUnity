@@ -30,17 +30,17 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _foldout = new Foldout();
                 _foldout.RegisterValueChangedCallback(ev => OnFoldoutChanged(ev.newValue));
                 _componentContainer.Add(_foldout);
-                _pinButton.BringToFront();
+                _foldout.SendToBack();
             }
 
             var table = MF.World.GetEcsTable(_componentType);
             var count = table.GetMultipleDataLength(_eid);
             _foldout.text = $"{_componentType.Name} ({count})";
-            _foldout.value = isOpened;
+            _foldout.value = isOpened || isAlwaysOpen;
 
             root.Add(_componentContainer);
 
-            if (isOpened)
+            if (isOpened || isAlwaysOpen)
             {
                 DrawComponents();
                 DebugEventBus.Update += Update;
@@ -119,9 +119,9 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _componentContainer?.RemoveFromHierarchy();
         }
 
-        public void SetFirst()
+        protected override void OnAlwaysOpenChanged()
         {
-            _componentContainer.SendToBack();
+            _foldout.value = isAlwaysOpen;
         }
     }
 }
