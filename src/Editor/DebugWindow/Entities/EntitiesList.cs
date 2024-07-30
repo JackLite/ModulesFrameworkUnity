@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using ModulesFramework;
 using ModulesFramework.Data;
@@ -15,7 +16,6 @@ namespace ModulesFrameworkUnity.Debug.Entities
     /// </summary>
     public class EntitiesList
     {
-        private ListView _listView;
         private ScrollView _scrollView;
         private readonly Dictionary<int, EntityLabel> _entityLabels = new();
         private readonly LinkedDictionary<int, int> _entities = new();
@@ -116,10 +116,20 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             _stringBuilder.Clear();
             foreach (var componentType in MF.World.GetEntitySingleComponentsType(eid))
+            {
+                _stringBuilder.Append("|");
                 _stringBuilder.Append(componentType.Name);
+            }
+
             foreach (var componentType in MF.World.GetEntityMultipleComponentsType(eid))
+            {
+                _stringBuilder.Append("|");
                 _stringBuilder.Append(componentType.Name);
+            }
+
             _entityComponentsMap[eid] = _stringBuilder.ToString();
+            _entityLabels[eid].components = _entityComponentsMap[eid];
+            _entityLabels[eid].UpdateName();
         }
 
         private void UpdateList()
@@ -196,9 +206,18 @@ namespace ModulesFrameworkUnity.Debug.Entities
             UpdateSelectionIndex(newEid);
         }
 
+        public void Reset()
+        {
+            _entities.Clear();
+            _entityLabels.Clear();
+            _entityComponentsMap.Clear();
+            _scrollView.Clear();
+        }
+
         private class EntityLabel : Label
         {
             public readonly int eid;
+            public string components;
 
             public EntityLabel(Entity entity)
             {
@@ -209,9 +228,19 @@ namespace ModulesFrameworkUnity.Debug.Entities
             {
                 var ent = MF.World.GetEntity(eid);
                 if (ent.GetCustomId() == ent.Id.ToString(CultureInfo.InvariantCulture))
-                    text = $"Entity ({ent.GetCustomId()})";
+                    text = $"Entity ({ent.GetCustomId()}) ";
                 else
-                    text = $"{ent.GetCustomId()} ({ent.Id})";
+                    text = $"{ent.GetCustomId()} ({ent.Id}) ";
+                if (!string.IsNullOrWhiteSpace(components))
+                {
+                    text += '-';
+                    var splitted = components.Split('|');
+                    foreach (var componentName in splitted)
+                    {
+                        text += string.Concat(componentName.Where(c => c >= 'A' && c <= 'Z'));
+                        text += ' ';
+                    }
+                }
             }
         }
     }

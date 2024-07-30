@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ModulesFrameworkUnity.Utils
 {
-    internal class LinkedDictionary<TKey, T>
+    internal class LinkedDictionary<TKey, T> : IEnumerable<KeyValuePair<TKey, T>>
     {
         private readonly Dictionary<TKey, LinkedListNode<T>> _dictionary = new();
         private readonly LinkedList<T> _linkedList = new();
+
+        public IEnumerable<T> Values => _linkedList;
 
         public LinkedListNode<T> this[TKey key] => _dictionary[key];
 
@@ -27,6 +31,22 @@ namespace ModulesFrameworkUnity.Utils
 
             _linkedList.Remove(node);
             _dictionary.Remove(key);
+        }
+
+        public void Clear()
+        {
+            _linkedList.Clear();
+            _dictionary.Clear();
+        }
+
+        public IEnumerator<KeyValuePair<TKey, T>> GetEnumerator()
+        {
+            return _dictionary.Select(kvp => new KeyValuePair<TKey, T>(kvp.Key, kvp.Value.Value)).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

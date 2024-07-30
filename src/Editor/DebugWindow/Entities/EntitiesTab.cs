@@ -17,7 +17,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private List<Type> _withFilter;
 
         private VisualElement _root;
-        private VisualElement _dataContainer;
+        private TwoPaneSplitView _dataContainer;
         private ScrollView _scrollView;
 
         private EntitiesList _entitiesList = new();
@@ -41,7 +41,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _root.Add(_filter);
             _filter.OnInputChanged += OnFilterName;
 
-            _dataContainer = new VisualElement();
+            _dataContainer = new TwoPaneSplitView();
+            _dataContainer.fixedPaneInitialDimension = 200;
             _root.Add(_dataContainer);
             _dataContainer.AddToClassList("modules--entities-tab--data");
 
@@ -52,15 +53,12 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _settings.Draw(_entityDrawer);
 
             _dataContainer.Add(_entityDrawer);
+            _entityDrawer.style.flexBasis = new StyleLength(StyleKeyword.Null);
             _entityDrawer.OnPinComponent += components =>
             {
                 _pinnedComponents.Clear();
                 _pinnedComponents.AddRange(components);
             };
-
-            if (!MF.IsInitialized)
-                return;
-            CreateViewersForExisted();
         }
 
         private void OnFilterName(string val)
@@ -73,6 +71,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             _root.style.display = DisplayStyle.Flex;
             EditorApplication.playModeStateChanged += OnPlayModeChanges;
+
+            _entitiesList.Reset();
+            if (!MF.IsInitialized)
+                return;
+            CreateViewersForExisted();
 
             if (EditorApplication.isPlaying)
                 Subscribe();

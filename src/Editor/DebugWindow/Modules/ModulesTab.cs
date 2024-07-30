@@ -44,6 +44,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             else
                 _listTab.Show();
             _modeSwitcher.Show(_currentMode);
+            style.display = DisplayStyle.Flex;
         }
 
         public void Hide()
@@ -51,6 +52,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             _graphTab.Hide();
             _listTab.Hide();
             _modeSwitcher.Hide();
+            style.display = DisplayStyle.None;
         }
 
         private void SwitchMode()

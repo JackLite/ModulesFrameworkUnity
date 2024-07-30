@@ -58,14 +58,15 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 var getter = CreateGetter(fieldInfo, value.GetType());
                 var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, Foldout, (_, newVal) =>
                 {
+                    var realValue = valueGetter();
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     {
                         UnityEngine.Debug.LogWarning($"{fieldInfo.Name} is const. You cannot change it");
                         return;
                     }
 
-                    fieldInfo.SetValue(value, newVal);
-                    valueChangedCb(value, value);
+                    fieldInfo.SetValue(realValue, newVal);
+                    valueChangedCb(realValue, realValue);
                 }, getter, Level + 1, false);
 
                 if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
