@@ -1,4 +1,6 @@
-﻿.modules--entities-tab {
+﻿/* main */
+
+.modules--entities-tab {
     height: 100%;
 }
 
@@ -12,6 +14,35 @@ EntitiesNameFilter {
     margin-left: 4px;
 }
 
+/* list */
+
+.modules--entities-list {
+    width: 250px;
+    border-right-color: #555555;
+    border-right-width: 1px;
+    flex-shrink: 0;
+    padding-top: 10px;
+}
+
+.modules--entities-list--search-field {
+    margin-right: 10px;
+    margin-left: 5px;
+}
+
+.modules--entities-list ScrollView {
+    margin-top: 10px;
+}
+
+.modules--entities-tab--one-list-item {
+    font-size: 14px;
+    -unity-text-align: middle-left;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+/* data */
+
 .modules--entities-tab--data {
     border-top-color: #555555;
     border-top-width: 2px;
@@ -22,21 +53,6 @@ EntitiesNameFilter {
 .modules--entities-tab--data > .unity-two-pane-split-view__content-container {
     position: relative;
     width: 100%;
-}
-
-.modules--entities-list {
-    width: 250px;
-    border-right-color: #555555;
-    border-right-width: 1px;
-    flex-shrink: 0;
-}
-
-.modules--entities-tab--one-list-item {
-    font-size: 14px;
-    -unity-text-align: middle-left;
-    padding-left: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
 }
 
 .modules--entities-tab--one-list-item:hover {
@@ -93,7 +109,7 @@ EntitiesNameFilter {
     height: 26px
 }
 
-EntityMultipleComponents ** .unity-foldout > .unity-toggle {
+EntityMultipleComponents * * .unity-foldout > .unity-toggle {
     font-size: 14px;
 }
 

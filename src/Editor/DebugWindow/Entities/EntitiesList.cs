@@ -17,6 +17,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
     public class EntitiesList
     {
         private ScrollView _scrollView;
+        private TextField _searchField;
         private readonly Dictionary<int, EntityLabel> _entityLabels = new();
         private readonly LinkedDictionary<int, int> _entities = new();
         private readonly HashSet<int> _filtered = new();
@@ -25,18 +26,31 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private int _currentSelectedEid = -1;
         private EntityLabel _currentSelected;
 
-        private string _currentFilter = string.Empty;
+        private string _componentsFilter = string.Empty;
+        private string _listFilter = string.Empty;
 
-        private bool FilterActive => !string.IsNullOrWhiteSpace(_currentFilter);
+        private bool FilterActive =>
+            !string.IsNullOrWhiteSpace(_componentsFilter)
+            || !string.IsNullOrWhiteSpace(_listFilter);
 
         public event Action<int> OnEntitySelected;
 
         public void Draw(VisualElement root)
         {
+            if (_searchField == null)
+            {
+                _searchField = new TextField();
+                _searchField.AddToClassList("modules--entities-list--search-field");
+                _searchField.RegisterValueChangedCallback(ev =>
+                {
+                    _listFilter = ev.newValue;
+                    UpdateList();
+                });
+            }
+
             if (_scrollView == null)
             {
                 _scrollView = new ScrollView();
-                _scrollView.AddToClassList("modules--entities-list");
                 _scrollView.focusable = true;
                 _scrollView.RegisterCallback(
                     (NavigationMoveEvent ev, EntitiesList list) => list.OnNavigation(ev),
@@ -44,7 +58,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 );
             }
 
-            root.Add(_scrollView);
+            var listRoot = new VisualElement();
+            listRoot.AddToClassList("modules--entities-list");
+            listRoot.Add(_searchField);
+            listRoot.Add(_scrollView);
+            root.Add(listRoot);
         }
 
         public void AddEntity(Entity entity)
@@ -134,37 +152,42 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private void UpdateList()
         {
             Filter();
-            Sort();
+            UpdateVisibility();
         }
 
         public void FilterByComponent(string componentName)
         {
-            _currentFilter = componentName;
+            _componentsFilter = componentName;
             Filter();
-            Sort();
-        }
-
-        private void Sort()
-        {
-            foreach (var (eid, label) in _entityLabels)
-            {
-                if (_filtered.Contains(eid) || string.IsNullOrWhiteSpace(_currentFilter))
-                    label.style.display = DisplayStyle.Flex;
-                else
-                    label.style.display = DisplayStyle.None;
-            }
+            UpdateVisibility();
         }
 
         private void Filter()
         {
-            if (string.IsNullOrWhiteSpace(_currentFilter))
+            if (!FilterActive)
                 return;
 
             _filtered.Clear();
             foreach (var (eid, fullName) in _entityComponentsMap)
             {
-                if (fullName.Contains(_currentFilter, StringComparison.InvariantCultureIgnoreCase))
+                var label = _entityLabels[eid];
+                var isInComponents = fullName.Contains(_componentsFilter, StringComparison.InvariantCultureIgnoreCase);
+                var isInList = label.displayName.Contains(_listFilter, StringComparison.InvariantCultureIgnoreCase);
+                if (isInComponents && isInList)
+                {
                     _filtered.Add(eid);
+                }
+            }
+        }
+
+        private void UpdateVisibility()
+        {
+            foreach (var (eid, label) in _entityLabels)
+            {
+                if (_filtered.Contains(eid) || !FilterActive)
+                    label.style.display = DisplayStyle.Flex;
+                else
+                    label.style.display = DisplayStyle.None;
             }
         }
 
@@ -233,10 +256,10 @@ namespace ModulesFrameworkUnity.Debug.Entities
             {
                 stringBuilder.Clear();
                 // try tags
-                if(EntitiesTagStorage.IsInitialized)
+                if (EntitiesTagStorage.IsInitialized)
                 {
                     var tags = EntitiesTagStorage.Storage.GetTags(eid);
-                    if(tags.Count > 0)
+                    if (tags.Count > 0)
                     {
                         stringBuilder.Append(string.Join(" | ", tags));
                         stringBuilder.Append(" (");
@@ -251,9 +274,10 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 // try custom id
                 var ent = MF.World.GetEntity(eid);
                 if (ent.GetCustomId() == ent.Id.ToString(CultureInfo.InvariantCulture))
-                    text = $"Entity ({ent.GetCustomId()}) ";
+                    displayName = $"Entity ({ent.GetCustomId()}) ";
                 else
-                    text = $"{ent.GetCustomId()} ({ent.Id}) ";
+                    displayName = $"{ent.GetCustomId()} ({ent.Id}) ";
+                text = displayName;
             }
         }
     }
