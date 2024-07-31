@@ -3,6 +3,7 @@ using System.Globalization;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
+using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Settings;
 using ModulesFrameworkUnity.Utils;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace ModulesFrameworkUnity
         public ModulesUnityAdapter(ModulesSettings settings)
         {
             _settings = settings;
+            EntitiesTagStorage.Initialize();
             _modules = new MF(settings.worldsCount, new UnityAssemblyFilter());
             if (_settings.deleteEmptyEntities)
             {

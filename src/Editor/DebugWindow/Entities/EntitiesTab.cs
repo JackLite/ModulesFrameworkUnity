@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFrameworkUnity.EntitiesTags;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -116,6 +117,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             MF.World.OnEntityChanged += OnChanged;
             MF.World.OnCustomIdChanged += OnCustomIdChanged;
             MF.World.OnEntityDestroyed += OnDestroyed;
+            EntitiesTagStorage.Storage.OnTagChanged += _entitiesList.OnTagChanged;
         }
 
         private void Unsubscribe()
@@ -124,6 +126,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             MF.World.OnEntityChanged -= OnChanged;
             MF.World.OnCustomIdChanged -= OnCustomIdChanged;
             MF.World.OnEntityDestroyed -= OnDestroyed;
+            EntitiesTagStorage.Storage.OnTagChanged -= _entitiesList.OnTagChanged;
         }
 
         private void CreateViewersForExisted()

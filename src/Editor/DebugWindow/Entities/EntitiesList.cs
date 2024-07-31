@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -53,7 +53,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _entities.Add(eid, eid);
 
             var entityLabel = new EntityLabel(entity);
-            entityLabel.UpdateName();
+            entityLabel.UpdateName(_stringBuilder);
             _entityLabels[eid] = entityLabel;
             entityLabel.AddToClassList("modules--entities-tab--one-list-item");
             entityLabel.RegisterCallback((ClickEvent _, int eid) =>
@@ -75,7 +75,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         public void OnCustomIdChanged(int eid)
         {
             if (_entityLabels.TryGetValue(eid, out var label))
-                label.UpdateName();
+                label.UpdateName(_stringBuilder);
         }
 
         public void RemoveEntity(int eid)
@@ -128,8 +128,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
 
             _entityComponentsMap[eid] = _stringBuilder.ToString();
-            _entityLabels[eid].components = _entityComponentsMap[eid];
-            _entityLabels[eid].UpdateName();
+            _entityLabels[eid].UpdateName(_stringBuilder);
         }
 
         private void UpdateList()
@@ -214,33 +213,47 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _scrollView.Clear();
         }
 
+        public void OnTagChanged(int eid)
+        {
+            if (_entityLabels.TryGetValue(eid, out var label))
+                label.UpdateName(_stringBuilder);
+        }
+
         private class EntityLabel : Label
         {
             public readonly int eid;
-            public string components;
+            public string displayName;
 
             public EntityLabel(Entity entity)
             {
                 eid = entity.Id;
             }
 
-            public void UpdateName()
+            public void UpdateName(StringBuilder stringBuilder)
             {
+                stringBuilder.Clear();
+                // try tags
+                if(EntitiesTagStorage.IsInitialized)
+                {
+                    var tags = EntitiesTagStorage.Storage.GetTags(eid);
+                    if(tags.Count > 0)
+                    {
+                        stringBuilder.Append(string.Join(" | ", tags));
+                        stringBuilder.Append(" (");
+                        stringBuilder.Append(eid.ToString(CultureInfo.InvariantCulture));
+                        stringBuilder.Append(")");
+                        displayName = stringBuilder.ToString();
+                        text = displayName;
+                        return;
+                    }
+                }
+
+                // try custom id
                 var ent = MF.World.GetEntity(eid);
                 if (ent.GetCustomId() == ent.Id.ToString(CultureInfo.InvariantCulture))
                     text = $"Entity ({ent.GetCustomId()}) ";
                 else
                     text = $"{ent.GetCustomId()} ({ent.Id}) ";
-                if (!string.IsNullOrWhiteSpace(components))
-                {
-                    text += '-';
-                    var splitted = components.Split('|');
-                    foreach (var componentName in splitted)
-                    {
-                        text += string.Concat(componentName.Where(c => c >= 'A' && c <= 'Z'));
-                        text += ' ';
-                    }
-                }
             }
         }
     }
