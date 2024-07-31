@@ -26,11 +26,19 @@ namespace ModulesFrameworkUnity
         {
             DrawTitle("Main");
             DrawStartMethod();
+            DrawUseOldDebug();
             DrawWorldsCount();
             DrawLogType();
             DrawPerformanceSettings();
             DrawCheckEntity();
             DrawSaveButton();
+        }
+
+        private void DrawUseOldDebug()
+        {
+            var isUseOldDebug = _settings.useOldDebug;
+            var debugContent = new GUIContent("Use old debug", "Turn on to use old debug based on GameObjects");
+            _settings.useOldDebug = EditorGUILayout.Toggle(debugContent, isUseOldDebug);
         }
 
         private void DrawPerformanceSettings()
@@ -61,7 +69,7 @@ namespace ModulesFrameworkUnity
         {
             EditorGUILayout.Space(20);
             var content = new GUIContent(
-                "Delete empty entities", 
+                "Delete empty entities",
                 "If true - when you remove last component from entity it will be destroyed");
             _settings.deleteEmptyEntities = EditorGUILayout.Toggle(content, _settings.deleteEmptyEntities);
         }

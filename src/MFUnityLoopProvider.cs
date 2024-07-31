@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-[assembly: InternalsVisibleTo("JackLite.ModulesFrameworkUnityPackageEditor")]
 
 namespace ModulesFrameworkUnity
 {
