@@ -23,6 +23,7 @@ namespace ModulesFrameworkUnity
             _settings = settings;
             EntitiesTagStorage.Initialize();
             _modules = new MF(settings.worldsCount, new UnityAssemblyFilter());
+            _modules.MainWorld.OnEntityDestroyed += EntitiesTagStorage.Storage.RemoveEntity;
             if (_settings.deleteEmptyEntities)
             {
                 foreach (var dataWorld in _modules.Worlds)
