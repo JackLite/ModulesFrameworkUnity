@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using ModulesFramework;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -62,6 +64,14 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         public void AddData(Type type)
         {
+            if (_dataLabels.ContainsKey(type))
+            {
+                var label = _dataLabels[type].Value;
+                label.UpdateText();
+                UpdateList();
+                return;
+            }
+
             var dataLabel = new OneDataLabel(type, _pinnedData.Contains(type.FullName));
             _dataLabels.Add(type, dataLabel);
             dataLabel.AddToClassList("modules--one-data-tab--one-list-item");
@@ -133,10 +143,11 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             foreach (var label in sorted)
             {
                 label.RemoveFromClassList("modules--one-data-tab--last-pinned-item");
-                if(_pinnedData.Contains(label.type.FullName))
+                if (_pinnedData.Contains(label.type.FullName))
                     lastPinned = label;
                 label.BringToFront();
             }
+
             lastPinned?.AddToClassList("modules--one-data-tab--last-pinned-item");
         }
 
@@ -217,13 +228,20 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             public OneDataLabel(Type type, bool isPinned)
             {
                 this.type = type;
-                label = new Label(type.Name);
+                var generation = MF.World.GetOneDataWrapper(type)?.generation ?? 0;
+                label = new Label($"{type.Name} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]");
 
                 pinBtn = new Button();
                 SetPinned(isPinned);
                 pinBtn.clicked += () => OnPinClick?.Invoke(this.type);
                 Add(pinBtn);
                 Add(label);
+            }
+
+            public void UpdateText()
+            {
+                var generation = MF.World.GetOneDataWrapper(type)?.generation ?? 0;
+                label.text = $"{type.Name} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]";
             }
 
             public void SetPinned(bool isPinned)

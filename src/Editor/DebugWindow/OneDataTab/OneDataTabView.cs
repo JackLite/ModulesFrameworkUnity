@@ -71,13 +71,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 d.SetVisible(false);
             }
 
-            if (!_drawers.TryGetValue(dataType, out var drawer))
-            {
-                drawer = new OneDataDrawer(MF.World.GetOneData(dataType), _drawersRoot);
-                _drawers.Add(dataType, drawer);
-            }
-
-            drawer.SetVisible(true);
+            _drawers[dataType].SetVisible(true);
         }
 
         private void OnSearch(string searchStr)
@@ -103,13 +97,17 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             }
         }
 
-        private void OnCreated(Type dataType, OneData data)
+        private void OnCreated(Type dataType, OneData _)
         {
             if (!_drawers.TryGetValue(dataType, out var drawer))
             {
-                drawer = new OneDataDrawer(data, _drawersRoot);
+                drawer = new OneDataDrawer(dataType, _drawersRoot);
                 _drawers.Add(dataType, drawer);
                 drawer.SetVisible(false);
+            }
+            else
+            {
+                drawer.UpdateWrapper(dataType, _drawersRoot);
             }
 
             _list.AddData(dataType);

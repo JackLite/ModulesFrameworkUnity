@@ -3,7 +3,9 @@
     "rootNamespace": "ModulesFrameworkUnity",
     "references": [
         "ModulesFramework.UnityAdapter",
-        "ModulesFramework.Core"
+        "ModulesFramework.Core",
+        "Modules.Extensions.Prototypes",
+        "Modules.Extensions.Prototypes.Editor"
     ],
     "includePlatforms": [
         "Editor"

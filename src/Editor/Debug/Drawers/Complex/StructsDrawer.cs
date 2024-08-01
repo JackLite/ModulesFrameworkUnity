@@ -126,5 +126,10 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             IsDrawn = false;
             OnChangeOpenState = null;
         }
+
+        public void SetGetter(Func<object> getter)
+        {
+            valueGetter = getter;
+        }
     }
 }

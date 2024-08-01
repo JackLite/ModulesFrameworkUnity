@@ -15,22 +15,26 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         private readonly StructsDrawer _structsDrawer;
         private Button _pinBtn;
 
-        public Type DataType { get; }
-
-        public OneDataDrawer(OneData data, VisualElement root)
+        public OneDataDrawer(Type dataType, VisualElement root)
         {
+            var oneData = MF.World.GetOneDataWrapper(dataType);
+            if (oneData == null)
+            {
+                UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.Name} not found");
+                return;
+            }
+
             _structsDrawer = new StructsDrawer();
             var drawer = new EditorDrawer();
-            var dataObject = data.GetDataObject();
-            DataType = dataObject.GetType();
-            var typeName = DataType.Name;
+            var dataObject = oneData.GetDataObject();
+            var typeName = dataObject.GetType().Name;
             _structsDrawer.Init(drawer, (_, newVal) =>
             {
-                var gen = $" [Gen {data.generation.ToString(CultureInfo.InvariantCulture)}]";
-                data.SetDataObject(newVal);
+                var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
+                oneData.SetDataObject(newVal);
                 _structsDrawer.UpdateLabel(typeName + gen);
-            }, data.GetDataObject);
-            var gen = $" [Gen {data.generation.ToString(CultureInfo.InvariantCulture)}]";
+            }, oneData.GetDataObject);
+            var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
             _structsDrawer.Draw(typeName + gen, dataObject, root);
             _structsDrawer.SetOpenState(true);
             DebugEventBus.Update += UpdateData;
@@ -63,6 +67,23 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         {
             _structsDrawer.Foldout.style.display = DisplayStyle.None;
             DebugEventBus.Update -= UpdateData;
+        }
+
+        public void UpdateWrapper(Type dataType, VisualElement root)
+        {
+            var oneData = MF.World.GetOneDataWrapper(dataType);
+            if (oneData == null)
+            {
+                UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.Name} not found");
+                return;
+            }
+
+            _structsDrawer.Reset();
+            _structsDrawer.SetGetter(oneData.GetDataObject);
+            var dataObject = oneData.GetDataObject();
+            var typeName = dataObject.GetType().Name;
+            var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
+            _structsDrawer.Draw(typeName + gen, dataObject, root);
         }
     }
 }

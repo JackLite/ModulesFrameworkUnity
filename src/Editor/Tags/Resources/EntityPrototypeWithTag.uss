@@ -1,0 +1,10 @@
+﻿.modules-proto--tag-field {
+    margin-top: 10px;
+    padding-bottom: 10px;
+    border-bottom-color: #555555;
+    border-bottom-width: 1px;
+}
+
+.modules-proto--tag-field Label {
+    font-size: 14px;
+}
