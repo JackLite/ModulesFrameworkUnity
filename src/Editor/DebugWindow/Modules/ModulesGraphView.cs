@@ -12,7 +12,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         private readonly Dictionary<Type, ModuleNode> _nodes = new();
         private readonly SortedDictionary<int, float> _levelWidths = new();
         private Dictionary<int, float> _rowY = new();
-        
+
         public IReadOnlyCollection<ModuleNode> Nodes => _nodes.Values;
 
         public ModulesGraphView()

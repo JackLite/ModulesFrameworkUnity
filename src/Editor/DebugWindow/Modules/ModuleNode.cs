@@ -86,7 +86,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public void RefreshAdjustedHeight()
         {
-            const float defaultHeight = 75;
+            float defaultHeight = Level == 0 &&_submodules.Count == 0 ? 40 : 65;
             const float submoduleHeight = 24;
             AdjustedHeight = defaultHeight;
             SelfHeight = defaultHeight;

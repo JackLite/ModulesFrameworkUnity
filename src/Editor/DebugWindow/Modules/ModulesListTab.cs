@@ -6,6 +6,7 @@ using ModulesFramework;
 using ModulesFramework.Attributes;
 using ModulesFramework.Modules;
 using ModulesFramework.Utils;
+using ModulesFrameworkUnity.Debug.Utils;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -60,7 +61,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 modulesRoot.Add(element);
             }
 
-            foreach (var moduleType in modules)
+            var orderedModules = modules.OrderBy(DebugUtils.GetModuleOrder).ThenBy(t => t.Name);
+            foreach (var moduleType in orderedModules)
             {
                 if (moduleType.GetCustomAttribute<SubmoduleAttribute>() == null)
                     continue;

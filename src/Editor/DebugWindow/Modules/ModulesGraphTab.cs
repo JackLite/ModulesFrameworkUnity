@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ModulesFramework;
 using ModulesFramework.Attributes;
 using ModulesFramework.Modules;
 using ModulesFramework.Utils;
+using ModulesFrameworkUnity.Debug.Utils;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -91,7 +93,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             // find all submodules
             // go through hierarchy
             // create nodes recursively and add point
-            foreach (var module in modules.OrderBy(t => t.Name))
+            var orderedModules = modules.OrderBy(DebugUtils.GetModuleOrder).ThenBy(t => t.Name);
+            foreach (var module in orderedModules)
             {
                 var submoduleAttr = module.GetCustomAttribute<SubmoduleAttribute>();
                 if (submoduleAttr == null)
