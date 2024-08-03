@@ -28,7 +28,12 @@ namespace ModulesFrameworkUnity.Debug.Entities
             if (_foldout == null)
             {
                 _foldout = new Foldout();
-                _foldout.RegisterValueChangedCallback(ev => OnFoldoutChanged(ev.newValue));
+                _foldout.RegisterValueChangedCallback(ev =>
+                {
+                    if (ev.target != _foldout)
+                        return;
+                    OnFoldoutChanged(ev.newValue);
+                });
                 _componentContainer.Add(_foldout);
                 _foldout.SendToBack();
             }

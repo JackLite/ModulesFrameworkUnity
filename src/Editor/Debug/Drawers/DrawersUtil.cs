@@ -17,13 +17,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers
                 }
             };
         }
-        
+
         public static void InitNumberFieldStyle(IStyle style)
         {
             style.minWidth = 300;
             style.alignContent = Align.Center;
         }
-        
+
         /// <summary>
         ///     For struct and class drawers
         /// </summary>
@@ -31,9 +31,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
         {
             foldout.text = labelText;
             foldout.contentContainer.style.fontSize = 12;
-            foldout.contentContainer.style.unityFontStyleAndWeight = FontStyle.Normal;
             foldout.style.fontSize = level > 1 ? 12 : 14;
-            foldout.style.unityFontStyleAndWeight = FontStyle.Bold;
 
             foldout.value = level <= 1;
         }

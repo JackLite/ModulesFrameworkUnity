@@ -33,12 +33,20 @@ EntitiesNameFilter {
     margin-top: 10px;
 }
 
+.modules--entities-tab--entity-selected, .modules--entities-tab--entity-selected:hover {
+    background-color: #3c5d91;
+}
+
 .modules--entities-tab--one-list-item {
     font-size: 14px;
     -unity-text-align: middle-left;
     padding-left: 10px;
     padding-top: 3px;
     padding-bottom: 3px;
+}
+
+.modules--entities-tab--one-list-item:hover {
+    background-color: #333333;
 }
 
 /* data */
@@ -55,10 +63,6 @@ EntitiesNameFilter {
     width: 100%;
 }
 
-.modules--entities-tab--one-list-item:hover {
-    background-color: #333333;
-}
-
 .modules--one-entity {
     flex-shrink: 0;
     flex-grow: 1;
@@ -71,10 +75,6 @@ EntitiesNameFilter {
     border-bottom-color: #555555;
     border-bottom-width: 2px;
     font-size: 13px;
-}
-
-.modules--entities-tab--entity-selected, .modules--entities-tab--entity-selected:hover {
-    background-color: #3c5d91;
 }
 
 .modules--one-entity--title {
@@ -102,6 +102,10 @@ EntitiesNameFilter {
 
 .modules--entities-tab--component-container > Foldout {
     flex-grow: 2;
+}
+
+.modules--entities-tab--component-container > Foldout > Toggle {
+    -unity-font-style: bold;
 }
 
 .modules--entities-tab--pin-btn {

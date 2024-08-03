@@ -20,6 +20,11 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         public event Action<bool> OnChangeOpenState;
 
+        public StructsDrawer()
+        {
+            Foldout.AddToClassList("modules--struct-drawer--foldout");
+        }
+
         public override void Init(EditorDrawer drawer, Action<object, object> onChanged, Func<object> getter)
         {
             base.Init(drawer, onChanged, getter);
@@ -78,7 +83,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
         public void DrawHeader(string labelText)
         {
             DrawersUtil.InitObjectFieldStyle(Foldout, Level, labelText);
-            Foldout.style.unityFontStyleAndWeight = FontStyle.Italic;
         }
 
         private Func<object> CreateGetter(FieldInfo field, Type structType)
