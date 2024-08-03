@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using ModulesFramework.Data;
 
 namespace ModulesFrameworkUnity.EntitiesTags
@@ -6,7 +8,8 @@ namespace ModulesFrameworkUnity.EntitiesTags
     public static class EntitiesExtension
     {
         /// <summary>
-        ///     Add tag to entity. It's used ONLY inside the Unity Editor and do nothing in build.
+        ///     Add editor tag to entity for debug purpose.
+        ///     It's used ONLY inside the Unity Editor and does nothing in build.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Entity AddTag(this Entity entity, string tag)
@@ -25,7 +28,7 @@ namespace ModulesFrameworkUnity.EntitiesTags
         }
 
         /// <summary>
-        ///     Remove tag from entity if it exists
+        ///     Remove editor tag from an entity if it exists. Do nothing in build.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Entity RemoveTag(this Entity entity, string tag)
@@ -41,6 +44,37 @@ namespace ModulesFrameworkUnity.EntitiesTags
             EntitiesTagStorage.Storage.RemoveTag(entity.Id, tag);
             #endif
             return entity;
+        }
+
+        /// <summary>
+        ///     Get editor tags from entity. Return an empty array in build.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<string> GetEntityTags(this Entity entity)
+        {
+            #if UNITY_EDITOR
+            if (!EntitiesTagStorage.IsInitialized)
+            {
+                UnityEngine.Debug.LogWarning($"You're trying to get tags from entity ({entity.Id}). " +
+                                             "But storage wasn't initialize");
+                return Array.Empty<string>();
+            }
+
+            return EntitiesTagStorage.Storage.GetTags(entity.Id);
+            #endif
+            return Array.Empty<string>();
+        }
+
+        /// <summary>
+        ///     Get editor tags string from entity. Return an empty string in build.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetEntityTagsAsString(this Entity entity)
+        {
+            #if UNITY_EDITOR
+            return string.Join('|', GetEntityTags(entity));
+            #endif
+            return string.Empty;
         }
     }
 }
