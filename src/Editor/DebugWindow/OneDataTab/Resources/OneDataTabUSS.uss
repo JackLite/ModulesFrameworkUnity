@@ -22,7 +22,7 @@
 }
 
 .modules--one-data-tab--one-list-item {
-    font-size: 14px;
+    font-size: 12px;
     -unity-text-align: middle-left;
     padding-left: 3px;
     padding-top: 3px;
@@ -30,7 +30,7 @@
 }
 
 .modules--one-data-tab--one-list-item:hover {
-    background-color: #333333;
+    background-color: #4e4e4e;
 }
 
 OneDataLabel {
@@ -38,7 +38,8 @@ OneDataLabel {
 }
 
 .modules--one-data-tab--data-selected, .modules--one-data-tab--data-selected:hover {
-    background-color: #3c5d91;
+    background-color: rgba(43, 131, 206, 0.5);
+    color: white;
 }
 
 /* search */

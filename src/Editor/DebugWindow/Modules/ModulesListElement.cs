@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ModulesFramework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -36,21 +37,21 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         private void CreateInitBtn()
         {
-            _initDestroyBtn = CreateControlBtn();
+            _initDestroyBtn = CreateControlBtn("Init");
             _initDestroyBtn.clicked += OnInitClicked;
         }
 
         private void CreateActivateBtn()
         {
-            _activateBtn = CreateControlBtn();
+            _activateBtn = CreateControlBtn("Activate");
             _activateBtn.clicked += OnActivateClicked;
         }
 
-        private Button CreateControlBtn()
+        private Button CreateControlBtn(string label)
         {
             var btn = new Button
             {
-                text = "Activate",
+                text = label,
                 style =
                 {
                     height = 20

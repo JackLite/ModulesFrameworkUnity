@@ -5,6 +5,7 @@ using System.Linq;
 using ModulesFramework;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
@@ -33,10 +34,23 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             _scrollView = new ScrollView();
             _scrollView.AddToClassList("modules--one-data-tab--list");
             _scrollView.focusable = true;
-            _scrollView.RegisterCallback(
-                (NavigationMoveEvent ev, OneDataList list) => list.OnNavigation(ev),
-                this
-            );
+            _scrollView.mode = ScrollViewMode.VerticalAndHorizontal;
+            #if !UNITY_2022_1_OR_NEWER
+            _scrollView.RegisterCallback((KeyDownEvent ev, OneDataList list) =>
+            {
+                if (ev.target != _scrollView)
+                    return;
+                if (ev.keyCode == KeyCode.DownArrow || ev.keyCode == KeyCode.S)
+                    list.OnNavigation(NavigationMoveEvent.Direction.Down);
+                else if (ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.W)
+                    list.OnNavigation(NavigationMoveEvent.Direction.Up);
+            }, this);
+            #else
+                _scrollView.RegisterCallback(
+                    (NavigationMoveEvent ev, OneDataList list) => list.OnNavigation(ev.direction),
+                    this
+                );
+            #endif
 
             CreateSearch(container, lastSearch);
             container.Add(_scrollView);
@@ -179,13 +193,13 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             }
         }
 
-        private void OnNavigation(NavigationMoveEvent ev)
+        private void OnNavigation(NavigationMoveEvent.Direction direction)
         {
             if (_dataLabels.Count == 0 || _currentSelected == null || (FilterActive && _filtered.Count == 0))
                 return;
 
             var newType = _currentSelected.type;
-            if (ev.direction == NavigationMoveEvent.Direction.Down)
+            if (direction == NavigationMoveEvent.Direction.Down)
             {
                 do
                 {
@@ -199,7 +213,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 } while (newType != _currentSelected.type);
             }
 
-            if (ev.direction == NavigationMoveEvent.Direction.Up)
+            if (direction == NavigationMoveEvent.Direction.Up)
             {
                 do
                 {

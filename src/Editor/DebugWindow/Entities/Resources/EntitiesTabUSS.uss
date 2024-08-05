@@ -33,20 +33,21 @@ EntitiesNameFilter {
     margin-top: 10px;
 }
 
+.modules--entities-tab--one-list-item:hover {
+    background-color: #4e4e4e;
+}
+
 .modules--entities-tab--entity-selected, .modules--entities-tab--entity-selected:hover {
-    background-color: #3c5d91;
+    background-color: rgba(43, 131, 206, 0.5);
+    color: white;
 }
 
 .modules--entities-tab--one-list-item {
-    font-size: 14px;
+    font-size: 12px;
     -unity-text-align: middle-left;
     padding-left: 10px;
     padding-top: 3px;
     padding-bottom: 3px;
-}
-
-.modules--entities-tab--one-list-item:hover {
-    background-color: #333333;
 }
 
 /* data */

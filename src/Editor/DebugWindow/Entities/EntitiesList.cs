@@ -7,6 +7,7 @@ using ModulesFramework.Data;
 using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -52,10 +53,23 @@ namespace ModulesFrameworkUnity.Debug.Entities
             {
                 _scrollView = new ScrollView();
                 _scrollView.focusable = true;
+                _scrollView.mode = ScrollViewMode.VerticalAndHorizontal;
+                #if !UNITY_2022_1_OR_NEWER
+                _scrollView.RegisterCallback((KeyDownEvent ev, EntitiesList list) =>
+                {
+                    if (ev.target != _scrollView)
+                        return;
+                    if (ev.keyCode == KeyCode.DownArrow || ev.keyCode == KeyCode.S)
+                        list.OnNavigation(NavigationMoveEvent.Direction.Down);
+                    else if (ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.W)
+                        list.OnNavigation(NavigationMoveEvent.Direction.Up);
+                }, this);
+                #else
                 _scrollView.RegisterCallback(
-                    (NavigationMoveEvent ev, EntitiesList list) => list.OnNavigation(ev),
+                    (NavigationMoveEvent ev, EntitiesList list) => list.OnNavigation(ev.direction),
                     this
                 );
+                #endif
             }
 
             var listRoot = new VisualElement();
@@ -128,6 +142,9 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _currentSelected?.RemoveFromClassList(className);
             _currentSelected = label;
             _scrollView.Focus();
+            label.RegisterCallback<NavigationMoveEvent>((ev) => UnityEngine.Debug.Log("l Move"));
+            label.RegisterCallback<NavigationCancelEvent>((ev) => UnityEngine.Debug.Log("l cancel"));
+            label.RegisterCallback<NavigationSubmitEvent>((ev) => UnityEngine.Debug.Log("l submit"));
         }
 
         private void UpdateEntityComponents(int eid)
@@ -191,13 +208,13 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
         }
 
-        private void OnNavigation(NavigationMoveEvent ev)
+        private void OnNavigation(NavigationMoveEvent.Direction direction)
         {
             if (_currentSelectedEid == -1 || _entities.Count == 0 || (FilterActive && _filtered.Count == 0))
                 return;
 
             var newEid = _currentSelectedEid;
-            if (ev.direction == NavigationMoveEvent.Direction.Down)
+            if (direction == NavigationMoveEvent.Direction.Down)
             {
                 do
                 {
@@ -211,7 +228,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 } while (newEid != _currentSelectedEid);
             }
 
-            if (ev.direction == NavigationMoveEvent.Direction.Up)
+            if (direction == NavigationMoveEvent.Direction.Up)
             {
                 do
                 {
