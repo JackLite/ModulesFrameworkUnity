@@ -29,8 +29,8 @@ namespace ModulesFrameworkUnity
             DrawUseOldDebug();
             DrawWorldsCount();
             DrawLogType();
-            DrawPerformanceSettings();
             DrawCheckEntity();
+            DrawPerformanceSettings();
             DrawSaveButton();
         }
 
@@ -67,7 +67,6 @@ namespace ModulesFrameworkUnity
 
         private void DrawCheckEntity()
         {
-            EditorGUILayout.Space(20);
             var content = new GUIContent(
                 "Delete empty entities",
                 "If true - when you remove last component from entity it will be destroyed");
