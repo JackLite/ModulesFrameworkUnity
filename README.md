@@ -1,30 +1,9 @@
 # ModulesFrameworkUnity
 
-This is documentation for Unity Adapter of Modules Framework (MF).
+This is documentation for Unity Adapter of Modules Framework (MF). It's mostly for debugging and profiling.
 
 You can find documentation about Modules Framework
 [here](https://github.com/JackLite/ModulesFramework).
-
-For install MF like an unity package use this link:
-https://github.com/JackLite/ModulesFrameworkUnityPackage.git
-
-Unity Adapter's goal is to allow start creating game immediately when you download Modules Framework Package. It's also provide default logger, debug tools and basic entry point for manual start MF.
-
-### Getting Started
-
-1. In Unity go to Window -> Package Manager.<br>
-![pkg](/doc/GettingStarted_img1.png)
-2. Click on plus in left-top corner and choose "Add package from git URL"<br>
-![pkg](/doc/GettingStarted_img2.png)
-3. Paste https://github.com/JackLite/ModulesFrameworkUnityPackage.git 
-and click "Add"
-4. Wait until Unity download package and recompile scripts.
-
-That's all. When you start game the MF will start automatically.
-Now you can create your first module, components and systems.
-
-_Note_: for more information about work with MF see 
-[MF Documentation](https://github.com/JackLite/ModulesFramework/blob/master/README.md)
 
 ### Debug
 
@@ -90,6 +69,10 @@ anotherEntity.AddTag("Enemy");
 // you can add more tags to specify entity in editor
 entity.AddTag("Goblin");
 ```
+
+There is also `EntityPrototypeWithTag` to automatically add tag to [Prototypes](https://github.com/JackLite/MFPrototypes)
+
+![PrototypesWithTag.png](doc%2FPrototypesWithTag.png)
 
 ### Drawers
 Debug view can show primitives, `IDictionary`, `IEnumerable`, structs, classes, unity game objects and `MonoBehaviour`s.
