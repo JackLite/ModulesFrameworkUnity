@@ -145,6 +145,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         private void UpdateList()
         {
             Filter();
+            UpdateVisibility();
             Sort();
         }
 
@@ -169,6 +170,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         {
             _currentFilter = searchStr;
             Filter();
+            UpdateVisibility();
             OnSearch?.Invoke(_currentFilter);
         }
 
@@ -183,7 +185,10 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 if (type.Name.Contains(_currentFilter, StringComparison.InvariantCultureIgnoreCase))
                     _filtered.Add(type);
             }
+        }
 
+        private void UpdateVisibility()
+        {
             foreach (var (type, label) in _dataLabels)
             {
                 if (_filtered.Contains(type) || string.IsNullOrWhiteSpace(_currentFilter))
