@@ -1,4 +1,17 @@
-﻿{
-  "name": "ModulesFramework.UnityAdapter",
-  "references": ["ModulesFramework.Core"]
+{
+    "name": "ModulesFramework.UnityAdapter",
+    "rootNamespace": "ModulesFrameworkUnity",
+    "references": [
+        "ModulesFramework.Core",
+        "Modules.Extensions.Prototypes"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

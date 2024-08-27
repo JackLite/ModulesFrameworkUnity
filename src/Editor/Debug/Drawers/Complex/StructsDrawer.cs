@@ -14,11 +14,25 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
     {
         public override int Order => 100;
         private readonly List<FieldDrawer> _drawers = new();
-        private Foldout _foldout;
 
-        public Foldout Foldout => _foldout;
+        public Foldout Foldout { get; } = new();
+        public bool IsDrawn { get; protected set; }
 
         public event Action<bool> OnChangeOpenState;
+
+        public StructsDrawer()
+        {
+            Foldout.AddToClassList("modules--struct-drawer--foldout");
+        }
+
+        public override void Init(EditorDrawer drawer, Action<object, object> onChanged, Func<object> getter)
+        {
+            base.Init(drawer, onChanged, getter);
+            Foldout.RegisterValueChangedCallback(ev =>
+            {
+                OnChangeOpenState?.Invoke(ev.newValue);
+            });
+        }
 
         public override bool CanDraw(object value)
         {
@@ -29,9 +43,15 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         public override void Draw(string labelText, object value, VisualElement parent)
         {
-            _foldout = new Foldout();
-            _foldout.RegisterValueChangedCallback(ev => OnChangeOpenState?.Invoke(ev.newValue));
-            DrawHeader(labelText, _foldout);
+            DrawHeader(labelText);
+            DrawFields(value);
+
+            parent.Add(Foldout);
+        }
+
+        public void DrawFields(object value)
+        {
+            IsDrawn = true;
             foreach (var fieldInfo in value.GetType().GetFields())
             {
                 // skip static fields cause anyway you can't change it
@@ -41,30 +61,28 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, _foldout, (_, newVal) =>
+                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, Foldout, (_, newVal) =>
                 {
+                    var realValue = valueGetter();
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     {
                         UnityEngine.Debug.LogWarning($"{fieldInfo.Name} is const. You cannot change it");
                         return;
                     }
 
-                    fieldInfo.SetValue(value, newVal);
-                    valueChangedCb(value, value);
+                    fieldInfo.SetValue(realValue, newVal);
+                    valueChangedCb(realValue, realValue);
                 }, getter, Level + 1, false);
 
                 if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     drawer.SetReadOnly(true);
                 _drawers.Add(drawer);
             }
-
-            parent.Add(_foldout);
         }
 
-        private void DrawHeader(string labelText, Foldout root)
+        public void DrawHeader(string labelText)
         {
-            DrawersUtil.InitObjectFieldStyle(root, Level, labelText);
-            root.style.unityFontStyleAndWeight = FontStyle.Italic;
+            DrawersUtil.InitObjectFieldStyle(Foldout, Level, labelText);
         }
 
         private Func<object> CreateGetter(FieldInfo field, Type structType)
@@ -92,17 +110,30 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         internal void UpdateLabel(string label)
         {
-            _foldout.text = label;
+            Foldout.text = label;
         }
 
         internal void SetOpenState(bool state)
         {
-            _foldout.value = state;
+            Foldout.value = state;
         }
 
         internal void SetVisible(bool isVisible)
         {
-            _foldout.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+            Foldout.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        public void Reset()
+        {
+            _drawers.Clear();
+            Foldout.Clear();
+            IsDrawn = false;
+            OnChangeOpenState = null;
+        }
+
+        public void SetGetter(Func<object> getter)
+        {
+            valueGetter = getter;
         }
     }
 }

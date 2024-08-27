@@ -9,10 +9,11 @@ namespace ModulesFrameworkUnity
     {
         private ModulesSettings _settings;
 
-        [MenuItem("Modules/Unity Adapter Settings")]
-        public new static void Show()
+        [MenuItem("Modules/Settings")]
+        private static void ShowWindow()
         {
             var window = GetWindow<ModulesWindow>();
+            window.titleContent = new GUIContent("MF Settings");
             window.LoadSettings();
         }
 
@@ -25,11 +26,19 @@ namespace ModulesFrameworkUnity
         {
             DrawTitle("Main");
             DrawStartMethod();
+            DrawUseOldDebug();
             DrawWorldsCount();
             DrawLogType();
-            DrawDataChangeMode();
+            DrawCheckEntity();
             DrawPerformanceSettings();
             DrawSaveButton();
+        }
+
+        private void DrawUseOldDebug()
+        {
+            var isUseOldDebug = _settings.useOldDebug;
+            var debugContent = new GUIContent("Use old debug", "Turn on to use old debug based on GameObjects");
+            _settings.useOldDebug = EditorGUILayout.Toggle(debugContent, isUseOldDebug);
         }
 
         private void DrawPerformanceSettings()
@@ -54,6 +63,14 @@ namespace ModulesFrameworkUnity
             _settings.performanceSettings.panicAvgFrameMs = EditorGUILayout.FloatField(panicContent, panic);
 
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawCheckEntity()
+        {
+            var content = new GUIContent(
+                "Delete empty entities",
+                "If true - when you remove last component from entity it will be destroyed");
+            _settings.deleteEmptyEntities = EditorGUILayout.Toggle(content, _settings.deleteEmptyEntities);
         }
 
         private void DrawWorldsCount()
@@ -89,14 +106,6 @@ namespace ModulesFrameworkUnity
                 _settings.Save();
                 UnityEngine.Debug.Log("Saved!");
             }
-        }
-        
-        private void DrawDataChangeMode()
-        {
-            /*const string tooltip = "Set true if you want apply data changes immediately after making them in inspector";
-            var label = new GUIContent("Auto apply changes", tooltip);
-            var isAuto = EditorGUILayout.Toggle(label, _settings.AutoApplyChanges, EditorStyles.toggle);
-            _settings.AutoApplyChanges = isAuto;*/
         }
 
         private void DrawStartMethod()

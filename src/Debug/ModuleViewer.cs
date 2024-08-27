@@ -1,5 +1,4 @@
-﻿using System;
-using ModulesFramework.Modules;
+﻿using ModulesFramework.Modules;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity.Debug
@@ -20,7 +19,7 @@ namespace ModulesFrameworkUnity.Debug
             name = Module.GetType().Name;
             if (Module.IsGlobal)
                 name += "|G";
-            
+
             if (Module.IsInitialized)
             {
                 name += "|I";

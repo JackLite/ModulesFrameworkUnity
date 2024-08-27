@@ -1,0 +1,132 @@
+﻿/* main */
+
+.modules--entities-tab {
+    height: 100%;
+}
+
+EntitiesNameFilter {
+    min-height: 60px;
+}
+
+.modules--entities-tab--name-filter {
+    margin-right: 260px;
+    margin-top: 7px;
+    margin-left: 4px;
+}
+
+/* list */
+
+.modules--entities-list {
+    width: 250px;
+    border-right-color: #555555;
+    border-right-width: 1px;
+    flex-shrink: 0;
+    padding-top: 10px;
+}
+
+.modules--entities-list--search-field {
+    margin-right: 10px;
+    margin-left: 5px;
+}
+
+.modules--entities-list ScrollView {
+    margin-top: 10px;
+}
+
+.modules--entities-tab--one-list-item:hover {
+    background-color: #4e4e4e;
+}
+
+.modules--entities-tab--entity-selected, .modules--entities-tab--entity-selected:hover {
+    background-color: rgba(43, 131, 206, 0.5);
+    color: white;
+}
+
+.modules--entities-tab--one-list-item {
+    font-size: 12px;
+    -unity-text-align: middle-left;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+/* data */
+
+.modules--entities-tab--data {
+    border-top-color: #555555;
+    border-top-width: 2px;
+    flex-direction: row;
+    height: 100%;
+}
+
+.modules--entities-tab--data > .unity-two-pane-split-view__content-container {
+    position: relative;
+    width: 100%;
+}
+
+.modules--one-entity {
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+.modules--entities-tab--entity-drawer-settings {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom-color: #555555;
+    border-bottom-width: 2px;
+    font-size: 13px;
+}
+
+.modules--one-entity--title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 4px 0 4px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: #555555;
+}
+
+.modules--one-entity--components-title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 4px 0 4px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: #555555;
+}
+
+.modules--entities-tab--component-container {
+    flex-direction: row;
+    align-items: flex-start;
+    min-height: 30px;
+    padding-top: 4px;
+}
+
+.modules--entities-tab--component-container > Foldout {
+    flex-grow: 2;
+}
+
+.modules--entities-tab--component-container > Foldout > Toggle {
+    -unity-font-style: bold;
+}
+
+.modules--entities-tab--pin-btn {
+    margin-right: 20px;
+    height: 26px
+}
+
+EntityMultipleComponents * * .unity-foldout > .unity-toggle {
+    font-size: 14px;
+}
+
+.modules--entities-tab--always-open-toggle {
+    align-self: flex-start;
+    align-items: center;
+    font-size: 14px;
+    margin-right: 10px;
+    height: 26px;
+}
+
+.modules--entities-tab--always-open-toggle > Label {
+    min-width: 0;
+    margin-right: 6px;
+}

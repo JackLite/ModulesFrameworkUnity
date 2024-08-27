@@ -3,15 +3,16 @@ using System.Globalization;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
+using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Settings;
+using ModulesFrameworkUnity.Utils;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
 {
     public class ModulesUnityAdapter
     {
-        public static DataWorld world;
-        private readonly Ecs _ecs;
+        private readonly MF _modules;
         private double _elapsedTimeMs;
         private int _frames;
         private readonly Stopwatch _stopwatch = new();
@@ -20,10 +21,19 @@ namespace ModulesFrameworkUnity
         public ModulesUnityAdapter(ModulesSettings settings)
         {
             _settings = settings;
-            _ecs = new Ecs(settings.worldsCount);
-            world = _ecs.MainWorld;
-            world.SetLogger(new UnityLogger());
-            world.SetLogType(_settings.logFilter);
+            EntitiesTagStorage.Initialize();
+            _modules = new MF(settings.worldsCount, new UnityAssemblyFilter());
+            _modules.MainWorld.OnEntityDestroyed += EntitiesTagStorage.Storage.RemoveEntity;
+            if (_settings.deleteEmptyEntities)
+            {
+                foreach (var dataWorld in _modules.Worlds)
+                {
+                    dataWorld.OnEntityChanged += (eid) => CheckEmptiness(dataWorld.GetEntity(eid));
+                }
+            }
+
+            _modules.MainWorld.SetLogger(new UnityLogger());
+            _modules.MainWorld.SetLogType(_settings.logFilter);
         }
 
         public void StartDebug()
@@ -31,13 +41,13 @@ namespace ModulesFrameworkUnity
             for (var i = 0; i < _settings.worldsCount; i++)
             {
                 var debugViewer = new GameObject($"DebugViewer - World {i.ToString(CultureInfo.InvariantCulture)}");
-                debugViewer.AddComponent<DebugViewer>().Init(_ecs.GetWorld(i));
+                debugViewer.AddComponent<DebugViewer>().Init(_modules.GetWorld(i));
             }
         }
 
         public void Start()
         {
-            _ecs.Start();
+            _modules.Start().Forget();
         }
 
         public void Update()
@@ -46,7 +56,7 @@ namespace ModulesFrameworkUnity
             _stopwatch.Start();
             #endif
 
-            _ecs.Run();
+            _modules.Run();
 
             #if MODULES_DEBUG
             _stopwatch.Stop();
@@ -57,7 +67,7 @@ namespace ModulesFrameworkUnity
 
         public void FixedUpdate()
         {
-            _ecs.RunPhysic();
+            _modules.RunPhysic();
         }
 
         public void LateUpdate()
@@ -66,7 +76,7 @@ namespace ModulesFrameworkUnity
             _stopwatch.Start();
             #endif
 
-            _ecs.PostRun();
+            _modules.PostRun();
 
             #if MODULES_DEBUG
             _stopwatch.Stop();
@@ -77,16 +87,17 @@ namespace ModulesFrameworkUnity
             if (_frames > targetFrameRate)
             {
                 var avgFrameTimeMs = _elapsedTimeMs / _frames;
-                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs && _settings.performanceSettings.debugMode)
+                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs &&
+                    _settings.performanceSettings.debugMode)
                 {
-                    world.Logger.LogDebug(
+                    _modules.MainWorld.Logger.LogDebug(
                         $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold",
                         LogFilter.Performance);
                 }
 
                 if (avgFrameTimeMs > _settings.performanceSettings.panicAvgFrameMs)
                 {
-                    world.Logger.LogWarning(
+                    _modules.MainWorld.Logger.LogWarning(
                         $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than panic threshold");
                 }
 
@@ -98,7 +109,16 @@ namespace ModulesFrameworkUnity
 
         public void OnDestroy()
         {
-            _ecs.Destroy();
+            _modules.Destroy();
+        }
+
+        private static void CheckEmptiness(Entity entity)
+        {
+            if (!entity.IsAlive())
+                return;
+
+            if (entity.IsEmpty())
+                entity.Destroy();
         }
     }
 }

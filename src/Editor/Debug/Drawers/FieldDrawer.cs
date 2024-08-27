@@ -17,7 +17,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
         public virtual int Order => 0;
         public int Level { get; set; }
 
-        public void Init(EditorDrawer drawer, Action<object, object> onChanged, Func<object> getter)
+        public virtual void Init(EditorDrawer drawer, Action<object, object> onChanged, Func<object> getter)
         {
             mainDrawer = drawer;
             valueChangedCb = onChanged;

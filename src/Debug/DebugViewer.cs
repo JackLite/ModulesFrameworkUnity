@@ -8,7 +8,6 @@ using ModulesFramework.Modules;
 using UnityEditor;
 #endif
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace ModulesFrameworkUnity.Debug
 {
@@ -212,7 +211,8 @@ namespace ModulesFrameworkUnity.Debug
         {
             if (!_viewers.TryGetValue(eid, out var viewer))
             {
-                UnityEngine.Debug.LogError($"Entity {eid} was changed but there is no viewer for it");
+                if (_world.IsEntityAlive(eid))
+                    UnityEngine.Debug.LogError($"Entity {eid} was changed but there is no viewer for it");
                 return;
             }
 

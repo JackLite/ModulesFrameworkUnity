@@ -1,49 +1,83 @@
 # ModulesFrameworkUnity
 
-This is documentation for Unity Adapter of Modules Framework (MF).
+This is documentation for Unity Adapter of Modules Framework (MF). It's mostly for debugging and profiling.
 
 You can find documentation about Modules Framework
 [here](https://github.com/JackLite/ModulesFramework).
 
-For install MF like an unity package use this link:
-https://github.com/JackLite/ModulesFrameworkUnityPackage.git
-
-Unity Adapter's goal is to allow start creating game immediately when you download Modules Framework Package. It's also provide default logger, debug tools and basic entry point for manual start MF.
-
-### Getting Started
-
-1. In Unity go to Window -> Package Manager.<br>
-![pkg](/doc/GettingStarted_img1.png)
-2. Click on plus in left-top corner and choose "Add package from git URL"<br>
-![pkg](/doc/GettingStarted_img2.png)
-3. Paste https://github.com/JackLite/ModulesFrameworkUnityPackage.git 
-and click "Add"
-4. Wait until Unity download package and recompile scripts.
-
-That's all. When you start game the MF will start automatically.
-Now you can create your first module, components and systems.
-
-_Note_: for more information about work with MF see 
-[MF Documentation](https://github.com/JackLite/ModulesFramework/blob/main/README.md#getting-started)
-
 ### Debug
 
-When you start game in Unity Editor you will see this game objects.
+In the top-bar menu, choose Modules -> Data Viewer.
+You will see a debug window with modules that you have in your project.
 
-![pkg](/doc/Debug_img1.png)
+The Debug Window has three modes, and you can switch between them by buttons in the right-top corner.
 
-`EcsWorld` is just provider for Unity game loop. `DebugViewer` is 
-container with info about entities and one data. It allows you to see
-what entities exists, what components they contains and data in that
-components.
+![DebugWindow_img1.png](doc%2FDebugWindow_img1.png)
 
-![pkg](/doc/Debug_img2.png)
+#### Modules
 
-![pkg](/doc/Debug_img3.png)
+The modules mode shows you all modules that you have in the project.
+It's the only mode that works without entering Unity play mode.
+It's useful when you want to take a look at the whole project at once without going through thousands of code lines.
+With properly organizing modules mode is a powerful tool to manage huge projects.
 
-Debug view can show primitives, `IDictionary`, `IEnumerable`, structs, unity game objects and `MonoBehaviour`s.
+Modules mode can be in two submodes: list and graph.
+You can switch between them easily.
 
-You can add support for any other type by inherited 
+**Note**.
+Modules mode rearranges submodule orders when you enter the Unity play mode.
+In editor mode it sorts submodules in alphanumeric order.
+
+#### OneData
+![DebugWindow_OneData.png](doc%2FDebugWindow_OneData.png)
+This mode allows you to inspect and change any OneData that you created in runtime.
+
+You can pin OneData in the list, and it will always be at the top of the list.
+
+You also can search OneData by the name using search bar above the list.
+
+#### Entities
+![DebugWindow_Entities.png](doc%2FDebugWindow_Entities.png)
+
+This mode allows you to inspect all created entities and their components.
+You can change any data inside components.
+
+At the top you can see the search field that allows you to search entities with specified components name.
+You don't need to enter the whole name of a component.
+
+Above the list of entities you can see the other search field
+that allows you to search entities by their label in the list.
+This label shows entity's id by default.
+If the entity has a custom id, you will see it.
+But the main usage of list's search is with the editor tags (see below).
+
+You also can choose to automatically open all components in entity.
+Large and complex components will affect editor performance.
+And you can choose to always open specified components.
+With the ability to pin components, it allows you to search faster entity with specified data inside some components.
+
+### Editor tags
+Entity may have one or more tags using in editor.
+
+```csharp
+// tag can be any string
+entity.AddTag("Enemy");
+
+// in contrast to custom id it can be non-unique
+anotherEntity.AddTag("Enemy");
+
+// you can add more tags to specify entity in editor
+entity.AddTag("Goblin");
+```
+
+There is also `EntityPrototypeWithTag` to automatically add tag to [Prototypes](https://github.com/JackLite/MFPrototypes)
+
+![PrototypesWithTag.png](doc%2FPrototypesWithTag.png)
+
+### Drawers
+Debug view can show primitives, `IDictionary`, `IEnumerable`, structs, classes, unity game objects and `MonoBehaviour`s.
+
+However, you can add support for any other type by inherited 
 `ModulesFieldDrawer`. Here's example for drawer of `BigInteger`.
 
 ```csharp
@@ -53,7 +87,7 @@ using System;
 using ModulesFrameworkUnity.Debug.Drawers;
 using UnityEngine.UIElements;
 
-namespace Project.Editor
+namespace Project.Editor.ModulesDrawers
 {
     public class DateTimeDrawer : FieldDrawer<DateTime>
     {
@@ -62,11 +96,11 @@ namespace Project.Editor
 
         protected override void Draw(
             // usually field name
-            string label, 
+            string label,
             // current value
-            DateTime value, 
+            DateTime value,
             // parent element
-            VisualElement parent, 
+            VisualElement parent,
             // callback for updating field from inspector
             Action<DateTime, DateTime> onChanged)
         {
@@ -75,12 +109,11 @@ namespace Project.Editor
             {
                 value = value.ToString("O")
             };
-            
             // register callback for updating field from inspector
             _field.RegisterValueChangedCallback(evt =>
             {
                 if (DateTime.TryParse(evt.newValue, out var newDate))
-                    onChanged(value, newDate);
+                    onChanged(value, newDate.ToUniversalTime());
             });
             
             // don't forget to add element to parent
@@ -88,17 +121,17 @@ namespace Project.Editor
         }
 
         // use this method to dynamic update of inspector
-        // cause UIToolkit doesn't redraw inspector every frame
         // getter() is lambda to get actual value
         protected override void Update(Func<DateTime> getter)
         {
-            _field.value = getter().ToString("O");
+            _field.SetValueWithoutNotify(getter().ToString("O"));
         }
     }
 }
+
 #endif
 ```
-For more information about drawers see implementations of different drawers in this repository.
+For more information about drawers, see implementations of different drawers in this repository. 
 
 ### Settings
 
@@ -108,34 +141,35 @@ You can change some settings from Modules -> Unity Adapter Settings.
 
 #### Main section
 
-Start method has two options:
+_Start method_ has two options:
 - Auto - MF will start automatically in any scene;
 - Manual - you need to start MF by your own script or use`EntryPoint`;
 
-Manual start allows you choose scene(s) where you need MF. You can
-do it by creating GameObject with `EntryPoint` component. Or you
-can manage start MF anyway you like. For more information see
+Manual start allows you to choose scene(s) where you need MF. You can
+do it by creating GameObject with `EntryPoint` component or inherit from it.
+Of course, you
+can start MF any other way you like. For more information, see
 [MF Documentation](https://github.com/JackLite/ModulesFramework#getting-started).
 
-Worlds count allows you to set count of worlds that will be created when MF started. For more information see [MF Documentation](https://github.com/JackLite/ModulesFramework#multiple-worlds)
+_Use old debug_ allows you to turn on debug based on GameObjects. This debug is obsolete and will be removed in the next versions.
 
-Log filter used for choose what log's messages you need. See details below.
+_Worlds count_ allows you to set count of worlds that will be created when MF started. For more information see [MF Documentation](https://github.com/JackLite/ModulesFramework#gs-multiple-worlds). Debug window doesn't support yet multiple worlds.
 
-_Auto apply changes_ allow you to change when OneData and Components will be changed using inspector. If it turn off you must press apply button to change data in OneData and Components.
+_Log filter_ using for choose what log's messages you need. See details [below](#logger).
 
-___Note:___In collections changes applies immediately in any change mode to avoid complexity of temporary reference-types and as a consequences - error prone.
+_Delete empty entities_ - if set the entity without components will be automatically deleted.
 
 #### Performance monitor
 
-When you define the `MODULES_DEBUG` MF will be record elapsed time of `IRunSystem`s and `IPostRunSystem`s. If it more then panic threshold MF will log warning. If you set `Debug mode` MF will also check the warning threshold.
+When you define the `MODULES_DEBUG` MF will record elapsed time of `IRunSystem`s and `IPostRunSystem`s. If it more than panic threshold MF will log warning. If you set `Debug mode` MF will also check the warning threshold.
 
-**Note**: it's good to set this values to 10% and 20% of targeted frame time for warning and panic threshold respectively.
+**Note**: it's good to set this values to 10% and 20% of targeted frame time for a warning and panic threshold respectively.
 
 #### Saving settings
-By clicking save button the settings serialized to JSON and saved to 
-Assets/ModulesSettings.json.
+By clicking the save button, the settings serialized to JSON and saved to 
+Assets/Resources/ModulesSettings.json.
 
-### Logger
+### <a id="logger"/> Logger
 
 MF Unity Adapter has implementation of `IModulesLogger` and register
 it automatically. That logger (`UnityLogger`) shows debug messages
