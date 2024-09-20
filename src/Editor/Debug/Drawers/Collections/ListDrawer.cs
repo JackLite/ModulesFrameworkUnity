@@ -41,7 +41,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             addBtn.clicked += () =>
             {
                 var innerType = _oldRef.GetType().GetGenericArguments()[0];
-                if (!innerType.IsValueType && innerType.GetConstructor(Type.EmptyTypes) == null)
+                if(innerType == typeof(string))
+                {
+                    _oldRef.Add(string.Empty);
+                    _foldout.contentContainer.Clear();
+                    DrawList(labelText, _foldout.contentContainer);
+                }
+                else if (!innerType.IsValueType && innerType.GetConstructor(Type.EmptyTypes) == null)
                 {
                     UnityEngine.Debug.LogError($"There is no parameterless constructor for {innerType.Name}");
                 }
