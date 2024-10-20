@@ -30,8 +30,11 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             var typeName = dataObject.GetType().Name;
             _structsDrawer.Init(drawer, (_, newVal) =>
             {
-                var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
-                oneData.SetDataObject(newVal);
+                var dataWrapper = MF.World.GetOneDataWrapper(dataType);
+                if (dataWrapper == null)
+                    return;
+                var gen = $" [Gen {dataWrapper.generation.ToString(CultureInfo.InvariantCulture)}]";
+                dataWrapper.SetDataObject(newVal);
                 _structsDrawer.UpdateLabel(typeName + gen);
             }, oneData.GetDataObject);
             var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
