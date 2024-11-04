@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using System.Threading.Tasks;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
@@ -48,6 +49,11 @@ namespace ModulesFrameworkUnity
         public void Start()
         {
             _modules.Start().Forget();
+        }
+
+        public async Task StartAsync()
+        {
+            await _modules.Start();
         }
 
         public void Update()

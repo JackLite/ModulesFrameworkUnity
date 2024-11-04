@@ -8,7 +8,7 @@ namespace ModulesFrameworkUnity
         protected ModulesUnityAdapter _adapter;
         protected static bool _created;
 
-        protected virtual void Awake()
+        protected virtual async void Awake()
         {
             if (_created)
             {
@@ -25,7 +25,7 @@ namespace ModulesFrameworkUnity
             if (settings.useOldDebug)
                 _adapter.StartDebug();
             #endif
-            _adapter.Start();
+            await _adapter.StartAsync();
             _created = true;
         }
 
