@@ -1,4 +1,6 @@
-﻿using ModulesFrameworkUnity.Settings;
+﻿using System.Collections;
+using ModulesFramework;
+using ModulesFrameworkUnity.Settings;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
@@ -8,7 +10,7 @@ namespace ModulesFrameworkUnity
         protected ModulesUnityAdapter _adapter;
         protected static bool _created;
 
-        protected virtual async void Awake()
+        protected virtual void Awake()
         {
             if (_created)
             {
@@ -16,17 +18,26 @@ namespace ModulesFrameworkUnity
                 return;
             }
 
-            DontDestroyOnLoad(gameObject);
             var settings = ModulesSettings.Load();
             if (settings.startMethod != StartMethod.Manual)
                 return;
+
+            DontDestroyOnLoad(gameObject);
             _adapter = new ModulesUnityAdapter(settings);
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (settings.useOldDebug)
                 _adapter.StartDebug();
-            #endif
-            await _adapter.StartAsync();
+#endif
+            _adapter.Start();
             _created = true;
+        }
+
+        protected virtual IEnumerator Start()
+        {
+            while (!MF.IsInitialized)
+            {
+                yield return new WaitForEndOfFrame();
+            }
         }
 
         protected virtual void Update()
