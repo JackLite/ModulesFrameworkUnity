@@ -37,6 +37,11 @@ OneDataLabel {
     flex-direction: row;
 }
 
+OneDataLabel > .modules--one-data-tab--remove-btn {
+    position: absolute;
+	right: 0;
+}
+
 .modules--one-data-tab--data-selected, .modules--one-data-tab--data-selected:hover {
     background-color: rgba(43, 131, 206, 0.5);
     color: white;

@@ -13,7 +13,6 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
     public class OneDataDrawer
     {
         private readonly StructsDrawer _structsDrawer;
-        private Button _pinBtn;
 
         public OneDataDrawer(Type dataType, VisualElement root)
         {

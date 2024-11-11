@@ -5,7 +5,6 @@ using System.Linq;
 using ModulesFramework;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
@@ -98,10 +97,12 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 UpdateSelectionType(selectedType);
             }, type);
             dataLabel.OnPinClick += OnPin;
+            dataLabel.OnRemoveClick += OnRemoveClick;
 
             _scrollView.Add(dataLabel);
             UpdateList();
         }
+
 
         private void OnPin(Type dataType)
         {
@@ -110,6 +111,13 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             _dataLabels[dataType].Value.SetPinned(_pinnedData.Contains(dataType.FullName));
             OnPinClicked?.Invoke(dataType);
             UpdateList();
+        }
+
+        private void OnRemoveClick(Type type)
+        {
+            if (!MF.IsInitialized)
+                return;
+            MF.World.RemoveOneData(type);
         }
 
         public void OnRemoveOneData(Type type)
@@ -241,8 +249,10 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
             public Label label;
             public Button pinBtn;
+            public Button removeBtn;
 
             public event Action<Type> OnPinClick;
+            public event Action<Type> OnRemoveClick;
 
             public OneDataLabel(Type type, bool isPinned)
             {
@@ -255,6 +265,16 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 pinBtn.clicked += () => OnPinClick?.Invoke(this.type);
                 Add(pinBtn);
                 Add(label);
+                CreateRemoveBtn();
+            }
+
+            private void CreateRemoveBtn()
+            {
+                removeBtn = new Button();
+                removeBtn.text = "R";
+                removeBtn.clicked += () => OnRemoveClick?.Invoke(this.type);
+                removeBtn.AddToClassList("modules--one-data-tab--remove-btn");
+                Add(removeBtn);
             }
 
             public void UpdateText()
