@@ -58,12 +58,12 @@ namespace ModulesFrameworkUnity
             EditorGUILayout.BeginVertical();
             DrawTitle("Performance Monitor");
             var isDebug = Settings.performanceSettings.debugMode;
-            var debugContent = new GUIContent("Debug mode", "If turn off - only panic messages will be logging");
+            var debugContent = new GUIContent("On");
             Settings.performanceSettings.debugMode = EditorGUILayout.Toggle(debugContent, isDebug);
 
             var warn = Settings.performanceSettings.warningAvgFrameMs;
             var warnContent = new GUIContent("Warning Threshold",
-                "First threshold. Use it to get warning when code too long but not critical");
+                "First threshold. Use it to get warning when code too slow but not critical");
             Settings.performanceSettings.warningAvgFrameMs = EditorGUILayout.FloatField(warnContent, warn);
 
             var panic = Settings.performanceSettings.panicAvgFrameMs;

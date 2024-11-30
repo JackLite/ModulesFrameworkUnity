@@ -31,6 +31,7 @@ EntitiesNameFilter {
 
 .modules--entities-list ScrollView {
     margin-top: 10px;
+    margin-bottom: 26px;
 }
 
 .modules--entities-tab--one-list-item:hover {
@@ -48,6 +49,18 @@ EntitiesNameFilter {
     padding-left: 10px;
     padding-top: 3px;
     padding-bottom: 3px;
+}
+
+.modules--entities-list--count {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 6px;
+    border-top-width: 2px;
+    border-top-color: #555555;
+    background-color: #383838;
 }
 
 /* data */
@@ -78,12 +91,20 @@ EntitiesNameFilter {
     font-size: 13px;
 }
 
-.modules--one-entity--title {
-    font-size: 14px;
-    -unity-font-style: bold;
-    padding: 4px 0 4px 4px;
-    border-bottom-width: 1px;
+EntityButtons {
+    padding: 7px 5px 7px 5px;
     border-bottom-color: #555555;
+    border-bottom-width: 2px;
+    flex-direction: row;
+}
+
+EntityButtons > Button {
+    font-size: 13px;
+    padding: 2px 8px;
+}
+
+.modules--entities-tab--entity-buttons--destroy-entity-button {
+    margin-left: 20px;
 }
 
 .modules--one-entity--components-title {
@@ -115,13 +136,13 @@ EntitiesNameFilter {
 }
 
 EntityMultipleComponents * * .unity-foldout > .unity-toggle {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .modules--entities-tab--always-open-toggle {
     align-self: flex-start;
     align-items: center;
-    font-size: 14px;
+    font-size: 12px;
     margin-right: 10px;
     height: 26px;
 }

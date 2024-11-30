@@ -1,8 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Modules.Extensions.Prototypes.Editor.AddingComponents;
 using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFrameworkUnity.Debug.Entities.AddComponent;
+using ModulesFrameworkUnity.Debug.Entities.EntityBlock;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.Graphs;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -14,7 +19,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
     {
         private Entity _entity;
 
-        private EntityDrawerSettings _settings;
+        private EntityButtons _entityButtons;
         private EntitySingleComponents _singleComponents;
         private EntityMultipleComponents _multipleComponents;
 
@@ -34,6 +39,15 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         public void Draw(bool isAllOpen, IEnumerable<string> pinnedComponents)
         {
+            if (_entityButtons == null)
+            {
+                _entityButtons = new EntityButtons();
+                _entityButtons.Draw();
+                _entityButtons.OnAddComponentClick += OnAddComponentClick;
+                _entityButtons.OnDestroyClick += OnDestroyClick;
+                Add(_entityButtons);
+            }
+
             if (_singleComponents == null)
             {
                 _singleComponents = new EntitySingleComponents(pinnedComponents);
@@ -42,7 +56,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 Add(_singleComponents);
             }
 
-            if(_multipleComponents == null)
+            if (_multipleComponents == null)
             {
                 _multipleComponents = new EntityMultipleComponents(pinnedComponents);
                 _multipleComponents.SetEntity(_entity);
@@ -50,10 +64,23 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 Add(_multipleComponents);
             }
 
+            _entityButtons.style.display = DisplayStyle.Flex;
             _singleComponents.Draw(isAllOpen);
             _multipleComponents.Draw(isAllOpen);
 
             MF.World.OnEntityChanged += OnEntityChanged;
+        }
+
+        private void OnDestroyClick()
+        {
+            _entity.Destroy();
+            Destroy();
+        }
+
+        private void OnAddComponentClick()
+        {
+            var window = ScriptableObject.CreateInstance<AddComponentWindow>();
+            window.Show(_entity.Id);
         }
 
         private void OnPin()
@@ -66,6 +93,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         public void Destroy()
         {
+            if (_entityButtons != null)
+                _entityButtons.style.display = DisplayStyle.None;
             _singleComponents?.Destroy();
             _multipleComponents?.Destroy();
             MF.World.OnEntityChanged -= OnEntityChanged;

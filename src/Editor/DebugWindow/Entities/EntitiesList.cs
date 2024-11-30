@@ -7,7 +7,6 @@ using ModulesFramework.Data;
 using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -19,6 +18,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
     {
         private ScrollView _scrollView;
         private TextField _searchField;
+        private Label _entitiesCount;
         private readonly Dictionary<int, EntityLabel> _entityLabels = new();
         private readonly LinkedDictionary<int, int> _entities = new();
         private readonly HashSet<int> _filtered = new();
@@ -72,10 +72,18 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 #endif
             }
 
+            if (_entitiesCount == null)
+            {
+                _entitiesCount = new Label();
+                _entitiesCount.text = $"Entities: {_entities.Count}";
+                _entitiesCount.AddToClassList("modules--entities-list--count");
+            }
+
             var listRoot = new VisualElement();
             listRoot.AddToClassList("modules--entities-list");
             listRoot.Add(_searchField);
             listRoot.Add(_scrollView);
+            listRoot.Add(_entitiesCount);
             root.Add(listRoot);
         }
 
@@ -170,6 +178,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             Filter();
             UpdateVisibility();
+            _entitiesCount.text = $"Entities: {_entities.Count}";
         }
 
         public void FilterByComponent(string componentName)

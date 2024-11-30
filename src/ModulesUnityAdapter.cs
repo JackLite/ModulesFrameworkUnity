@@ -1,12 +1,12 @@
-﻿using System.Diagnostics;
-using System.Globalization;
-using System.Threading.Tasks;
-using ModulesFramework;
+﻿using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Settings;
 using ModulesFrameworkUnity.Utils;
+using System.Diagnostics;
+using System.Globalization;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
@@ -58,17 +58,18 @@ namespace ModulesFrameworkUnity
 
         public void Update()
         {
-            #if MODULES_DEBUG
-            _stopwatch.Start();
-            #endif
+            if (_settings.performanceSettings.debugMode)
+                _stopwatch.Start();
+
 
             _modules.Run();
 
-            #if MODULES_DEBUG
-            _stopwatch.Stop();
-            _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
-            _stopwatch.Reset();
-            #endif
+            if (_settings.performanceSettings.debugMode)
+            {
+                _stopwatch.Stop();
+                _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
+                _stopwatch.Reset();
+            }
         }
 
         public void FixedUpdate()
@@ -78,39 +79,38 @@ namespace ModulesFrameworkUnity
 
         public void LateUpdate()
         {
-            #if MODULES_DEBUG
-            _stopwatch.Start();
-            #endif
+            if (_settings.performanceSettings.debugMode)
+                _stopwatch.Start();
 
             _modules.PostRun();
 
-            #if MODULES_DEBUG
-            _stopwatch.Stop();
-            _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
-            _stopwatch.Reset();
-            _frames++;
-            var targetFrameRate = Application.targetFrameRate > 0 ? Application.targetFrameRate : 60;
-            if (_frames > targetFrameRate)
+            if (_settings.performanceSettings.debugMode)
             {
-                var avgFrameTimeMs = _elapsedTimeMs / _frames;
-                if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs &&
-                    _settings.performanceSettings.debugMode)
+                _stopwatch.Stop();
+                _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
+                _stopwatch.Reset();
+                _frames++;
+                var targetFrameRate = Application.targetFrameRate > 0 ? Application.targetFrameRate : 60;
+                if (_frames > targetFrameRate)
                 {
-                    _modules.MainWorld.Logger.LogDebug(
-                        $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold",
-                        LogFilter.Performance);
-                }
+                    var avgFrameTimeMs = _elapsedTimeMs / _frames;
+                    if (avgFrameTimeMs > _settings.performanceSettings.warningAvgFrameMs &&
+                        _settings.performanceSettings.debugMode)
+                    {
+                        _modules.MainWorld.Logger.LogWarning(
+                            $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than warning threshold");
+                    }
 
-                if (avgFrameTimeMs > _settings.performanceSettings.panicAvgFrameMs)
-                {
-                    _modules.MainWorld.Logger.LogWarning(
-                        $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than panic threshold");
-                }
+                    if (avgFrameTimeMs > _settings.performanceSettings.panicAvgFrameMs)
+                    {
+                        _modules.MainWorld.Logger.LogWarning(
+                            $"[Performance] Avg frame time: {avgFrameTimeMs} ms. That is great than panic threshold");
+                    }
 
-                _frames = 0;
-                _elapsedTimeMs = 0;
+                    _frames = 0;
+                    _elapsedTimeMs = 0;
+                }
             }
-            #endif
         }
 
         public void OnDestroy()

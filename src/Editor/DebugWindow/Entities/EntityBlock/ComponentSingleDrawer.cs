@@ -1,8 +1,6 @@
-﻿using System;
-using ModulesFramework;
+﻿using ModulesFramework;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
-using ModulesFrameworkUnity.Debug.Utils;
-using UnityEditor;
+using System;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -13,11 +11,13 @@ namespace ModulesFrameworkUnity.Debug.Entities
     public class ComponentSingleDrawer : BaseComponentDrawer
     {
         private readonly StructsDrawer _structsDrawer = new();
+        private ContextualMenuManipulator _contextMenuManipulator;
 
         public ComponentSingleDrawer(Type componentType) : base(componentType)
         {
             _componentContainer.Add(_structsDrawer.Foldout);
             _structsDrawer.Foldout.SendToBack();
+            InitContextMenu();
         }
 
         public void Draw(EditorDrawer mainDrawer, VisualElement root, bool isOpen)
@@ -41,6 +41,22 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             _structsDrawer.OnChangeOpenState += OnOpenChanged;
             root.Add(_componentContainer);
+        }
+
+        private void InitContextMenu()
+        {
+            _contextMenuManipulator = new ContextualMenuManipulator(BuildContextMenu);
+            var componentTitle = _structsDrawer.Foldout.Q(className: Foldout.toggleUssClassName);
+            componentTitle.AddManipulator(_contextMenuManipulator);
+        }
+
+        private void BuildContextMenu(ContextualMenuPopulateEvent ev)
+        {
+            ev.menu.AppendAction("Remove", a =>
+            {
+                var table = MF.World.GetEcsTable(_componentType);
+                table.Remove(_eid);
+            });
         }
 
         private void OnOpenChanged(bool isOpened)

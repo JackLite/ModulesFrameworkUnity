@@ -13,8 +13,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
     public class MultipleComponentDrawer : BaseComponentDrawer
     {
         private Foldout _foldout;
-        private readonly Stack<StructsDrawer> _drawersPool = new();
-        private readonly List<StructsDrawer> _drawers = new();
+        private readonly Stack<StructDrawerDecorator> _drawersPool = new();
+        private readonly List<StructDrawerDecorator> _decorators = new();
         private readonly Dictionary<int, object> _values = new();
         private readonly EditorDrawer _mainDrawer;
 
@@ -75,30 +75,32 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             foreach (var (index, component) in _values)
             {
-                if (!_drawersPool.TryPop(out var drawer))
-                    drawer = new StructsDrawer();
-                drawer.Init(_mainDrawer, (_, newValue) =>
+                if (!_drawersPool.TryPop(out var decorator))
+                    decorator = new StructDrawerDecorator();
+
+                decorator.Init(_eid, _componentType, index);
+                decorator.drawer.Init(_mainDrawer, (_, newValue) =>
                     {
                         _values[index] = newValue;
                         table.SetDataObjects(_eid, _values.Values.ToList());
                     },
                     () => table.GetAt(index));
-                drawer.Draw($"{component.GetType().Name} [{index}]", component, _foldout);
-                _drawers.Add(drawer);
+                decorator.drawer.Draw($"{component.GetType().Name}", component, _foldout);
+                _decorators.Add(decorator);
             }
         }
 
         private void Update()
         {
-            foreach (var drawer in _drawers)
-                drawer.Update();
+            foreach (var decorator in _decorators)
+                decorator.drawer.Update();
         }
 
         public void OnEntityChanged()
         {
             var table = MF.World.GetEcsTable(_componentType);
             var currentCount = table.GetMultipleDataLength(_eid);
-            if (_drawers.Count == currentCount)
+            if (_decorators.Count == currentCount)
                 return;
 
             Reset();
@@ -108,13 +110,13 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private void Reset()
         {
-            foreach (var drawer in _drawers)
+            foreach (var decorator in _decorators)
             {
-                drawer.Reset();
-                _drawersPool.Push(drawer);
+                decorator.drawer.Reset();
+                _drawersPool.Push(decorator);
             }
 
-            _drawers.Clear();
+            _decorators.Clear();
             _foldout?.Clear();
         }
 
@@ -127,6 +129,38 @@ namespace ModulesFrameworkUnity.Debug.Entities
         protected override void OnAlwaysOpenChanged()
         {
             _foldout.value = isAlwaysOpen;
+        }
+
+        private class StructDrawerDecorator
+        {
+            public StructsDrawer drawer = new();
+
+            private int _index;
+            private readonly ContextualMenuManipulator _contextualMenuManipulator;
+            private Type _componentType;
+            private int _eid;
+
+            public StructDrawerDecorator()
+            {
+                _contextualMenuManipulator = new ContextualMenuManipulator(BuildContextMenu);
+                drawer.Foldout.Q(className: Foldout.toggleUssClassName).AddManipulator(_contextualMenuManipulator);
+            }
+
+            public void Init(int eid, Type componentType, int index)
+            {
+                _index = index;
+                _componentType = componentType;
+                _eid = eid;
+            }
+
+            private void BuildContextMenu(ContextualMenuPopulateEvent ev)
+            {
+                ev.menu.AppendAction("Remove", _ =>
+                {
+                    var table = MF.World.GetEcsTable(_componentType);
+                    table.RemoveByDenseIndex(_eid, _index);
+                });
+            }
         }
     }
 }

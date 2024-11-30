@@ -1,0 +1,59 @@
+﻿.modules-debug--add-component {
+    padding: 10px 5px;
+    overflow: scroll;
+}
+
+/* search */
+.modules-debug--add-component--search-input {
+    margin: 0 0 10px 0;
+}
+
+.modules-debug--add-component--search-input > unity-label {
+    min-width: auto;
+}
+
+/* list */
+AddComponentOneRow {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    margin: 0;
+    height: 30px;
+    cursor: link;
+    background-color: initial;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-top-width: 1px;
+    border-top-color: #555555;
+}
+
+AddComponentOneRow:hover {
+    background-color: rgba(43, 131, 206, 0.5);
+    color: white;
+}
+
+/* new component drawer */
+.modules-debug--add-component--new-component {
+    padding-top: 10px;
+    border-top-width: 2px;
+    border-top-color: #555555;
+}
+
+.modules-debug--add-component--component-buttons {
+    margin: 10px 0;
+    padding: 10px 0;
+    border-bottom-width: 2px;
+    border-bottom-color: #555555;
+    border-top-width: 1px;
+    border-top-color: #555555;
+    flex-direction: row;
+    align-content: stretch;
+    justify-content: space-around;
+}
+
+.modules-debug--add-component--component-buttons > Button {
+    min-width: 80px;
+    height: 20px;
+}

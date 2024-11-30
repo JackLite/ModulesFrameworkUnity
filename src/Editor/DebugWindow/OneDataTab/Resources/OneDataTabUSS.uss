@@ -13,7 +13,7 @@
 
 .modules--one-data-tab--list {
     flex-shrink: 0;
-    margin-top: 10px;
+    margin-top: 30px;
 }
 
 .modules--one-data-tab--data-container > .unity-two-pane-split-view__content-container {
@@ -48,6 +48,12 @@ OneDataLabel > .modules--one-data-tab--remove-btn {
 }
 
 /* search */
+
+.modules--one-data-tab--search {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
 
 .modules-search-field > * > .unity-text-element--inner-input-field-component {
     font-size: 14px;
