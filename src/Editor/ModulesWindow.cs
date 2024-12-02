@@ -57,9 +57,6 @@ namespace ModulesFrameworkUnity
             EditorGUILayout.Space(20);
             EditorGUILayout.BeginVertical();
             DrawTitle("Performance Monitor");
-            var isDebug = Settings.performanceSettings.debugMode;
-            var debugContent = new GUIContent("On");
-            Settings.performanceSettings.debugMode = EditorGUILayout.Toggle(debugContent, isDebug);
 
             var warn = Settings.performanceSettings.warningAvgFrameMs;
             var warnContent = new GUIContent("Warning Threshold",
@@ -72,6 +69,27 @@ namespace ModulesFrameworkUnity
                 "You should ignore it when scene loading or some expected going on. " +
                 "It's good to set it to 10-20% from 1/targeted frame rate.");
             Settings.performanceSettings.panicAvgFrameMs = EditorGUILayout.FloatField(panicContent, panic);
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+
+#if MODULES_PERFORMANCE
+            if (GUILayout.Button("Turn off performance monitor"))
+                ScriptDefineUtils.Remove("MODULES_PERFORMANCE");
+#else
+            if (GUILayout.Button("Turn on performance monitor"))
+                ScriptDefineUtils.Add("MODULES_PERFORMANCE");
+#endif
+
+#if MODULES_DEBUG
+            if (GUILayout.Button("Turn off debug"))
+                ScriptDefineUtils.Remove("MODULES_DEBUG");
+#else
+            if (GUILayout.Button("Turn on debug"))
+                ScriptDefineUtils.Add("MODULES_DEBUG");
+#endif
+
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.EndVertical();
         }

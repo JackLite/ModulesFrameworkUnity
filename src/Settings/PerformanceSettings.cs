@@ -6,11 +6,6 @@ namespace ModulesFrameworkUnity.Settings
     public struct PerformanceSettings
     {
         /// <summary>
-        ///     If turn off - only panic messages will be logging
-        /// </summary>
-        public bool debugMode;
-        
-        /// <summary>
         ///     First threshold. Use it to get warning when code too long but not critical
         /// </summary>
         public float warningAvgFrameMs;
