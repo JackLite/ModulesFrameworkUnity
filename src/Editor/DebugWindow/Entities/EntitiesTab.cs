@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.EntitiesTags;
+using ModulesFrameworkUnity.Settings;
+using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,11 +16,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
     [Serializable]
     public class EntitiesTab
     {
-        private List<Type> _withFilter;
-
         private VisualElement _root;
         private TwoPaneSplitView _dataContainer;
-        private ScrollView _scrollView;
 
         private EntitiesList _entitiesList = new();
         private EntityDrawer _entityDrawer;
@@ -29,7 +27,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         [SerializeField]
         private List<string> _pinnedComponents = new();
 
-        public void Draw(VisualElement root)
+        public void Draw(VisualElement root, DebugSettings debugSettings)
         {
             _entityDrawer = new();
             _root = root;
@@ -47,7 +45,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _root.Add(_dataContainer);
             _dataContainer.AddToClassList("modules--entities-tab--data");
 
-            _entitiesList.Draw(_dataContainer);
+            _entitiesList.Draw(_dataContainer, debugSettings.entitiesFullName);
             _entitiesList.OnEntitySelected += OnEntitySelected;
 
             _settings ??= new EntityDrawerSettings();

@@ -1,8 +1,9 @@
-﻿using ModulesFrameworkUnity.Debug.Entities;
+using ModulesFrameworkUnity.Debug.Entities;
 using ModulesFrameworkUnity.DebugWindow.Data;
 using ModulesFrameworkUnity.DebugWindow.Modules;
 using ModulesFrameworkUnity.DebugWindow.Modules.Data;
 using ModulesFrameworkUnity.DebugWindow.OneDataTab;
+using ModulesFrameworkUnity.Settings;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -36,6 +37,7 @@ namespace ModulesFrameworkUnity.DebugWindow
 
         private void OnEnable()
         {
+            var debugSettings = ModulesSettings.Load().debugSettings;
             hideFlags = HideFlags.HideAndDontSave;
             if (EditorPrefs.HasKey("MF.ModulesTabMode") && _modulesTabMode == ModulesTabMode.Undefined)
                 _modulesTabMode = (ModulesTabMode)EditorPrefs.GetInt("MF.ModulesTabMode");
@@ -52,7 +54,7 @@ namespace ModulesFrameworkUnity.DebugWindow
             var entitiesRoot = new VisualElement();
             _entitiesTab ??= new EntitiesTab();
             rootVisualElement.Add(entitiesRoot);
-            _entitiesTab.Draw(entitiesRoot);
+            _entitiesTab.Draw(entitiesRoot, debugSettings);
 
             _tabs ??= new DebugWindowTabs();
             _tabs.Draw(rootVisualElement);

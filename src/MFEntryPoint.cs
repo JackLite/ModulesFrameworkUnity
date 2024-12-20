@@ -1,6 +1,6 @@
-﻿using System.Collections;
 using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
+using System.Collections;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
@@ -24,10 +24,6 @@ namespace ModulesFrameworkUnity
 
             DontDestroyOnLoad(gameObject);
             _adapter = new ModulesUnityAdapter(settings);
-#if UNITY_EDITOR
-            if (settings.useOldDebug)
-                _adapter.StartDebug();
-#endif
             _adapter.Start();
             _created = true;
         }

@@ -1,4 +1,4 @@
-﻿using ModulesFramework;
+using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
 using UnityEditor;
 using UnityEngine;
@@ -37,19 +37,29 @@ namespace ModulesFrameworkUnity
         {
             DrawTitle("Main");
             DrawStartMethod();
-            DrawUseOldDebug();
             DrawWorldsCount();
             DrawLogType();
             DrawCheckEntity();
+            DrawDebug();
             DrawPerformanceSettings();
             DrawSaveButton();
         }
 
-        private void DrawUseOldDebug()
+        private void DrawDebug()
         {
-            var isUseOldDebug = Settings.useOldDebug;
-            var debugContent = new GUIContent("Use old debug", "Turn on to use old debug based on GameObjects");
-            Settings.useOldDebug = EditorGUILayout.Toggle(debugContent, isUseOldDebug);
+            EditorGUILayout.Space(20);
+            EditorGUILayout.BeginVertical();
+            DrawTitle("Debug settings");
+
+            var entitiesFullName =
+                EditorGUILayout.Toggle(
+                    "Entities full name mode",
+                    Settings.debugSettings.entitiesFullName
+                );
+
+            Settings.debugSettings.entitiesFullName = entitiesFullName;
+
+            EditorGUILayout.EndVertical();
         }
 
         private void DrawPerformanceSettings()
@@ -69,7 +79,7 @@ namespace ModulesFrameworkUnity
                 "You should ignore it when scene loading or some expected going on. " +
                 "It's good to set it to 10-20% from 1/targeted frame rate.");
             Settings.performanceSettings.panicAvgFrameMs = EditorGUILayout.FloatField(panicContent, panic);
-            
+
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
 

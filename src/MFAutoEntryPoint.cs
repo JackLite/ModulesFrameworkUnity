@@ -1,4 +1,4 @@
-﻿using ModulesFrameworkUnity.Settings;
+using ModulesFrameworkUnity.Settings;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -22,10 +22,6 @@ namespace ModulesFrameworkUnity
             ecsMono.OnFixedUpdate = _adapter.FixedUpdate;
             ecsMono.OnLateUpdate = _adapter.LateUpdate;
             ecsMono.OnDestroyed = _adapter.OnDestroy;
-            #if UNITY_EDITOR
-            if (Settings.useOldDebug)
-                _adapter.StartDebug();
-            #endif
             _adapter.Start();
         }
     }

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using ModulesFramework;
 using ModulesFramework.Data;
-using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Utils;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -27,6 +25,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private int _currentSelectedEid = -1;
         private EntityLabel _currentSelected;
 
+        private bool _isFullName;
         private string _componentsFilter = string.Empty;
         private string _listFilter = string.Empty;
 
@@ -36,8 +35,9 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         public event Action<int> OnEntitySelected;
 
-        public void Draw(VisualElement root)
+        public void Draw(VisualElement root, bool isFullName)
         {
+            _isFullName = isFullName;
             if (_searchField == null)
             {
                 _searchField = new TextField();
@@ -54,7 +54,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _scrollView = new ScrollView();
                 _scrollView.focusable = true;
                 _scrollView.mode = ScrollViewMode.VerticalAndHorizontal;
-                #if !UNITY_2022_1_OR_NEWER
+#if !UNITY_2022_1_OR_NEWER
                 _scrollView.RegisterCallback((KeyDownEvent ev, EntitiesList list) =>
                 {
                     if (ev.target != _scrollView)
@@ -64,12 +64,12 @@ namespace ModulesFrameworkUnity.Debug.Entities
                     else if (ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.W)
                         list.OnNavigation(NavigationMoveEvent.Direction.Up);
                 }, this);
-                #else
+#else
                 _scrollView.RegisterCallback(
                     (NavigationMoveEvent ev, EntitiesList list) => list.OnNavigation(ev.direction),
                     this
                 );
-                #endif
+#endif
             }
 
             if (_entitiesCount == null)
@@ -93,7 +93,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _entities.Add(eid, eid);
 
             var entityLabel = new EntityLabel(entity);
-            entityLabel.UpdateName(_stringBuilder);
+            entityLabel.UpdateName(_stringBuilder, _isFullName);
             _entityLabels[eid] = entityLabel;
             entityLabel.AddToClassList("modules--entities-tab--one-list-item");
             entityLabel.RegisterCallback((ClickEvent _, int eid) =>
@@ -115,7 +115,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         public void OnCustomIdChanged(int eid)
         {
             if (_entityLabels.TryGetValue(eid, out var label))
-                label.UpdateName(_stringBuilder);
+                label.UpdateName(_stringBuilder, _isFullName);
         }
 
         public void RemoveEntity(int eid)
@@ -171,7 +171,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
 
             _entityComponentsMap[eid] = _stringBuilder.ToString();
-            _entityLabels[eid].UpdateName(_stringBuilder);
+            _entityLabels[eid].UpdateName(_stringBuilder, _isFullName);
         }
 
         private void UpdateList()
@@ -265,46 +265,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         public void OnTagChanged(int eid)
         {
             if (_entityLabels.TryGetValue(eid, out var label))
-                label.UpdateName(_stringBuilder);
-        }
-
-        private class EntityLabel : Label
-        {
-            public readonly int eid;
-            public string displayName;
-
-            public EntityLabel(Entity entity)
-            {
-                eid = entity.Id;
-            }
-
-            public void UpdateName(StringBuilder stringBuilder)
-            {
-                stringBuilder.Clear();
-                // try tags
-                if (EntitiesTagStorage.IsInitialized)
-                {
-                    var tags = EntitiesTagStorage.Storage.GetTags(eid);
-                    if (tags.Count > 0)
-                    {
-                        stringBuilder.Append(string.Join(" | ", tags));
-                        stringBuilder.Append(" (");
-                        stringBuilder.Append(eid.ToString(CultureInfo.InvariantCulture));
-                        stringBuilder.Append(")");
-                        displayName = stringBuilder.ToString();
-                        text = displayName;
-                        return;
-                    }
-                }
-
-                // try custom id
-                var ent = MF.World.GetEntity(eid);
-                if (ent.GetCustomId() == ent.Id.ToString(CultureInfo.InvariantCulture))
-                    displayName = $"Entity ({ent.GetCustomId()}) ";
-                else
-                    displayName = $"{ent.GetCustomId()} ({ent.Id}) ";
-                text = displayName;
-            }
+                label.UpdateName(_stringBuilder, _isFullName);
         }
     }
 }

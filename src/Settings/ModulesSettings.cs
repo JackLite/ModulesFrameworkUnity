@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using ModulesFramework;
 using UnityEngine;
@@ -17,10 +17,10 @@ namespace ModulesFrameworkUnity.Settings
         public const string FileExt = "json";
         public const string FileNameWithExt = FileName + "." + FileExt;
         public StartMethod startMethod;
-        public bool useOldDebug;
         public int worldsCount = 1;
         public LogFilter logFilter = LogFilter.Full;
 
+        public DebugSettings debugSettings;
         public PerformanceSettings performanceSettings;
 
         public bool deleteEmptyEntities;
@@ -32,6 +32,7 @@ namespace ModulesFrameworkUnity.Settings
                 warningAvgFrameMs = (1f / 60f) * 100f, // 10%
                 panicAvgFrameMs = (1f / 60f) * 200f // 20%
             };
+            debugSettings = new DebugSettings();
         }
 
         public static ModulesSettings Load()
@@ -47,7 +48,7 @@ namespace ModulesFrameworkUnity.Settings
             return Path.Combine(PathToSave, FileNameWithExt);
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         public void Save()
         {
             CheckFolder();
@@ -72,6 +73,6 @@ namespace ModulesFrameworkUnity.Settings
                 return;
             Directory.CreateDirectory(PathToSave);
         }
-        #endif
+#endif
     }
 }
