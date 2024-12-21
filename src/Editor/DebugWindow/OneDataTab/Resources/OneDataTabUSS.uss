@@ -1,19 +1,24 @@
-﻿.modules--one-data-tab {
+.modules--one-data-tab {
     margin-top: 40px;
     height: 100%;
     border-top-color: #555555;
     border-top-width: 1px;
 }
-
-/* list */
-
 .modules--one-data-tab--data-container {
     padding-top: 10px;
+    height: 100%;
+    flex-direction: row;
 }
 
+.modules--one-data-tab--left-block{
+    height: 100%;
+}
+
+/* list */
 .modules--one-data-tab--list {
     flex-shrink: 0;
     margin-top: 30px;
+    margin-bottom: 40px;
 }
 
 .modules--one-data-tab--data-container > .unity-two-pane-split-view__content-container {
@@ -63,4 +68,19 @@ OneDataLabel > .modules--one-data-tab--remove-btn {
     margin: 0 5px;
     padding: 4px 5px;
     cursor: link;
+}
+
+/* bottom container in list */
+.modules--one-data-tab--list-bottom-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top-width: 2px;
+    border-top-color: #555555;
+}
+
+.modules--one-data-tab--add-btn {
+    width: 170px;
+    margin: 10px auto 10px;
 }

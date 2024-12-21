@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Modules.Extensions.Prototypes;
 using ModulesFramework.Data;
 

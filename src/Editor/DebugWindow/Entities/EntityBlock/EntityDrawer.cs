@@ -1,11 +1,11 @@
-﻿using Modules.Extensions.Prototypes.Editor.AddingComponents;
+using Modules.Extensions.Prototypes.Editor.AddingComponents;
 using ModulesFramework;
 using ModulesFramework.Data;
-using ModulesFrameworkUnity.Debug.Entities.AddComponent;
 using ModulesFrameworkUnity.Debug.Entities.EntityBlock;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFrameworkUnity.DebugWindow.Entities.AddComponent;
 using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.UIElements;

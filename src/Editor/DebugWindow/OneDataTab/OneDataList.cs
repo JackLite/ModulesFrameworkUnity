@@ -1,9 +1,9 @@
-﻿using System;
+using ModulesFramework;
+using ModulesFrameworkUnity.Utils;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ModulesFramework;
-using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -24,17 +24,19 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         public event Action<Type> OnDataSelected;
         public event Action<string> OnSearch;
+        public event Action OnCreateNewClicked;
         public event Action<Type> OnPinClicked;
 
         public void Draw(VisualElement root, string lastSearch, HashSet<string> pinTypes)
         {
             _pinnedData = new HashSet<string>(pinTypes);
             var container = new VisualElement();
+            container.AddToClassList("modules--one-data-tab--left-block");
             _scrollView = new ScrollView();
             _scrollView.AddToClassList("modules--one-data-tab--list");
             _scrollView.focusable = true;
             _scrollView.mode = ScrollViewMode.VerticalAndHorizontal;
-            #if !UNITY_2022_1_OR_NEWER
+#if !UNITY_2022_1_OR_NEWER
             _scrollView.RegisterCallback((KeyDownEvent ev, OneDataList list) =>
             {
                 if (ev.target != _scrollView)
@@ -44,15 +46,16 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 else if (ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.W)
                     list.OnNavigation(NavigationMoveEvent.Direction.Up);
             }, this);
-            #else
-                _scrollView.RegisterCallback(
-                    (NavigationMoveEvent ev, OneDataList list) => list.OnNavigation(ev.direction),
-                    this
-                );
-            #endif
+#else
+            _scrollView.RegisterCallback(
+                (NavigationMoveEvent ev, OneDataList list) => list.OnNavigation(ev.direction),
+                this
+            );
+#endif
 
             CreateSearch(container, lastSearch);
             container.Add(_scrollView);
+            CreateBottomContainer(container);
             root.Add(container);
         }
 
@@ -73,6 +76,25 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             _searchField.Add(clearBtn);
 
             root.Add(_searchField);
+        }
+
+        private void CreateBottomContainer(VisualElement root)
+        {
+            var bottomContainer = new VisualElement();
+            bottomContainer.AddToClassList("modules--one-data-tab--list-bottom-container");
+            CreateAddButton(bottomContainer);
+            root.Add(bottomContainer);
+        }
+
+        private void CreateAddButton(VisualElement root)
+        {
+            var addBtn = new Button
+            {
+                text = "Create One Data"
+            };
+            addBtn.AddToClassList("modules--one-data-tab--add-btn");
+            addBtn.clicked += () => OnCreateNewClicked?.Invoke();
+            root.Add(addBtn);
         }
 
         public void AddData(Type type)
@@ -216,9 +238,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             {
                 do
                 {
-                    var nextNode = _dataLabels[newType].Next;
-                    if (nextNode == null)
-                        nextNode = _dataLabels.FirstNode;
+                    var nextNode = _dataLabels[newType].Next ?? _dataLabels.FirstNode;
 
                     newType = nextNode.Value.type;
                     if (!FilterActive || _filtered.Contains(newType))
@@ -230,9 +250,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             {
                 do
                 {
-                    var prevNode = _dataLabels[newType].Previous;
-                    if (prevNode == null)
-                        prevNode = _dataLabels.LastNode;
+                    var prevNode = _dataLabels[newType].Previous ?? _dataLabels.LastNode;
 
                     newType = prevNode.Value.type;
                     if (!FilterActive || _filtered.Contains(newType))

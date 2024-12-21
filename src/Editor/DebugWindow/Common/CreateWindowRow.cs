@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using UnityEngine.UIElements;
 
-namespace ModulesFrameworkUnity.Debug.Entities.AddComponent
+namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
 {
-    public class AddComponentOneRow : Button
+    public class CreateWindowRow : Button
     {
         public Type type;
 
@@ -11,7 +11,7 @@ namespace ModulesFrameworkUnity.Debug.Entities.AddComponent
 
         public event Action<Type> OnChoose;
 
-        public AddComponentOneRow()
+        public CreateWindowRow()
         {
             _label = new Label();
             Add(_label);

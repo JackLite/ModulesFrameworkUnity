@@ -1,7 +1,7 @@
-﻿using System;
+using ModulesFramework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ModulesFramework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -46,6 +46,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             _list.OnDataSelected += OnDataSelected;
             _list.OnSearch += OnSearch;
             _list.OnPinClicked += OnPinClicked;
+            _list.OnCreateNewClicked += OnCreateNewClicked;
 
             _drawersRoot = new ScrollView();
             dataContainer.Add(_drawersRoot);
@@ -85,6 +86,14 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             {
                 CreateViewersForExisted();
             }
+        }
+
+        private void OnCreateNewClicked()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            ScriptableObject.CreateInstance<CreateOneDataWindow>().ShowWindow();
         }
 
         private void CreateViewersForExisted()
