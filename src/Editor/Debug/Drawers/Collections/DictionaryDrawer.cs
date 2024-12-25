@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,34 +16,39 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
         private VisualElement _addBlock;
         private readonly Dictionary<string, object> _newKeys = new();
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
-            var type = value.GetType();
-            return type.IsGenericType && value is IDictionary;
+
+            return type.IsGenericType && typeof(IDictionary).IsAssignableFrom(type);
         }
 
-        public override void Draw(string labelText, object fieldValue, VisualElement parent)
+        protected override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
             _fieldName = labelText;
-            _addBlock = CreateAddBlock();
-            var value = (IDictionary)fieldValue;
-            _oldRef = value;
             _container = new VisualElement();
+            parent.Add(_container);
+
             _foldout = new Foldout
             {
-                text = $"Dictionary: {labelText} [{_oldRef.Count}]",
+                text = GetLabel(),
                 value = false
             };
             _elements = new VisualElement();
             _foldout.Add(_elements);
+            _container.Add(_foldout);
+
+            if (fieldValue == null)
+                return;
+
+            var value = (IDictionary)fieldValue;
+            _oldRef = value;
+            _addBlock = CreateAddBlock();
+            _foldout.Add(_addBlock);
 
             DrawDict(labelText);
-            _container.Add(_foldout);
-            _foldout.Add(_addBlock);
 
             DrawAddBlock(labelText);
 
-            parent.Add(_container);
         }
 
         private void DrawAddBlock(string fieldName)
@@ -64,8 +69,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 _newKeys[cacheKey] = Activator.CreateInstance(innerKeyType);
             }
 
-            var keyType = _newKeys[cacheKey].GetType().Name;
-            mainDrawer.Draw($"New key [{keyType}]", _newKeys[cacheKey], _addBlock, (_, newVal) =>
+            var keyType = _newKeys[cacheKey].GetType();
+            mainDrawer.Draw($"New key [{keyType.Name}]", keyType, _newKeys[cacheKey], _addBlock, (_, newVal) =>
             {
                 _newKeys[cacheKey] = newVal;
             }, () => _newKeys[cacheKey], Level + 1, false);
@@ -99,7 +104,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var cacheKey = _oldRef.GetType().FullName + fieldName;
                 _newKeys.TryAdd(cacheKey, string.Empty);
 
-                mainDrawer.Draw("New key [string]", _newKeys[cacheKey], _addBlock, (_, newVal) =>
+                mainDrawer.Draw("New key [string]", typeof(string), _newKeys[cacheKey], _addBlock, (_, newVal) =>
                 {
                     _newKeys[cacheKey] = newVal;
                 }, () => _newKeys[cacheKey], Level + 1, false);
@@ -158,6 +163,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
         private void DrawDict(string fieldName)
         {
             var keys = _oldRef.Keys.Cast<object>().ToArray();
+            var valueType = _type.GetGenericArguments()[1];
             foreach (var key in keys)
             {
                 var elementContainer = new VisualElement
@@ -174,6 +180,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var valuesType = val.GetType();
                 var drawer = mainDrawer.Draw(
                     memberName,
+                    valueType,
                     val,
                     elementContainer,
                     OnChanged,
@@ -220,7 +227,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             if (_isNull)
                 return;
             var dictionary = (IDictionary)valueGetter();
-            _foldout.text = $"Dictionary: {_fieldName} [{dictionary.Count}]";
+            _foldout.text = GetLabel();
             if (_drawers.Count != dictionary.Count || !ReferenceEquals(_oldRef, dictionary))
             {
                 var wasOpen = _foldout.value;
@@ -238,6 +245,21 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             {
                 drawer.Update();
             }
+        }
+
+        protected override string GetTypeLabel()
+        {
+            var genericArgs = _type.GetGenericArguments();
+            var keyType = genericArgs[0].Name;
+            var valueType = genericArgs[1].Name;
+            return $"{_fieldName} Dict<{keyType},{valueType}>";
+        }
+
+        private string GetLabel()
+        {
+            var value = valueGetter();
+            var count = ((IDictionary)value)?.Count ?? 0;
+            return $"{GetTypeLabel()}[{count}]";
         }
     }
 }

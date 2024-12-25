@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
@@ -10,26 +10,32 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
     public class ListDrawer : BaseCollectionDrawer<IList>
     {
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
-            var type = value.GetType();
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }
 
-        public override void Draw(string labelText, object fieldValue, VisualElement parent)
+        protected override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
+            _container = new VisualElement();
+            parent.Add(_container);
             _fieldName = labelText;
-            _oldRef = (IList)fieldValue;
 
             _foldout = new Foldout
             {
-                text = $"List: {labelText} [{_oldRef.Count}]",
+                text = GetLabel(),
                 value = false,
             };
 
+            if (fieldValue == null)
+                return;
+
+            _oldRef = (IList)fieldValue;
+
+            _container.Add(_foldout);
+
             DrawList(labelText, _foldout.contentContainer);
 
-            parent.Add(_foldout);
         }
 
         private void DrawAddBtn(string labelText)
@@ -41,7 +47,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             addBtn.clicked += () =>
             {
                 var innerType = _oldRef.GetType().GetGenericArguments()[0];
-                if(innerType == typeof(string))
+                if (innerType == typeof(string))
                 {
                     _oldRef.Add(string.Empty);
                     _foldout.contentContainer.Clear();
@@ -78,7 +84,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 return;
             }
 
-            _foldout.text = $"List: {_fieldName} [{count}]";
+            _foldout.text = GetLabel();
             foreach (var drawer in _drawers)
             {
                 drawer.Update();
@@ -87,6 +93,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         private void DrawList(string fieldName, VisualElement container)
         {
+            var elementType = _oldRef.GetType().GetGenericArguments()[0];
             for (var i = 0; i < _oldRef.Count; i++)
             {
                 var elementContainer = new VisualElement
@@ -99,7 +106,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var v = _oldRef[i];
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
-                var drawer = mainDrawer.Draw(memberName, v, elementContainer, (_, newVal) =>
+                var drawer = mainDrawer.Draw(memberName, elementType, v, elementContainer, (_, newVal) =>
                 {
                     _oldRef[index] = newVal;
                 }, () =>
@@ -123,6 +130,19 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             }
 
             DrawAddBtn(fieldName);
+        }
+
+        protected override string GetTypeLabel()
+        {
+            var innerTypeName = _type.GetGenericArguments()[0].Name;
+            return $"{_fieldName} List<{innerTypeName}>";
+        }
+
+        private string GetLabel()
+        {
+            var value = valueGetter();
+            var count = ((IList)value)?.Count ?? 0;
+            return $"{GetTypeLabel()}[{count}]";
         }
     }
 }

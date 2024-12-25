@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -12,15 +12,15 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     {
         private BaseField<Enum> _field;
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
             if (value is not Enum)
                 return false;
-            var values = Enum.GetValues(value.GetType());
+            var values = Enum.GetValues(type);
             return values.Length > 0;
         }
 
-        public override void Draw(string labelText, object value, VisualElement parent)
+        protected override void Draw(string labelText, object value, VisualElement parent)
         {
             var type = value.GetType();
             var values = Enum.GetValues(value.GetType());

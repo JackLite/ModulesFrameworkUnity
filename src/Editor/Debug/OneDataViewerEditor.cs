@@ -31,7 +31,7 @@ namespace ModulesFrameworkUnity.Debug
             root.Bind(serializedObject);
 
             var type = _viewer.DataType;
-            _drawer.Draw(type.Name, _viewer.Data.GetDataObject(), root, (_, newVal) =>
+            _drawer.Draw(type.Name, type, _viewer.Data.GetDataObject(), root, (_, newVal) =>
             {
                 _viewer.UpdateData(newVal);
             }, () => _viewer.Data.GetDataObject());

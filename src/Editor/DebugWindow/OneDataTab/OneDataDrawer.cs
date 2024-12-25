@@ -1,8 +1,8 @@
-﻿using System;
-using System.Globalization;
 using ModulesFramework;
 using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
+using System;
+using System.Globalization;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
@@ -37,7 +37,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 _structsDrawer.UpdateLabel(typeName + gen);
             }, oneData.GetDataObject);
             var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
-            _structsDrawer.Draw(typeName + gen, dataObject, root);
+            _structsDrawer.Draw(typeName + gen, dataType, dataObject, root);
             _structsDrawer.SetOpenState(true);
             DebugEventBus.Update += UpdateData;
             _structsDrawer.OnChangeOpenState += OnChanged;
@@ -85,7 +85,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             var dataObject = oneData.GetDataObject();
             var typeName = dataObject.GetType().Name;
             var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
-            _structsDrawer.Draw(typeName + gen, dataObject, root);
+            _structsDrawer.Draw(typeName + gen, dataType, dataObject, root);
         }
     }
 }

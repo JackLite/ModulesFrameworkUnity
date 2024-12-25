@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using UnityEngine;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -34,14 +33,14 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             });
         }
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
             if (value == null)
                 return false;
-            return value.GetType().IsValueType && !value.GetType().IsPrimitive;
+            return type.IsValueType && !type.IsPrimitive;
         }
 
-        public override void Draw(string labelText, object value, VisualElement parent)
+        protected override void Draw(string labelText, object value, VisualElement parent)
         {
             DrawHeader(labelText);
             DrawFields(value);
@@ -61,7 +60,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, Foldout, (_, newVal) =>
+                var drawer = mainDrawer.Draw(fieldInfo.Name, fieldInfo.FieldType, innerFieldValue, Foldout, (_, newVal) =>
                 {
                     var realValue = valueGetter();
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)

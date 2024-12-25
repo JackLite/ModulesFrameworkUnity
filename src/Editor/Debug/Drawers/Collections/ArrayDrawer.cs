@@ -1,4 +1,5 @@
-﻿using System;
+using ModulesFrameworkUnity.Debug.Drawers.Widgets;
+using System;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -10,28 +11,35 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
     {
         private VisualElement _elements;
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
-            return value is Array;
+            return type.IsArray || value is Array;
         }
 
-        public override void Draw(string labelText, object fieldValue, VisualElement parent)
+        protected override void Draw(string labelText, object fieldValue, VisualElement parent)
         {
-            _oldRef = (Array)fieldValue;
             _fieldName = labelText;
             _container = new VisualElement();
+            parent.Add(_container);
             _foldout = new Foldout
             {
-                text = $"Array: {labelText} [{_oldRef.Length}]",
+                text = $"{labelText} {_type.GetElementType().Name}[0]",
                 value = false,
             };
 
             _elements = new VisualElement();
             _foldout.Add(_elements);
+            _container.Add(_foldout);
+
+            if (fieldValue == null)
+                return;
+
+            _oldRef = (Array)fieldValue;
+
+            _foldout.text = $"{labelText} {_type.GetElementType().Name}[{_oldRef.Length}]";
+
             DrawArray(labelText, _elements);
 
-            _container.Add(_foldout);
-            parent.Add(_container);
         }
 
         public override void Update()
@@ -40,7 +48,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             if (_isNull)
                 return;
             var array = (Array)valueGetter();
-            _foldout.text = $"Array: {_fieldName} [{array.Length}]";
+            _foldout.text = $"{_fieldName} {_type.GetElementType().Name}[{_oldRef.Length}]";
 
             if (!ReferenceEquals(_oldRef, array))
             {
@@ -57,6 +65,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         private void DrawArray(string fieldName, VisualElement container)
         {
+            var elementType = _type.GetElementType();
             for (var i = 0; i < _oldRef.Length; i++)
             {
                 var elementContainer = new VisualElement
@@ -69,7 +78,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var v = _oldRef.GetValue(i);
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
-                var drawer = mainDrawer.Draw(memberName, v, elementContainer, (prev, newVal) =>
+                var drawer = mainDrawer.Draw(memberName, elementType, v, elementContainer, (prev, newVal) =>
                 {
                     _oldRef.SetValue(newVal, index);
                 }, () =>
@@ -81,6 +90,39 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 _drawers.Add(drawer);
                 container.Add(elementContainer);
             }
+        }
+
+        protected override void OnNullChanged()
+        {
+            if (_isNull)
+            {
+                _foldout.Clear();
+                _drawers.Clear();
+
+                DrawCreateWidget();
+            }
+            else
+            {
+                _foldout.Clear();
+                Draw(_fieldName, valueGetter(), _container);
+            }
+        }
+
+        protected override void DrawCreateWidget()
+        {
+            var widget = new CreateArrayWidget(GetTypeLabel(), (size) =>
+            {
+                var newArr = Array.CreateInstance(_type.GetElementType(), size);
+                valueChangedCb(_oldRef, newArr);
+                _oldRef = newArr;
+            });
+            _container.Add(widget);
+        }
+
+        protected override string GetTypeLabel()
+        {
+            var elementType = _type.GetElementType();
+            return $"{elementType.Name}[]";
         }
     }
 }

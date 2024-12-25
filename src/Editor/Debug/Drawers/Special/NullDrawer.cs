@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+using System;
+using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
 #endif
@@ -11,14 +12,14 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
         private string _fieldName;
         private bool _isNotNull;
         private FieldDrawer _innerDrawer;
-        public override int Order => -10;
+        public override int Order => 999;
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
             return value == null;
         }
 
-        public override void Draw(string labelText, object value, VisualElement parent)
+        protected override void Draw(string labelText, object value, VisualElement parent)
         {
             _container = new VisualElement();
             _fieldName = labelText;
@@ -38,7 +39,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
             if (fieldValue != null && !_isNotNull)
             {
                 _container.Clear();
-                _innerDrawer = mainDrawer.Draw(_fieldName, fieldValue, _container, valueChangedCb, valueGetter, Level);
+                _innerDrawer = mainDrawer.Draw(_fieldName, _type, fieldValue, _container, valueChangedCb, valueGetter, Level);
                 _isNotNull = true;
             }
             else if (fieldValue == null && _isNotNull)

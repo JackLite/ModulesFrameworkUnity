@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine.UIElements;
@@ -11,39 +12,39 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 {
     public class AnyClassDrawer : FieldRefDrawer
     {
-        public override int Order => 10000;
+        public override int Order => 100;
         private readonly List<FieldDrawer> _drawers = new();
         private Foldout _foldout;
-        private string _labelText;
+        private string _fieldName;
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
-            if (value == null)
-                return false;
-            var type = value.GetType();
-            return !type.IsValueType
-                   && !type.IsPrimitive;
+            return !type.IsValueType && !type.IsPrimitive;
         }
 
-        public override void Draw(string labelText, object value, VisualElement parent)
+        protected override void Draw(string labelText, object value, VisualElement parent)
         {
             _container = new();
             _foldout = new Foldout();
             _container.Add(_foldout);
-            _labelText = labelText;
-            DrawInternal(value);
+            _fieldName = labelText;
             parent.Add(_container);
+            if (value == null)
+                return;
+
+            DrawInternal(value);
         }
 
         private void DrawInternal(object value)
         {
-            DrawHeader(_labelText, _foldout);
+            DrawHeader(_fieldName, _foldout);
             foreach (var fieldInfo in value.GetType().GetFields())
             {
                 var innerFieldValue = fieldInfo.GetValue(value);
+                var type = fieldInfo.FieldType;
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, innerFieldValue, _foldout, (prev, newVal) =>
+                var drawer = mainDrawer.Draw(fieldInfo.Name, type, innerFieldValue, _foldout, (prev, newVal) =>
                 {
                     if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     {
@@ -103,14 +104,19 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
         {
             if (_isNull)
             {
-                _foldout.Clear();
-                _drawers.Clear();
-                nullDrawer.Draw(_labelText, null, _container);
+                if (_type.GetConstructors().Any(ctor => ctor.GetParameters().Length == 0))
+                {
+                    DrawCreateWidget();
+                }
+                else
+                {
+                    nullDrawer.Draw(_fieldName, typeof(void), null, _container);
+                }
             }
             else
             {
                 _foldout.Clear();
-                Draw(_labelText, valueGetter(), _container);
+                Draw(_fieldName, valueGetter(), _container);
             }
         }
     }

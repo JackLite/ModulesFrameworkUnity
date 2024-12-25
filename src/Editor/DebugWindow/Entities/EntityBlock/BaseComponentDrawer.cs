@@ -1,5 +1,5 @@
-﻿using System;
 using ModulesFrameworkUnity.Debug.Utils;
+using System;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -14,6 +14,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         protected int _eid;
         protected Button _pinButton;
         protected readonly VisualElement _componentContainer;
+        protected readonly VisualElement _componentControlPanel;
         protected bool isAlwaysOpen;
 
         public event Action OnPin;
@@ -25,16 +26,18 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             _componentContainer = new();
             _componentContainer.AddToClassList("modules--entities-tab--component-container");
-            AddAlwaysOpenToggle();
+            _componentControlPanel = new();
+            _componentControlPanel.AddToClassList("modules--entities-tab--component-controls");
+            AddKeepOpenToggle();
             AddPinBtn();
         }
 
-        private void AddAlwaysOpenToggle()
+        private void AddKeepOpenToggle()
         {
-            var alwaysOpenToggle = new Toggle("Keep opened");
-            alwaysOpenToggle.AddToClassList("modules--entities-tab--always-open-toggle");
-            alwaysOpenToggle.SetValueWithoutNotify(isAlwaysOpen);
-            alwaysOpenToggle.RegisterValueChangedCallback(ev =>
+            var keepOpenToggle = new Toggle("Keep opened");
+            keepOpenToggle.AddToClassList("modules--entities-tab--keep-open-toggle");
+            keepOpenToggle.SetValueWithoutNotify(isAlwaysOpen);
+            keepOpenToggle.RegisterValueChangedCallback(ev =>
             {
                 if (ev.propagationPhase != PropagationPhase.AtTarget)
                     return;
@@ -43,7 +46,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 EditorPrefs.SetBool(DebugUtils.GetComponentOpenKey(_componentType), isAlwaysOpen);
                 OnAlwaysOpenChanged();
             });
-            _componentContainer.Add(alwaysOpenToggle);
+            _componentControlPanel.Add(keepOpenToggle);
         }
 
         private void AddPinBtn()
@@ -52,7 +55,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _pinButton.AddToClassList("modules--entities-tab--pin-btn");
             _pinButton.clicked += () => OnPin?.Invoke();
             _pinButton.text = "Pin";
-            _componentContainer.Add(_pinButton);
+            _componentControlPanel.Add(_pinButton);
         }
 
         public void SetEntityId(int eid)

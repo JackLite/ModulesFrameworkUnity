@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -10,9 +10,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Primitive
     {
         private TextField _field;
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
-            return value is string;
+            return type == typeof(string);
         }
 
         protected override void Draw(string labelText, string value, VisualElement parent, Action<string, string> onChanged)

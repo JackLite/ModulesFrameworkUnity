@@ -124,7 +124,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Common
             var drawer = new StructsDrawer();
             drawer.Init(_mainDrawer, (_, newVal) => { newComponent = newVal; }, () => newComponent);
             drawer.SetVisible(true);
-            drawer.Draw($"{type.Name} (new)", newComponent, parent);
+            drawer.Draw($"{type.Name} (new)", type, newComponent, parent);
             drawer.Foldout.AddToClassList("modules-debug--add-component--component-drawer");
             drawer.Foldout.Q(className: Foldout.inputUssClassName).pickingMode = PickingMode.Ignore;
             drawer.Foldout.Q(className: Foldout.toggleUssClassName).pickingMode = PickingMode.Ignore;

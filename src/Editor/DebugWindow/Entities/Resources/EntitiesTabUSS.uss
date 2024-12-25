@@ -1,4 +1,4 @@
-﻿/* main */
+/* main */
 
 .modules--entities-tab {
     height: 100%;
@@ -120,6 +120,7 @@ EntityButtons > Button {
     align-items: flex-start;
     min-height: 30px;
     padding-top: 4px;
+    margin-right: 20px;
 }
 
 .modules--entities-tab--component-container > Foldout {
@@ -128,18 +129,23 @@ EntityButtons > Button {
 
 .modules--entities-tab--component-container > Foldout > Toggle {
     -unity-font-style: bold;
+    flex-direction: row;
+}
+
+.modules--entities-tab--component-controls {
+    flex-direction: row;
 }
 
 .modules--entities-tab--pin-btn {
-    margin-right: 20px;
-    height: 26px
+    height: 26px;
+    padding: 0px 6px;
 }
 
 EntityMultipleComponents * * .unity-foldout > .unity-toggle {
     font-size: 12px;
 }
 
-.modules--entities-tab--always-open-toggle {
+.modules--entities-tab--keep-open-toggle {
     align-self: flex-start;
     align-items: center;
     font-size: 12px;
@@ -147,7 +153,8 @@ EntityMultipleComponents * * .unity-foldout > .unity-toggle {
     height: 26px;
 }
 
-.modules--entities-tab--always-open-toggle > Label {
+.modules--entities-tab--keep-open-toggle > Label {
     min-width: 0;
     margin-right: 6px;
+    margin-left: 0px;
 }

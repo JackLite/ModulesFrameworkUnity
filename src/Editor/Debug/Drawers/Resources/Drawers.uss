@@ -1,0 +1,9 @@
+CreateRefWidget {
+    flex-direction: row;
+    margin: 3px 0px;
+    align-items: center;
+}
+
+CreateRefWidget > IntegerField {
+    width: 60px;
+}

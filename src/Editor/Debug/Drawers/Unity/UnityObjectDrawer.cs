@@ -1,6 +1,7 @@
-﻿using UnityEditor.UIElements;
-using UnityEngine;
+using System;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
 #endif
@@ -10,16 +11,18 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Unity
     public class UnityObjectDrawer : FieldDrawer
     {
         private ObjectField _field;
-        public override bool CanDraw(object value)
+        public override int Order { get; } = 5;
+
+        public override bool CanDraw(Type type, object value)
         {
-            return value is Object;
+            return typeof(Object).IsAssignableFrom(type);
         }
 
-        public override void Draw(string labelText, object value, VisualElement parent)
+        protected override void Draw(string labelText, object value, VisualElement parent)
         {
             _field = new ObjectField
             {
-                objectType = value.GetType()
+                objectType = _type
             };
             _field.SetValueWithoutNotify((Object)value);
             _field.RegisterValueChangedCallback(ev =>

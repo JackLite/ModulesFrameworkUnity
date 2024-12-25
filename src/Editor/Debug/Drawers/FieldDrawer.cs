@@ -1,5 +1,6 @@
-﻿using System;
 using ModulesFrameworkUnity.Debug.Drawers.Special;
+using ModulesFrameworkUnity.Debug.Drawers.Widgets;
+using System;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -13,6 +14,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
         protected Func<object> valueGetter;
         protected Action<object, object> valueChangedCb;
         protected NullDrawer nullDrawer;
+        protected Type _type;
 
         public virtual int Order => 0;
         public int Level { get; set; }
@@ -31,9 +33,15 @@ namespace ModulesFrameworkUnity.Debug.Drawers
             };
         }
 
-        public abstract bool CanDraw(object value);
+        public abstract bool CanDraw(Type type, object value);
 
-        public abstract void Draw(string labelText, object value, VisualElement parent);
+        public void Draw(string labelText, Type type, object value, VisualElement parent)
+        {
+            _type = type;
+            Draw(labelText, value, parent);
+        }
+
+        protected abstract void Draw(string labelText, object value, VisualElement parent);
 
         public abstract void Update();
 
@@ -75,18 +83,38 @@ namespace ModulesFrameworkUnity.Debug.Drawers
         protected virtual void OnNullChanged()
         {
         }
+
+        protected virtual void DrawCreateWidget()
+        {
+            DrawCreateWidget(newObject => valueChangedCb(null, newObject));
+        }
+
+        protected virtual void DrawCreateWidget(Action<object> onCreateNew)
+        {
+            var createWidget = new CreateRefWidget(GetTypeLabel(), () =>
+            {
+                var newObject = Activator.CreateInstance(_type);
+                onCreateNew(newObject);
+            });
+            _container.Add(createWidget);
+        }
+
+        protected virtual string GetTypeLabel()
+        {
+            return _type.Name;
+        }
     }
 
     public abstract class FieldDrawer<T> : FieldDrawer
     {
         protected abstract void Draw(string labelText, T value, VisualElement parent, Action<T, T> onChanged);
 
-        public override void Draw(string labelText, object value, VisualElement parent)
+        protected override void Draw(string labelText, object value, VisualElement parent)
         {
             Draw(labelText, (T)value, parent, (prev, newVal) => valueChangedCb?.Invoke(prev, newVal));
         }
 
-        public override bool CanDraw(object value)
+        public override bool CanDraw(Type type, object value)
         {
             return value is T;
         }

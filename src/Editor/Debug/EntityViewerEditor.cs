@@ -1,10 +1,10 @@
+using ModulesFramework.Data;
+using ModulesFrameworkUnity.Debug.Drawers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ModulesFramework.Data;
-using ModulesFrameworkUnity.Debug.Drawers;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -212,7 +212,7 @@ namespace ModulesFrameworkUnity.Debug
                 if (ecsTable.IsMultiple)
                     componentName = $"{componentName}[{number++}]";
 
-                var drawer = _drawer.Draw(componentName, origin, componentFoldout, (_, newVal) =>
+                var drawer = _drawer.Draw(componentName, type, origin, componentFoldout, (_, newVal) =>
                     {
                         _viewer.changedComponents[type][index] = newVal;
                         ApplyChanges(ecsTable, type);

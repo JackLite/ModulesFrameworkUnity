@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using ModulesFramework;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -85,7 +85,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
                         table.SetDataObjects(_eid, _values.Values.ToList());
                     },
                     () => table.GetAt(index));
-                decorator.drawer.Draw($"{component.GetType().Name}", component, _foldout);
+                var type = component.GetType();
+                decorator.drawer.Draw($"{type.Name}", type, component, _foldout);
                 _decorators.Add(decorator);
             }
         }

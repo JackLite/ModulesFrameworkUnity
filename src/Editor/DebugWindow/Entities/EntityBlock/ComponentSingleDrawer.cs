@@ -1,4 +1,4 @@
-﻿using ModulesFramework;
+using ModulesFramework;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using System;
 using UnityEngine.UIElements;
@@ -40,6 +40,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
 
             _structsDrawer.OnChangeOpenState += OnOpenChanged;
+            _structsDrawer.Foldout.Q(className: Foldout.toggleUssClassName).Add(_componentControlPanel);
             root.Add(_componentContainer);
         }
 
