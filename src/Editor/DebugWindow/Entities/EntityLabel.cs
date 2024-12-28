@@ -59,7 +59,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 stringBuilder.Append("Entity");
             }
 
-            text = stringBuilder.ToString();
+            displayName = stringBuilder.ToString();
+            text = displayName;
         }
     }
 }
