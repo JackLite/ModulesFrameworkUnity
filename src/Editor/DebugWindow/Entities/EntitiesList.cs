@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -12,10 +13,11 @@ namespace ModulesFrameworkUnity.Debug.Entities
     /// <summary>
     ///     Controls list of entities in the left part of window
     /// </summary>
+    [Serializable]
     public class EntitiesList
     {
         private ScrollView _scrollView;
-        private TextField _searchField;
+        private EntitiesListSearch _searchField;
         private Label _entitiesCount;
         private readonly Dictionary<int, EntityLabel> _entityLabels = new();
         private readonly LinkedDictionary<int, int> _entities = new();
@@ -26,11 +28,15 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private EntityLabel _currentSelected;
 
         private bool _isFullName;
-        private string _componentsFilter = string.Empty;
+
+        [SerializeField]
+        public string componentsFilter = string.Empty;
+
+        [SerializeField]
         private string _listFilter = string.Empty;
 
         private bool FilterActive =>
-            !string.IsNullOrWhiteSpace(_componentsFilter)
+            !string.IsNullOrWhiteSpace(componentsFilter)
             || !string.IsNullOrWhiteSpace(_listFilter);
 
         public event Action<int> OnEntitySelected;
@@ -40,13 +46,12 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _isFullName = isFullName;
             if (_searchField == null)
             {
-                _searchField = new TextField();
-                _searchField.AddToClassList("modules--entities-list--search-field");
-                _searchField.RegisterValueChangedCallback(ev =>
+                _searchField = new EntitiesListSearch(_listFilter);
+                _searchField.OnInputChanged += searchStr =>
                 {
-                    _listFilter = ev.newValue;
+                    _listFilter = searchStr;
                     UpdateList();
-                });
+                };
             }
 
             if (_scrollView == null)
@@ -102,8 +107,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }, eid);
 
             _scrollView.Add(entityLabel);
-            UpdateList();
             UpdateEntityComponents(eid);
+            UpdateList();
         }
 
         public void OnEntityChanged(int eid)
@@ -183,7 +188,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         public void FilterByComponent(string componentName)
         {
-            _componentsFilter = componentName;
+            componentsFilter = componentName;
             Filter();
             UpdateVisibility();
         }
@@ -197,7 +202,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             foreach (var (eid, fullName) in _entityComponentsMap)
             {
                 var label = _entityLabels[eid];
-                var isInComponents = fullName.Contains(_componentsFilter, StringComparison.InvariantCultureIgnoreCase);
+                var isInComponents = fullName.Contains(componentsFilter, StringComparison.InvariantCultureIgnoreCase);
                 var isInList = label.displayName.Contains(_listFilter, StringComparison.InvariantCultureIgnoreCase);
                 if (isInComponents && isInList)
                 {

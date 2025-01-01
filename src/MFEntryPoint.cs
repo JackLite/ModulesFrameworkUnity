@@ -53,7 +53,8 @@ namespace ModulesFrameworkUnity
 
         protected virtual void OnDestroy()
         {
-            _adapter.OnDestroy();
+            if (_adapter != null)
+                _adapter.OnDestroy();
         }
     }
 }

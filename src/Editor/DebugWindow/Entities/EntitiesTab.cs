@@ -35,10 +35,6 @@ namespace ModulesFrameworkUnity.Debug.Entities
             var styles = Resources.Load<StyleSheet>("EntitiesTabUSS");
             _root.styleSheets.Add(styles);
 
-            _filter = new EntitiesNameFilter();
-            _filter.Draw();
-            _root.Add(_filter);
-            _filter.OnInputChanged += OnFilterName;
 
             _dataContainer = new TwoPaneSplitView();
             _dataContainer.fixedPaneInitialDimension = 200;
@@ -47,6 +43,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             _entitiesList.Draw(_dataContainer, debugSettings.entitiesFullName);
             _entitiesList.OnEntitySelected += OnEntitySelected;
+            DrawSearchField(_entitiesList.componentsFilter);
 
             _settings ??= new EntityDrawerSettings();
             _settings.Draw(_entityDrawer);
@@ -58,6 +55,15 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _pinnedComponents.Clear();
                 _pinnedComponents.AddRange(components);
             };
+        }
+
+        private void DrawSearchField(string currentFilter)
+        {
+            _filter = new EntitiesNameFilter();
+            _filter.Draw(currentFilter);
+            _filter.OnInputChanged += OnFilterName;
+            _root.Add(_filter);
+            _filter.SendToBack();
         }
 
         private void OnFilterName(string val)

@@ -39,8 +39,10 @@ namespace ModulesFrameworkUnity.Debug.Entities
             keepOpenToggle.SetValueWithoutNotify(isAlwaysOpen);
             keepOpenToggle.RegisterValueChangedCallback(ev =>
             {
+                #if !UNITY_6000_0_OR_NEWER
                 if (ev.propagationPhase != PropagationPhase.AtTarget)
                     return;
+                #endif
 
                 isAlwaysOpen = ev.newValue;
                 EditorPrefs.SetBool(DebugUtils.GetComponentOpenKey(_componentType), isAlwaysOpen);

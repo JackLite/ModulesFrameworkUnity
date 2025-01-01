@@ -6,12 +6,15 @@
 
 EntitiesNameFilter {
     min-height: 60px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    align-content: flex-start;
+    margin-right: 260px;
 }
 
 .modules--entities-tab--name-filter {
-    margin-right: 260px;
-    margin-top: 7px;
-    margin-left: 4px;
+    flex-grow: 1;
 }
 
 /* list */
@@ -24,9 +27,14 @@ EntitiesNameFilter {
     padding-top: 10px;
 }
 
-.modules--entities-list--search-field {
+EntitiesListSearch {
+    flex-direction: row;
     margin-right: 10px;
     margin-left: 5px;
+}
+
+.modules--entities-list--search-field {
+    flex-grow: 1;
 }
 
 .modules--entities-list ScrollView {
