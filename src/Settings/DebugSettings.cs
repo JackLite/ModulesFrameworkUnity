@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModulesFrameworkUnity.Settings
 {
@@ -10,6 +6,5 @@ namespace ModulesFrameworkUnity.Settings
     public class DebugSettings
     {
         public bool entitiesFullName;
-        public bool alwaysOpenComponents;
     }
 }

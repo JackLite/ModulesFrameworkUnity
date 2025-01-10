@@ -1,4 +1,5 @@
-﻿using ModulesFramework;
+﻿using System.Collections.Generic;
+using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.EntitiesTags;
@@ -6,6 +7,7 @@ using ModulesFrameworkUnity.Settings;
 using ModulesFrameworkUnity.Utils;
 using System.Globalization;
 using System.Threading.Tasks;
+using ModulesFrameworkUnity.EmptyEntities;
 using UnityEngine;
 #if MODULES_PERFORMANCE
 using System.Diagnostics;
@@ -22,6 +24,7 @@ namespace ModulesFrameworkUnity
         private readonly Stopwatch _stopwatch = new();
 #endif
         private readonly ModulesSettings _settings;
+        private readonly List<EmptyEntitiesService> _emptyEntitiesServices = new();
 
         public ModulesUnityAdapter(ModulesSettings settings)
         {
@@ -31,10 +34,8 @@ namespace ModulesFrameworkUnity
             _modules.MainWorld.OnEntityDestroyed += EntitiesTagStorage.Storage.RemoveEntity;
             if (_settings.deleteEmptyEntities)
             {
-                foreach (var dataWorld in _modules.Worlds)
-                {
-                    dataWorld.OnEntityChanged += (eid) => CheckEmptiness(dataWorld.GetEntity(eid));
-                }
+                foreach (var world in _modules.Worlds)
+                    _emptyEntitiesServices.Add(new EmptyEntitiesService(world));
             }
 
             _modules.MainWorld.SetLogger(new UnityLogger());
@@ -89,6 +90,8 @@ namespace ModulesFrameworkUnity
 #endif
 
             _modules.PostRun();
+            foreach (var service in _emptyEntitiesServices)
+                service.RemoveEmpty();
 
 #if MODULES_PERFORMANCE
             _stopwatch.Stop();
