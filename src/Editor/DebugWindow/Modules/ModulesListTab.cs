@@ -32,9 +32,10 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             Root.Clear();
             var filter = new UnityAssemblyFilter();
+            var currentWorld = DebugUtils.GetCurrentWorldName();
             var modules = AppDomain.CurrentDomain.GetAssemblies().Where(filter.Filter)
                 .SelectMany(a => a.GetTypes()
-                    .Where(t => t != typeof(EmbeddedGlobalModule) && ModuleUtil.GetWorldIndex(t).Contains(0))
+                    .Where(t => t != typeof(EmbeddedGlobalModule) && ModulesUtil.FilterModule(t, currentWorld))
                     .Where(t => t.IsSubclassOf(typeof(EcsModule)) && !t.IsAbstract)
                 )
                 .OrderBy(t => t.Name)
@@ -100,7 +101,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             foreach (var element in _elements)
             {
                 element.SetPlayMode();
-                var module = MF.World.GetModule(element.ModuleType);
+                var module = DebugUtils.GetCurrentWorld().GetModule(element.ModuleType);
                 module.OnInitialized += element.OnModuleInit;
                 module.OnActivated += element.OnModuleActivated;
                 module.OnDeactivated += element.OnModuleDeactivated;

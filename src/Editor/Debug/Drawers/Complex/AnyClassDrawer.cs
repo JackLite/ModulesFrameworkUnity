@@ -94,6 +94,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             if (_isNull)
                 return;
 
+            if (_foldout.value == false)
+                return;
+
             foreach (var fieldDrawer in _drawers)
             {
                 fieldDrawer.Update();

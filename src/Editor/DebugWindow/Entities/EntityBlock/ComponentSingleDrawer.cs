@@ -1,6 +1,7 @@
 using ModulesFramework;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using System;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -26,15 +27,15 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 mainDrawer,
                 (_, newValue) =>
                 {
-                    MF.World.GetEcsTable(_componentType).SetDataObject(_eid, newValue);
+                    DebugUtils.GetCurrentWorld().GetEcsTable(_componentType).SetDataObject(_eid, newValue);
                 },
-                () => MF.World.GetEcsTable(_componentType).GetDataObject(_eid));
+                () => DebugUtils.GetCurrentWorld().GetEcsTable(_componentType).GetDataObject(_eid));
 
             _structsDrawer.DrawHeader(_componentType.Name);
             _structsDrawer.SetOpenState(isOpen || isAlwaysOpen);
             if (isOpen || isAlwaysOpen)
             {
-                var val = MF.World.GetEcsTable(_componentType).GetDataObject(_eid);
+                var val = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType).GetDataObject(_eid);
                 _structsDrawer.DrawFields(val);
                 DebugEventBus.Update += Update;
             }
@@ -55,7 +56,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             ev.menu.AppendAction("Remove", a =>
             {
-                var table = MF.World.GetEcsTable(_componentType);
+                var table = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType);
                 table.Remove(_eid);
             });
         }
@@ -67,7 +68,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 DebugEventBus.Update += Update;
                 if (!_structsDrawer.IsDrawn)
                 {
-                    var val = MF.World.GetEcsTable(_componentType).GetDataObject(_eid);
+                    var val = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType).GetDataObject(_eid);
                     _structsDrawer.DrawFields(val);
                 }
             }

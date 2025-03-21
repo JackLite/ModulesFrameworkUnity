@@ -37,7 +37,6 @@ namespace ModulesFrameworkUnity
         {
             DrawTitle("Main");
             DrawStartMethod();
-            DrawWorldsCount();
             DrawLogType();
             DrawCheckEntity();
             DrawDebug();
@@ -110,14 +109,6 @@ namespace ModulesFrameworkUnity
                 "Delete empty entities",
                 "If true - when you remove last component from entity it will be destroyed");
             Settings.deleteEmptyEntities = EditorGUILayout.Toggle(content, Settings.deleteEmptyEntities);
-        }
-
-        private void DrawWorldsCount()
-        {
-            var label = new GUIContent("Worlds count");
-            var currentValue = Mathf.Clamp(Settings.worldsCount, 1, int.MaxValue);
-            var chosen = EditorGUILayout.IntField(label, currentValue);
-            Settings.worldsCount = chosen;
         }
 
         private void DrawTitle(string blockTitle)

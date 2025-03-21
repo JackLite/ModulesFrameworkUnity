@@ -57,7 +57,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             foreach (var node in _graph.Nodes)
             {
                 node.SetPlayMode();
-                var module = MF.World.GetModule(node.ModuleType);
+                var module = DebugUtils.GetCurrentWorld().GetModule(node.ModuleType);
                 module.OnInitialized += node.OnModuleInit;
                 module.OnActivated += node.OnModuleActivated;
                 module.OnDeactivated += node.OnModuleDeactivated;
@@ -73,9 +73,10 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             _root.Clear();
             var filter = new UnityAssemblyFilter();
+            var currentWorld = DebugUtils.GetCurrentWorldName();
             var modules = AppDomain.CurrentDomain.GetAssemblies().Where(filter.Filter)
                 .SelectMany(a => a.GetTypes()
-                    .Where(t => t != typeof(EmbeddedGlobalModule) && ModuleUtil.GetWorldIndex(t).Contains(0))
+                    .Where(t => t != typeof(EmbeddedGlobalModule) && ModulesUtil.FilterModule(t, currentWorld))
                     .Where(t => t.IsSubclassOf(typeof(EcsModule)) && !t.IsAbstract)
                 ).ToArray();
 

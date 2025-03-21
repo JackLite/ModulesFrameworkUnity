@@ -2,6 +2,7 @@ using ModulesFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -98,9 +99,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         private void CreateViewersForExisted()
         {
-            MF.World.OnOneDataCreated += OnCreated;
-            MF.World.OnOneDataRemoved += OnRemoved;
-            foreach (var data in MF.World.OneDataCollection)
+            foreach (var data in DebugUtils.GetCurrentWorld().OneDataCollection)
             {
                 OnCreated(data.GetDataObject().GetType(), data);
             }
@@ -135,11 +134,25 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         public void Show()
         {
             _root.style.display = DisplayStyle.Flex;
+            if (MF.IsInitialized)
+            {
+                DebugUtils.GetCurrentWorld().OnOneDataCreated += OnCreated;
+                DebugUtils.GetCurrentWorld().OnOneDataRemoved += OnRemoved;
+            }
         }
 
         public void Hide()
         {
             _root.style.display = DisplayStyle.None;
+            if (MF.IsInitialized)
+            {
+                DebugUtils.GetCurrentWorld().OnOneDataCreated -= OnCreated;
+                DebugUtils.GetCurrentWorld().OnOneDataRemoved -= OnRemoved;
+                foreach (var (_, d) in _drawers)
+                {
+                    d.SetVisible(false);
+                }
+            }
         }
 
         public void OnBeforeSerialize()
@@ -150,6 +163,18 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         public void OnAfterDeserialize()
         {
             _pinnedData = _pinnedSerializedData.ToHashSet();
+        }
+
+        public void Refresh()
+        {
+            _drawers.Clear();
+            if (!MF.IsInitialized)
+                return;
+
+            foreach (var data in DebugUtils.GetCurrentWorld().OneDataCollection)
+            {
+                OnCreated(data.GetDataObject().GetType(), data);
+            }
         }
     }
 }

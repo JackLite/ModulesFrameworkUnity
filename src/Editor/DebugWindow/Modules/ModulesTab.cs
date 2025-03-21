@@ -1,4 +1,5 @@
 ﻿using System;
+using ModulesFrameworkUnity.DebugWindow.Common;
 using ModulesFrameworkUnity.DebugWindow.Modules.Data;
 using UnityEngine.UIElements;
 
@@ -39,11 +40,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             this.StretchToParentSize();
 
-            if (_currentMode == ModulesTabMode.Graph)
-                _graphTab.Show();
-            else
-                _listTab.Show();
-            _modeSwitcher.Show(_currentMode);
+            Refresh();
             style.display = DisplayStyle.Flex;
         }
 
@@ -72,6 +69,15 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
             _modeSwitcher.UpdateMode(_currentMode);
             OnSwitchMode?.Invoke(_currentMode);
+        }
+
+        public void Refresh()
+        {
+            if (_currentMode == ModulesTabMode.Graph)
+                _graphTab.Show();
+            else
+                _listTab.Show();
+            _modeSwitcher.Show(_currentMode);
         }
     }
 }

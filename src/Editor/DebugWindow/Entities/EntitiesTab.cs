@@ -4,6 +4,7 @@ using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Settings;
 using System;
 using System.Collections.Generic;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -96,7 +97,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private void OnEntitySelected(int eid)
         {
-            var entity = MF.World.GetEntity(eid);
+            var entity = DebugUtils.GetCurrentWorld().GetEntity(eid);
             // no support multiple worlds for now
             if (!entity.IsAlive())
                 return;
@@ -117,25 +118,25 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private void Subscribe()
         {
-            MF.World.OnEntityCreated += OnCreated;
-            MF.World.OnEntityChanged += OnChanged;
-            MF.World.OnCustomIdChanged += OnCustomIdChanged;
-            MF.World.OnEntityDestroyed += OnDestroyed;
+            DebugUtils.GetCurrentWorld().OnEntityCreated += OnCreated;
+            DebugUtils.GetCurrentWorld().OnEntityChanged += OnChanged;
+            DebugUtils.GetCurrentWorld().OnCustomIdChanged += OnCustomIdChanged;
+            DebugUtils.GetCurrentWorld().OnEntityDestroyed += OnDestroyed;
             EntitiesTagStorage.Storage.OnTagChanged += _entitiesList.OnTagChanged;
         }
 
         private void Unsubscribe()
         {
-            MF.World.OnEntityCreated -= OnCreated;
-            MF.World.OnEntityChanged -= OnChanged;
-            MF.World.OnCustomIdChanged -= OnCustomIdChanged;
-            MF.World.OnEntityDestroyed -= OnDestroyed;
+            DebugUtils.GetCurrentWorld().OnEntityCreated -= OnCreated;
+            DebugUtils.GetCurrentWorld().OnEntityChanged -= OnChanged;
+            DebugUtils.GetCurrentWorld().OnCustomIdChanged -= OnCustomIdChanged;
+            DebugUtils.GetCurrentWorld().OnEntityDestroyed -= OnDestroyed;
             EntitiesTagStorage.Storage.OnTagChanged -= _entitiesList.OnTagChanged;
         }
 
         private void CreateViewersForExisted()
         {
-            foreach (var entity in MF.World.GetAliveEntities())
+            foreach (var entity in DebugUtils.GetCurrentWorld().GetAliveEntities())
             {
                 CreateDrawer(entity);
             }
@@ -143,7 +144,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         private void OnCreated(int eid)
         {
-            CreateDrawer(MF.World.GetEntity(eid));
+            CreateDrawer(DebugUtils.GetCurrentWorld().GetEntity(eid));
         }
 
         private void OnChanged(int eid)
@@ -164,10 +165,18 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private void CreateDrawer(Entity entity)
         {
             // only main world for now
-            if (entity.World != MF.World)
+            if (entity.World != DebugUtils.GetCurrentWorld())
                 return;
 
             _entitiesList.AddEntity(entity);
+        }
+
+        public void Refresh()
+        {
+            if (!MF.IsInitialized)
+                return;
+            _entitiesList.Reset();
+            CreateViewersForExisted();
         }
     }
 }

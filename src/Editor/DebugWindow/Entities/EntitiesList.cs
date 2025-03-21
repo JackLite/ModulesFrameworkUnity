@@ -4,6 +4,7 @@ using ModulesFrameworkUnity.Utils;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -59,7 +60,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _scrollView = new ScrollView();
                 _scrollView.focusable = true;
                 _scrollView.mode = ScrollViewMode.VerticalAndHorizontal;
-#if !UNITY_2022_1_OR_NEWER
+                #if !UNITY_2022_1_OR_NEWER
                 _scrollView.RegisterCallback((KeyDownEvent ev, EntitiesList list) =>
                 {
                     if (ev.target != _scrollView)
@@ -69,12 +70,12 @@ namespace ModulesFrameworkUnity.Debug.Entities
                     else if (ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.W)
                         list.OnNavigation(NavigationMoveEvent.Direction.Up);
                 }, this);
-#else
+                #else
                 _scrollView.RegisterCallback(
                     (NavigationMoveEvent ev, EntitiesList list) => list.OnNavigation(ev.direction),
                     this
                 );
-#endif
+                #endif
             }
 
             if (_entitiesCount == null)
@@ -163,13 +164,13 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private void UpdateEntityComponents(int eid)
         {
             _stringBuilder.Clear();
-            foreach (var componentType in MF.World.GetEntitySingleComponentsType(eid))
+            foreach (var componentType in DebugUtils.GetCurrentWorld().GetEntitySingleComponentsType(eid))
             {
                 _stringBuilder.Append("|");
                 _stringBuilder.Append(componentType.Name);
             }
 
-            foreach (var componentType in MF.World.GetEntityMultipleComponentsType(eid))
+            foreach (var componentType in DebugUtils.GetCurrentWorld().GetEntityMultipleComponentsType(eid))
             {
                 _stringBuilder.Append("|");
                 _stringBuilder.Append(componentType.Name);
@@ -265,6 +266,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _entityLabels.Clear();
             _entityComponentsMap.Clear();
             _scrollView.Clear();
+            _filtered.Clear();
+            _currentSelectedEid = -1;
         }
 
         public void OnTagChanged(int eid)

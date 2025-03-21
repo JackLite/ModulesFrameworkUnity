@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -139,7 +140,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         {
             if (!MF.IsInitialized)
                 return;
-            MF.World.RemoveOneData(type);
+            DebugUtils.GetCurrentWorld().RemoveOneData(type);
         }
 
         public void OnRemoveOneData(Type type)
@@ -275,7 +276,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             public OneDataLabel(Type type, bool isPinned)
             {
                 this.type = type;
-                var generation = MF.World.GetOneDataWrapper(type)?.generation ?? 0;
+                var generation = DebugUtils.GetCurrentWorld().GetOneDataWrapper(type)?.generation ?? 0;
                 label = new Label($"{type.Name} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]");
 
                 pinBtn = new Button();
@@ -297,7 +298,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
             public void UpdateText()
             {
-                var generation = MF.World.GetOneDataWrapper(type)?.generation ?? 0;
+                var generation = DebugUtils.GetCurrentWorld().GetOneDataWrapper(type)?.generation ?? 0;
                 label.text = $"{type.Name} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]";
             }
 

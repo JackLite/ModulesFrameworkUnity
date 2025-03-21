@@ -5,6 +5,7 @@ using ModulesFrameworkUnity.Debug.Entities.EntityBlock;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFrameworkUnity.Debug.Utils;
 using ModulesFrameworkUnity.DebugWindow.Entities.AddComponent;
 using UnityEditor.Graphs;
 using UnityEngine;
@@ -68,7 +69,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _singleComponents.Draw(isAllOpen);
             _multipleComponents.Draw(isAllOpen);
 
-            MF.World.OnEntityChanged += OnEntityChanged;
+            DebugUtils.GetCurrentWorld().OnEntityChanged += OnEntityChanged;
         }
 
         private void OnDestroyClick()
@@ -97,7 +98,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _entityButtons.style.display = DisplayStyle.None;
             _singleComponents?.Destroy();
             _multipleComponents?.Destroy();
-            MF.World.OnEntityChanged -= OnEntityChanged;
+            DebugUtils.GetCurrentWorld().OnEntityChanged -= OnEntityChanged;
         }
 
         private void OnEntityChanged(int eid)

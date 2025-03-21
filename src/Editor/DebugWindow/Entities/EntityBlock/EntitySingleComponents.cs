@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -35,7 +36,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         {
             _entity = entity;
             _components.Clear();
-            foreach (var componentType in MF.World.GetEntitySingleComponentsType(_entity.Id))
+            foreach (var componentType in DebugUtils.GetCurrentWorld().GetEntitySingleComponentsType(_entity.Id))
                 _components.Add(componentType);
         }
 
@@ -55,7 +56,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             _old.Clear();
             _new.Clear();
             _old.UnionWith(_components);
-            foreach (var componentType in MF.World.GetEntitySingleComponentsType(_entity.Id))
+            foreach (var componentType in DebugUtils.GetCurrentWorld().GetEntitySingleComponentsType(_entity.Id))
             {
                 if (!_old.Contains(componentType))
                     _new.Add(componentType);

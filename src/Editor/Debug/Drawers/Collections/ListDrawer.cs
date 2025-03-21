@@ -35,7 +35,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _container.Add(_foldout);
 
             DrawList(labelText, _foldout.contentContainer);
-
         }
 
         private void DrawAddBtn(string labelText)
@@ -85,6 +84,10 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             }
 
             _foldout.text = GetLabel();
+
+            if (_foldout.value == false)
+                return;
+
             foreach (var drawer in _drawers)
             {
                 drawer.Update();

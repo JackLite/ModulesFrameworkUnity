@@ -3,6 +3,7 @@ using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using System;
 using System.Globalization;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
@@ -16,7 +17,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         public OneDataDrawer(Type dataType, VisualElement root)
         {
-            var oneData = MF.World.GetOneDataWrapper(dataType);
+            var oneData = DebugUtils.GetCurrentWorld().GetOneDataWrapper(dataType);
             if (oneData == null)
             {
                 UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.Name} not found");
@@ -29,7 +30,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             var typeName = dataObject.GetType().Name;
             _structsDrawer.Init(drawer, (_, newVal) =>
             {
-                var dataWrapper = MF.World.GetOneDataWrapper(dataType);
+                var dataWrapper = DebugUtils.GetCurrentWorld().GetOneDataWrapper(dataType);
                 if (dataWrapper == null)
                     return;
                 var gen = $" [Gen {dataWrapper.generation.ToString(CultureInfo.InvariantCulture)}]";
@@ -39,7 +40,6 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
             _structsDrawer.Draw(typeName + gen, dataType, dataObject, root);
             _structsDrawer.SetOpenState(true);
-            DebugEventBus.Update += UpdateData;
             _structsDrawer.OnChangeOpenState += OnChanged;
         }
 
@@ -73,7 +73,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         public void UpdateWrapper(Type dataType, VisualElement root)
         {
-            var oneData = MF.World.GetOneDataWrapper(dataType);
+            var oneData = DebugUtils.GetCurrentWorld().GetOneDataWrapper(dataType);
             if (oneData == null)
             {
                 UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.Name} not found");

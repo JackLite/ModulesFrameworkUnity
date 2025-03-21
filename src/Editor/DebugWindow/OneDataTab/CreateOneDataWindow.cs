@@ -2,6 +2,7 @@ using ModulesFramework;
 using ModulesFrameworkUnity.DebugWindow.Common;
 using System;
 using System.Reflection;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -60,7 +61,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         // we need this wrapper because we cannot use ref-return methods by reflection
         private void CreateOneDataWrapper<T>(T data) where T : struct
         {
-            MF.World.CreateOneData(data);
+            DebugUtils.GetCurrentWorld().CreateOneData(data);
         }
     }
 }

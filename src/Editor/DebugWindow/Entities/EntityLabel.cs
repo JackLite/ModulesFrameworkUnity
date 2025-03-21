@@ -4,6 +4,7 @@ using ModulesFrameworkUnity.EntitiesTags;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -21,7 +22,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         public void UpdateName(StringBuilder stringBuilder, bool isFullName)
         {
             stringBuilder.Clear();
-            var ent = MF.World.GetEntity(eid);
+            var ent = DebugUtils.GetCurrentWorld().GetEntity(eid);
             var stringId = ent.Id.ToString(CultureInfo.InvariantCulture);
             stringBuilder.Append("[");
             stringBuilder.Append(stringId);
@@ -50,8 +51,8 @@ namespace ModulesFrameworkUnity.Debug.Entities
             }
             else if (isFullName)
             {
-                var simpleTypes = MF.World.GetEntitySingleComponentsType(eid).Select(t => t.Name);
-                var multipleTypes = MF.World.GetEntityMultipleComponentsType(eid).Select(t => t.Name);
+                var simpleTypes = DebugUtils.GetCurrentWorld().GetEntitySingleComponentsType(eid).Select(t => t.Name);
+                var multipleTypes = DebugUtils.GetCurrentWorld().GetEntityMultipleComponentsType(eid).Select(t => t.Name);
                 stringBuilder.Append(string.Join("-", simpleTypes.Union(multipleTypes)));
             }
             else

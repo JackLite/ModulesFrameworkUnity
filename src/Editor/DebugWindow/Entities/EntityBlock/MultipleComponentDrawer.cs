@@ -3,6 +3,7 @@ using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -38,7 +39,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 _foldout.SendToBack();
             }
 
-            var table = MF.World.GetEcsTable(_componentType);
+            var table = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType);
             var count = table.GetMultipleDataLength(_eid);
             _foldout.text = $"{_componentType.Name} ({count})";
             _foldout.value = isOpened || isAlwaysOpen;
@@ -70,7 +71,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
         private void DrawComponents()
         {
             _values.Clear();
-            var table = MF.World.GetEcsTable(_componentType);
+            var table = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType);
             table.GetDataObjects(_eid, _values);
 
             foreach (var (index, component) in _values)
@@ -99,7 +100,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         public void OnEntityChanged()
         {
-            var table = MF.World.GetEcsTable(_componentType);
+            var table = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType);
             var currentCount = table.GetMultipleDataLength(_eid);
             if (_decorators.Count == currentCount)
                 return;
@@ -158,7 +159,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             {
                 ev.menu.AppendAction("Remove", _ =>
                 {
-                    var table = MF.World.GetEcsTable(_componentType);
+                    var table = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType);
                     table.RemoveByDenseIndex(_eid, _index);
                 });
             }

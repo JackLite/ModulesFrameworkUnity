@@ -1,0 +1,12 @@
+.modules--debug-window--worlds-switcher {
+    position: absolute;
+    margin-top: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.modules--debug-window--worlds-switcher > .unity-popup-field__input {
+    height: 30px;
+    min-width: 100px;
+    padding-left: 10px;
+}

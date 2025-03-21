@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ModulesFramework;
+using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -140,27 +141,27 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         private void OnActivateClicked()
         {
-            var module = MF.World.GetModule(ModuleType);
+            var module = DebugUtils.GetCurrentWorld().GetModule(ModuleType);
             if (module.IsActive)
             {
-                MF.World.DeactivateModule(ModuleType);
+                DebugUtils.GetCurrentWorld().DeactivateModule(ModuleType);
             }
             else
             {
-                MF.World.ActivateModule(ModuleType);
+                DebugUtils.GetCurrentWorld().ActivateModule(ModuleType);
             }
         }
 
         private void OnInitClicked()
         {
-            var module = MF.World.GetModule(ModuleType);
+            var module = DebugUtils.GetCurrentWorld().GetModule(ModuleType);
             if (module.IsInitialized)
             {
-                MF.World.DestroyModule(ModuleType);
+                DebugUtils.GetCurrentWorld().DestroyModule(ModuleType);
             }
             else
             {
-                MF.World.InitModule(ModuleType);
+                DebugUtils.GetCurrentWorld().InitModule(ModuleType);
             }
         }
     }

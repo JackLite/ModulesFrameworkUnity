@@ -39,7 +39,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _foldout.text = $"{labelText} {_type.GetElementType().Name}[{_oldRef.Length}]";
 
             DrawArray(labelText, _elements);
-
         }
 
         public override void Update()
@@ -56,6 +55,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 _elements.Clear();
                 DrawArray(_fieldName, _elements);
             }
+
+            if (_foldout.value == false)
+                return;
 
             foreach (var drawer in _drawers)
             {

@@ -18,7 +18,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         public override bool CanDraw(Type type, object value)
         {
-
             return type.IsGenericType && typeof(IDictionary).IsAssignableFrom(type);
         }
 
@@ -48,7 +47,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             DrawDict(labelText);
 
             DrawAddBlock(labelText);
-
         }
 
         private void DrawAddBlock(string fieldName)
@@ -240,6 +238,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 _foldout.value = wasOpen;
                 return;
             }
+
+            if (_foldout.value == false)
+                return;
 
             foreach (var drawer in _drawers)
             {

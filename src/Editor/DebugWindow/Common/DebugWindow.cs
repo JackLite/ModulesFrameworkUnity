@@ -1,9 +1,15 @@
+using System;
+using System.Linq;
+using ModulesFramework;
+using ModulesFramework.Modules;
 using ModulesFrameworkUnity.Debug.Entities;
+using ModulesFrameworkUnity.Debug.Utils;
 using ModulesFrameworkUnity.DebugWindow.Data;
 using ModulesFrameworkUnity.DebugWindow.Modules;
 using ModulesFrameworkUnity.DebugWindow.Modules.Data;
 using ModulesFrameworkUnity.DebugWindow.OneDataTab;
 using ModulesFrameworkUnity.Settings;
+using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,6 +19,7 @@ namespace ModulesFrameworkUnity.DebugWindow
     public class DebugWindow : EditorWindow
     {
         private DebugWindowTabs _tabs;
+        private DebugWindowWorldsWidget _worldsWidget;
         private ModulesTab _modulesTab;
 
         [SerializeField]
@@ -27,6 +34,9 @@ namespace ModulesFrameworkUnity.DebugWindow
         [SerializeField]
         private DebugTabType _currentTab;
 
+        [SerializeField]
+        private string _currentWorldName;
+
         [MenuItem("Modules/Data Viewer")]
         private static void ShowWindow()
         {
@@ -37,6 +47,9 @@ namespace ModulesFrameworkUnity.DebugWindow
 
         private void OnEnable()
         {
+            var styleSheet = Resources.Load<StyleSheet>("Modules.DebugWindow");
+            rootVisualElement.styleSheets.Add(styleSheet);
+
             var debugSettings = ModulesSettings.Load().debugSettings;
             hideFlags = HideFlags.HideAndDontSave;
             if (EditorPrefs.HasKey("MF.ModulesTabMode") && _modulesTabMode == ModulesTabMode.Undefined)
@@ -60,7 +73,24 @@ namespace ModulesFrameworkUnity.DebugWindow
             _tabs.Draw(rootVisualElement);
             _tabs.SwitchTab += SwitchTab;
 
+            DrawWorldsWidget();
+
             ShowTab(_currentTab);
+        }
+
+        private void DrawWorldsWidget()
+        {
+            _worldsWidget ??= new DebugWindowWorldsWidget();
+            var allWorlds = DebugUtils.GetAllWorldNames();
+            _worldsWidget.Init(allWorlds, "Default");
+            _worldsWidget.RegisterValueChangedCallback(ev =>
+            {
+                DebugUtils.SetCurrentModule(ev.newValue);
+                _entitiesTab.Refresh();
+                _oneDataTab.Refresh();
+                _modulesTab.Refresh();
+            });
+            rootVisualElement.Add(_worldsWidget);
         }
 
         private void SwitchTab(DebugTabType type)

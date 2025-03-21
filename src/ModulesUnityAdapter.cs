@@ -30,7 +30,7 @@ namespace ModulesFrameworkUnity
         {
             _settings = settings;
             EntitiesTagStorage.Initialize();
-            _modules = new MF(settings.worldsCount, new UnityAssemblyFilter());
+            _modules = new MF(new UnityAssemblyFilter());
             _modules.MainWorld.OnEntityDestroyed += EntitiesTagStorage.Storage.RemoveEntity;
             if (_settings.deleteEmptyEntities)
             {
@@ -40,15 +40,6 @@ namespace ModulesFrameworkUnity
 
             _modules.MainWorld.SetLogger(new UnityLogger());
             _modules.MainWorld.SetLogType(_settings.logFilter);
-        }
-
-        public void StartDebug()
-        {
-            for (var i = 0; i < _settings.worldsCount; i++)
-            {
-                var debugViewer = new GameObject($"DebugViewer - World {i.ToString(CultureInfo.InvariantCulture)}");
-                debugViewer.AddComponent<DebugViewer>().Init(_modules.GetWorld(i));
-            }
         }
 
         public void Start()

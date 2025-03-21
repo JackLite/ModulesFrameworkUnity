@@ -29,7 +29,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             base.Init(drawer, onChanged, getter);
             Foldout.RegisterValueChangedCallback(ev =>
             {
-                OnChangeOpenState?.Invoke(ev.newValue);
+                if (ev.target == Foldout)
+                    OnChangeOpenState?.Invoke(ev.newValue);
             });
         }
 
@@ -60,18 +61,19 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
                 var innerFieldValue = fieldInfo.GetValue(value);
 
                 var getter = CreateGetter(fieldInfo, value.GetType());
-                var drawer = mainDrawer.Draw(fieldInfo.Name, fieldInfo.FieldType, innerFieldValue, Foldout, (_, newVal) =>
-                {
-                    var realValue = valueGetter();
-                    if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
+                var drawer = mainDrawer.Draw(fieldInfo.Name, fieldInfo.FieldType, innerFieldValue, Foldout,
+                    (_, newVal) =>
                     {
-                        UnityEngine.Debug.LogWarning($"{fieldInfo.Name} is const. You cannot change it");
-                        return;
-                    }
+                        var realValue = valueGetter();
+                        if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
+                        {
+                            UnityEngine.Debug.LogWarning($"{fieldInfo.Name} is const. You cannot change it");
+                            return;
+                        }
 
-                    fieldInfo.SetValue(realValue, newVal);
-                    valueChangedCb(realValue, realValue);
-                }, getter, Level + 1, false);
+                        fieldInfo.SetValue(realValue, newVal);
+                        valueChangedCb(realValue, realValue);
+                    }, getter, Level + 1, false);
 
                 if (fieldInfo.IsLiteral && !fieldInfo.IsInitOnly)
                     drawer.SetReadOnly(true);
@@ -101,6 +103,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
 
         public override void Update()
         {
+            if (Foldout.value == false)
+                return;
             foreach (var fieldDrawer in _drawers)
             {
                 fieldDrawer.Update();

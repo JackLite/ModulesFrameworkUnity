@@ -1,6 +1,7 @@
 using ModulesFramework;
 using ModulesFrameworkUnity.DebugWindow.Common;
 using System;
+using ModulesFrameworkUnity.Debug.Utils;
 using ModulesFrameworkUnity.EntitiesTags;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -16,7 +17,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
         public void Show(int eid)
         {
             _eid = eid;
-            var entity = MF.World.GetEntity(eid);
+            var entity = DebugUtils.GetCurrentWorld().GetEntity(eid);
             var tags = entity.GetEntityTagsAsString();
             var entityTitle = tags == string.Empty ? entity.GetCustomId() : tags;
             titleContent = new GUIContent($"Add component to {entityTitle}");
@@ -58,13 +59,13 @@ namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
 
         private void AddComponent(Type type, object component)
         {
-            MF.World.AddComponent(_eid, type, component);
+            DebugUtils.GetCurrentWorld().AddComponent(_eid, type, component);
             AddToRecent(type);
         }
 
         private void AddMultipleComponent(Type type, object component)
         {
-            MF.World.AddNewComponent(_eid, type, component);
+            DebugUtils.GetCurrentWorld().AddNewComponent(_eid, type, component);
             AddToRecent(type);
         }
     }
