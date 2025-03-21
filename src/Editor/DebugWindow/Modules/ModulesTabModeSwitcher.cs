@@ -28,6 +28,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                     marginLeft = 10
                 }
             };
+            _switchButton.AddToClassList("modules-tab--mode-switcher");
             _switchButton.clicked += () => OnSwitchClick?.Invoke();
             root.Add(_switchButton);
         }

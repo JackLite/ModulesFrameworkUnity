@@ -4,3 +4,11 @@ GridBackground {
     --thick-line-color: rgba(100, 100, 100, 0.3);
     --spacing: 10;
 }
+
+.graphView {
+    padding-top: 45px;
+}
+
+.graphView > VisualElement {
+    overflow: hidden;
+}

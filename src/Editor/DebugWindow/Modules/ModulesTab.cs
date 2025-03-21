@@ -1,6 +1,7 @@
 ﻿using System;
 using ModulesFrameworkUnity.DebugWindow.Common;
 using ModulesFrameworkUnity.DebugWindow.Modules.Data;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.Modules
@@ -19,6 +20,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public ModulesTab(ModulesTabMode mode)
         {
+            var styleSheet = Resources.Load<StyleSheet>("ModulesTabUSS");
+            styleSheets.Add(styleSheet);
             _currentMode = mode;
 
             _graphTab = new ModulesGraphTab();
@@ -28,7 +31,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
             _listTab = new ModulesListTab();
             Add(_listTab.Root);
-            _listTab.Root.StretchToParentSize();
+            _listTab.Root.AddToClassList("modules-tab--list");
             _listTab.Hide();
 
             _modeSwitcher = new ModulesTabModeSwitcher();
