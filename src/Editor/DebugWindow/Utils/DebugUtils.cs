@@ -5,6 +5,7 @@ using System.Reflection;
 using ModulesFramework;
 using ModulesFramework.Attributes;
 using ModulesFramework.Data;
+using ModulesFramework.Exceptions;
 using ModulesFramework.Modules;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
@@ -69,7 +70,18 @@ namespace ModulesFrameworkUnity.Debug.Utils
         public static DataWorld GetCurrentWorld()
         {
             var worldName = EditorPrefs.GetString(CurrentWorldKey, "Default");
-            return MF.GetWorld(worldName);
+            try
+            {
+                return MF.GetWorld(worldName);
+            }
+            catch (WorldNotFoundException)
+            {
+                UnityEngine.Debug.LogError($"[Modules.Debug] World {worldName} not found. " +
+                                           "Set current world to default");
+
+                EditorPrefs.SetString(CurrentWorldKey, "Default");
+                return MF.GetWorld("Default");
+            }
         }
 
         public static string GetCurrentWorldName()

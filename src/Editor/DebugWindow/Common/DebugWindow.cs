@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using ModulesFramework;
 using ModulesFramework.Modules;
+using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.Entities;
 using ModulesFrameworkUnity.Debug.Utils;
 using ModulesFrameworkUnity.DebugWindow.Data;
@@ -12,6 +13,7 @@ using ModulesFrameworkUnity.Settings;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow
@@ -78,14 +80,21 @@ namespace ModulesFrameworkUnity.DebugWindow
             ShowTab(_currentTab);
         }
 
+        private void Update()
+        {
+            if (_currentWorldName != DebugUtils.GetCurrentWorldName())
+                _worldsWidget.value = DebugUtils.GetCurrentWorldName();
+        }
+
         private void DrawWorldsWidget()
         {
             _worldsWidget ??= new DebugWindowWorldsWidget();
             var allWorlds = DebugUtils.GetAllWorldNames();
-            _worldsWidget.Init(allWorlds, "Default");
+            _worldsWidget.Init(allWorlds, DebugUtils.GetCurrentWorldName());
             _worldsWidget.RegisterValueChangedCallback(ev =>
             {
                 DebugUtils.SetCurrentModule(ev.newValue);
+                _currentWorldName = ev.newValue;
                 _entitiesTab.Refresh();
                 _oneDataTab.Refresh();
                 _modulesTab.Refresh();
