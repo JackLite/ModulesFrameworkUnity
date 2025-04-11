@@ -12,3 +12,11 @@ GridBackground {
 .graphView > VisualElement {
     overflow: hidden;
 }
+
+.modules-tab--graph--composed-of-container
+{
+    padding: 8px 0 8px 8px;
+    background-color: rgba(46, 46, 46, 0.8039);
+    border-bottom-color: #474747;
+    border-bottom-width: 1px;
+}

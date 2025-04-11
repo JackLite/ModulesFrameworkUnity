@@ -5,6 +5,7 @@ using ModulesFramework;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.Modules
 {
@@ -13,6 +14,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         private readonly List<ModuleNode> _submodules = new();
         private Vector2 _position;
         private readonly ModulesNodeTitle _modulesNodeTitle;
+        private VisualElement _composedOfContainer;
         public ModuleNode ParentModule { get; private set; }
 
         public float SelfHeight { get; private set; }
@@ -78,6 +80,22 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             _submodules.Add(childNode);
             childNode.SetParent(this);
+        }
+
+        public void AddComposed(string moduleName)
+        {
+            if (_composedOfContainer == null)
+            {
+                _composedOfContainer = new VisualElement();
+                _composedOfContainer.AddToClassList("modules-tab--graph--composed-of-container");
+                mainContainer.Add(_composedOfContainer);
+                _composedOfContainer.PlaceInFront(titleContainer);
+            }
+            var label = new Label
+            {
+                text = moduleName
+            };
+            _composedOfContainer.Add(label);
         }
 
         private void SetParent(ModuleNode parentNode)

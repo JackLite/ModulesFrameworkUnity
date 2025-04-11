@@ -78,17 +78,37 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 .SelectMany(a => a.GetTypes()
                     .Where(t => t != typeof(EmbeddedGlobalModule) && ModulesUtil.FilterModule(t, currentWorld))
                     .Where(t => t.IsSubclassOf(typeof(EcsModule)) && !t.IsAbstract)
-                ).ToArray();
+                ).ToList();
 
             _graph = new ModulesGraphView();
             _graph.StretchToParentSize();
+
+            var composedOfModules = new Dictionary<Type, List<Type>>();
+
+            // collect composed modules
+            foreach (var module in modules)
+            {
+                var tempInstance = (EcsModule)Activator.CreateInstance(module);
+                var composedModules = tempInstance.ComposedOf.ToList();
+                if (composedModules.Count > 0)
+                    composedOfModules.Add(module, composedModules);
+            }
+
+            modules.RemoveAll(m => composedOfModules.Values.SelectMany(m => m).Contains(m));
 
             // first, create usual modules because they may not have submodules
             foreach (var module in modules)
             {
                 if (module.GetCustomAttribute<SubmoduleAttribute>() != null)
                     continue;
-                _graph.AddModule(module, 0).RefreshWidth();
+                var node = _graph.AddModule(module, 0);
+                if (composedOfModules.TryGetValue(module, out var composedModules))
+                {
+                    foreach (var composedModule in composedModules)
+                        node.AddComposed(composedModule.Name);
+                }
+
+                node.RefreshWidth();
             }
 
             // find all submodules
