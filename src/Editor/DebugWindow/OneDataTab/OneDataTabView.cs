@@ -31,7 +31,6 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         public void Draw(VisualElement root)
         {
-            EditorApplication.playModeStateChanged += OnPlayModeChanges;
             _root = root;
             _root.AddToClassList("modules--one-data-tab");
             var styles = Resources.Load<StyleSheet>("OneDataTabUSS");
@@ -85,6 +84,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         {
             if (change == PlayModeStateChange.EnteredPlayMode)
             {
+                Subscribe();
                 CreateViewersForExisted();
             }
         }
@@ -134,25 +134,37 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         public void Show()
         {
             _root.style.display = DisplayStyle.Flex;
+            EditorApplication.playModeStateChanged += OnPlayModeChanges;
+
             if (MF.IsInitialized)
-            {
-                DebugUtils.GetCurrentWorld().OnOneDataCreated += OnCreated;
-                DebugUtils.GetCurrentWorld().OnOneDataRemoved += OnRemoved;
-            }
+                Subscribe();
         }
 
         public void Hide()
         {
             _root.style.display = DisplayStyle.None;
+            EditorApplication.playModeStateChanged -= OnPlayModeChanges;
+
             if (MF.IsInitialized)
             {
-                DebugUtils.GetCurrentWorld().OnOneDataCreated -= OnCreated;
-                DebugUtils.GetCurrentWorld().OnOneDataRemoved -= OnRemoved;
+                UnSubscribe();
                 foreach (var (_, d) in _drawers)
                 {
                     d.SetVisible(false);
                 }
             }
+        }
+
+        private void Subscribe()
+        {
+            DebugUtils.GetCurrentWorld().OnOneDataCreated += OnCreated;
+            DebugUtils.GetCurrentWorld().OnOneDataRemoved += OnRemoved;
+        }
+
+        private void UnSubscribe()
+        {
+            DebugUtils.GetCurrentWorld().OnOneDataCreated -= OnCreated;
+            DebugUtils.GetCurrentWorld().OnOneDataRemoved -= OnRemoved;
         }
 
         public void OnBeforeSerialize()
