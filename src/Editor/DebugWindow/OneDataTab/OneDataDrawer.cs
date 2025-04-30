@@ -3,6 +3,7 @@ using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using System;
 using System.Globalization;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
@@ -20,14 +21,14 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             var oneData = DebugUtils.GetCurrentWorld().GetOneDataWrapper(dataType);
             if (oneData == null)
             {
-                UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.Name} not found");
+                UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.GetTypeName()} not found");
                 return;
             }
 
             _structsDrawer = new StructsDrawer();
             var drawer = new EditorDrawer();
             var dataObject = oneData.GetDataObject();
-            var typeName = dataObject.GetType().Name;
+            var typeName = dataObject.GetType().GetTypeName();
             _structsDrawer.Init(drawer, (_, newVal) =>
             {
                 var dataWrapper = DebugUtils.GetCurrentWorld().GetOneDataWrapper(dataType);
@@ -76,7 +77,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             var oneData = DebugUtils.GetCurrentWorld().GetOneDataWrapper(dataType);
             if (oneData == null)
             {
-                UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.Name} not found");
+                UnityEngine.Debug.LogError($"[Modules.Debug] OneData {dataType.GetTypeName()} not found");
                 return;
             }
 

@@ -3,6 +3,7 @@ using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
@@ -41,7 +42,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
             var table = DebugUtils.GetCurrentWorld().GetEcsTable(_componentType);
             var count = table.GetMultipleDataLength(_eid);
-            _foldout.text = $"{_componentType.Name} ({count})";
+            _foldout.text = $"{_componentType.GetTypeName()} ({count})";
             _foldout.value = isOpened || isAlwaysOpen;
 
             root.Add(_componentContainer);
@@ -87,7 +88,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                     },
                     () => table.GetAt(index));
                 var type = component.GetType();
-                decorator.drawer.Draw($"{type.Name}", type, component, _foldout);
+                decorator.drawer.Draw($"{type.GetTypeName()}", type, component, _foldout);
                 _decorators.Add(decorator);
             }
         }
@@ -106,7 +107,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 return;
 
             Reset();
-            _foldout.text = $"{_componentType.Name} ({currentCount})";
+            _foldout.text = $"{_componentType.GetTypeName()} ({currentCount})";
             DrawComponents();
         }
 

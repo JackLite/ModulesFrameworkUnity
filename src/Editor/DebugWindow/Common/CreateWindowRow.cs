@@ -1,4 +1,5 @@
 using System;
+using ModulesFramework.Utils.Types;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
@@ -22,7 +23,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
         public void Init(Type type)
         {
             this.type = type;
-            _label.text = type.Name;
+            _label.text = type.GetTypeName();
             tooltip = type.FullName;
         }
     }

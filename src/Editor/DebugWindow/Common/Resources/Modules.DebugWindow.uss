@@ -10,3 +10,21 @@
     min-width: 100px;
     padding-left: 10px;
 }
+
+.modules--debug-window--tabs-panel {
+    flex-direction: row;
+    margin: 5px 5px 0 0;
+    padding: 5px;
+    background-color: #646464;
+    justify-content: space-around;
+    position: absolute;
+    align-self: flex-end;
+}
+
+.modules--debug-window--rise-event-btn {
+    background-color: #333333;
+}
+
+.modules--debug-window--rise-event-btn:hover {
+    background-color: #646464;
+}

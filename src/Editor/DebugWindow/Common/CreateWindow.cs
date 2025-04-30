@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ModulesFramework.Utils.Types;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -24,13 +25,14 @@ namespace ModulesFrameworkUnity.DebugWindow.Common
         protected List<Type> _allTypes = new List<Type>();
         protected List<string> _recentTypes = new();
         protected readonly List<CreateWindowRow> _rows = new List<CreateWindowRow>();
-        protected readonly EditorDrawer _mainDrawer = new EditorDrawer();
-        protected VisualElement _newComponentContainer;
+        protected EditorDrawer _mainDrawer;
+        protected VisualElement _newStructContainer;
         protected ScrollView _mainContainer;
 
         public virtual void ShowWindow()
         {
             var styles = Resources.Load<StyleSheet>("AddComponentWindow");
+            _mainDrawer = new EditorDrawer();
             _mainContainer = new ScrollView();
             _mainContainer.styleSheets.Add(styles);
             _mainContainer.AddToClassList("modules-debug--add-component");
@@ -124,7 +126,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Common
             var drawer = new StructsDrawer();
             drawer.Init(_mainDrawer, (_, newVal) => { newComponent = newVal; }, () => newComponent);
             drawer.SetVisible(true);
-            drawer.Draw($"{type.Name} (new)", type, newComponent, parent);
+            drawer.Draw($"{type.GetTypeName()} (new)", type, newComponent, parent);
             drawer.Foldout.AddToClassList("modules-debug--add-component--component-drawer");
             drawer.Foldout.Q(className: Foldout.inputUssClassName).pickingMode = PickingMode.Ignore;
             drawer.Foldout.Q(className: Foldout.toggleUssClassName).pickingMode = PickingMode.Ignore;
@@ -135,7 +137,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Common
         private void OnSearch(string newValue)
         {
             ResetRows();
-            _newComponentContainer?.Clear();
+            _newStructContainer?.Clear();
 
             if (string.IsNullOrEmpty(newValue))
             {
@@ -146,7 +148,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Common
             var filtered = new List<Type>(MaxSearchResults);
             foreach (var type in _allTypes)
             {
-                if (type.Name.Contains(newValue, StringComparison.InvariantCultureIgnoreCase))
+                if (type.GetTypeName().Contains(newValue, StringComparison.InvariantCultureIgnoreCase))
                     filtered.Add(type);
                 if (filtered.Count == filtered.Capacity)
                     break;

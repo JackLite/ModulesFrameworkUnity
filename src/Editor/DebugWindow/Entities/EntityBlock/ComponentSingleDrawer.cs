@@ -1,6 +1,7 @@
 using ModulesFramework;
 using ModulesFrameworkUnity.Debug.Drawers.Complex;
 using System;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
@@ -31,7 +32,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 },
                 () => DebugUtils.GetCurrentWorld().GetEcsTable(_componentType).GetDataObject(_eid));
 
-            _structsDrawer.DrawHeader(_componentType.Name);
+            _structsDrawer.DrawHeader(_componentType.GetTypeName());
             _structsDrawer.SetOpenState(isOpen || isAlwaysOpen);
             if (isOpen || isAlwaysOpen)
             {

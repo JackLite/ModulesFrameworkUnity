@@ -27,22 +27,22 @@ namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
 
         protected override void OnChoose(Type type)
         {
-            if (_newComponentContainer == null)
+            if (_newStructContainer == null)
             {
-                _newComponentContainer = new VisualElement();
-                _mainContainer.Add(_newComponentContainer);
-                _newComponentContainer.AddToClassList("modules-debug--add-component--new-component");
+                _newStructContainer = new VisualElement();
+                _mainContainer.Add(_newStructContainer);
+                _newStructContainer.AddToClassList("modules-debug--add-component--new-component");
             }
             else
             {
-                _newComponentContainer.Clear();
+                _newStructContainer.Clear();
             }
             var newComponent = Activator.CreateInstance(type);
-            DrawNewStruct(type, newComponent, _newComponentContainer);
+            DrawNewStruct(type, newComponent, _newStructContainer);
 
             var addButtonsContainer = new VisualElement();
             addButtonsContainer.AddToClassList("modules-debug--add-component--component-buttons");
-            _newComponentContainer.Add(addButtonsContainer);
+            _newStructContainer.Add(addButtonsContainer);
 
             var addBtn = new Button();
             addBtn.text = "Add";

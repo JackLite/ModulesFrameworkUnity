@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFramework.Utils.Types;
 using UnityEngine;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
@@ -68,7 +69,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             }
 
             var keyType = _newKeys[cacheKey].GetType();
-            mainDrawer.Draw($"New key [{keyType.Name}]", keyType, _newKeys[cacheKey], _addBlock, (_, newVal) =>
+            mainDrawer.Draw($"New key [{keyType.GetTypeName()}]", keyType, _newKeys[cacheKey], _addBlock, (_, newVal) =>
             {
                 _newKeys[cacheKey] = newVal;
             }, () => _newKeys[cacheKey], Level + 1, false);
@@ -79,7 +80,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var valueType = _oldRef.GetType().GetGenericArguments()[1];
                 if (!valueType.IsValueType && valueType.GetConstructor(Type.EmptyTypes) == null)
                 {
-                    UnityEngine.Debug.LogError($"There is no parameterless constructor for {valueType.Name}");
+                    UnityEngine.Debug.LogError($"There is no parameterless constructor for {valueType.GetTypeName()}");
                     return;
                 }
 
@@ -113,7 +114,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                     var valueType = _oldRef.GetType().GetGenericArguments()[1];
                     if (!valueType.IsValueType && valueType.GetConstructor(Type.EmptyTypes) == null)
                     {
-                        UnityEngine.Debug.LogError($"There is no parameterless constructor for {valueType.Name}");
+                        UnityEngine.Debug.LogError($"There is no parameterless constructor for {valueType.GetTypeName()}");
                         return;
                     }
 

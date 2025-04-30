@@ -7,6 +7,7 @@ using ModulesFramework.Attributes;
 using ModulesFramework.Data;
 using ModulesFramework.Exceptions;
 using ModulesFramework.Modules;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 
@@ -18,7 +19,7 @@ namespace ModulesFrameworkUnity.Debug.Utils
 
         public static string GetComponentOpenKey(Type componentType)
         {
-            return $"modules-is-component-open-{componentType.Name}";
+            return $"modules-is-component-open-{componentType.GetTypeName()}";
         }
 
         public static int GetModuleOrder(Type moduleType)

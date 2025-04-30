@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFramework.Utils.Types;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -79,7 +80,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         {
             var roots = _nodes.Values.Where(n => n.Level == 0)
                 .OrderBy(n => n.SubmodulesCount)
-                .ThenBy(n => n.ModuleType.Name);
+                .ThenBy(n => n.ModuleType.GetTypeName());
             foreach (var node in roots)
             {
                 node.SetY(_rowY[0]);
@@ -91,7 +92,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         private void AlignNodesSecondStep()
         {
-            foreach (var node in _nodes.Values.OrderByDescending(n => n.Level).ThenBy(n => n.ModuleType.Name))
+            foreach (var node in _nodes.Values.OrderByDescending(n => n.Level).ThenBy(n => n.ModuleType.GetTypeName()))
             {
                 var diff = node.CalculateChildrenOffset();
                 if (node.ParentModule == null)

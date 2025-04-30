@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -184,7 +185,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
         {
             var sorted = _dataLabels.Values
                 .OrderByDescending(label => _pinnedData.Contains(label.type.FullName))
-                .ThenBy(label => label.type.Name);
+                .ThenBy(label => label.type.GetTypeName());
             OneDataLabel lastPinned = null;
             foreach (var label in sorted)
             {
@@ -213,7 +214,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             _filtered.Clear();
             foreach (var (type, _) in _dataLabels)
             {
-                if (type.Name.Contains(_currentFilter, StringComparison.InvariantCultureIgnoreCase))
+                if (type.GetTypeName().Contains(_currentFilter, StringComparison.InvariantCultureIgnoreCase))
                     _filtered.Add(type);
             }
         }
@@ -277,7 +278,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             {
                 this.type = type;
                 var generation = DebugUtils.GetCurrentWorld().GetOneDataWrapper(type)?.generation ?? 0;
-                label = new Label($"{type.Name} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]");
+                label = new Label($"{type.GetTypeName()} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]");
 
                 pinBtn = new Button();
                 SetPinned(isPinned);
@@ -299,7 +300,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             public void UpdateText()
             {
                 var generation = DebugUtils.GetCurrentWorld().GetOneDataWrapper(type)?.generation ?? 0;
-                label.text = $"{type.Name} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]";
+                label.text = $"{type.GetTypeName()} [Gen {generation.ToString(CultureInfo.InvariantCulture)}]";
             }
 
             public void SetPinned(bool isPinned)

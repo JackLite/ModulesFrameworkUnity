@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ModulesFramework;
 using ModulesFramework.Data;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEngine.UIElements;
 
@@ -103,7 +104,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
                 drawer = new MultipleComponentDrawer(componentType, _mainDrawer);
                 _componentDrawers[componentType] = drawer;
                 drawer.OnPin += () => UpdatePinStatus(componentType);
-                drawer.SetPinned(pinnedComponents.Contains(componentType.Name));
+                drawer.SetPinned(pinnedComponents.Contains(componentType.GetTypeName()));
             }
 
             drawer.Destroy();

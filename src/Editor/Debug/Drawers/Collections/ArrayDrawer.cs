@@ -1,5 +1,6 @@
 using ModulesFrameworkUnity.Debug.Drawers.Widgets;
 using System;
+using ModulesFramework.Utils.Types;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -124,7 +125,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
         protected override string GetTypeLabel()
         {
             var elementType = _type.GetElementType();
-            return $"{elementType.Name}[]";
+            return $"{elementType.GetTypeName()}[]";
         }
     }
 }

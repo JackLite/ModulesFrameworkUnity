@@ -4,6 +4,7 @@ using ModulesFrameworkUnity.Utils;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -167,13 +168,13 @@ namespace ModulesFrameworkUnity.Debug.Entities
             foreach (var componentType in DebugUtils.GetCurrentWorld().GetEntitySingleComponentsType(eid))
             {
                 _stringBuilder.Append("|");
-                _stringBuilder.Append(componentType.Name);
+                _stringBuilder.Append(componentType.GetTypeName());
             }
 
             foreach (var componentType in DebugUtils.GetCurrentWorld().GetEntityMultipleComponentsType(eid))
             {
                 _stringBuilder.Append("|");
-                _stringBuilder.Append(componentType.Name);
+                _stringBuilder.Append(componentType.GetTypeName());
             }
 
             _entityComponentsMap[eid] = _stringBuilder.ToString();

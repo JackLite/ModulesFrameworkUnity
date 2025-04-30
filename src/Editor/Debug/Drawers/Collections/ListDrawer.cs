@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ModulesFramework.Utils.Types;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -54,7 +55,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 }
                 else if (!innerType.IsValueType && innerType.GetConstructor(Type.EmptyTypes) == null)
                 {
-                    UnityEngine.Debug.LogError($"There is no parameterless constructor for {innerType.Name}");
+                    UnityEngine.Debug.LogError($"There is no parameterless constructor for {innerType.GetTypeName()}");
                 }
                 else
                 {

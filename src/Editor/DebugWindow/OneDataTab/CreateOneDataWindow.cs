@@ -20,22 +20,22 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         protected override void OnChoose(Type type)
         {
-            if (_newComponentContainer == null)
+            if (_newStructContainer == null)
             {
-                _newComponentContainer = new VisualElement();
-                _mainContainer.Add(_newComponentContainer);
-                _newComponentContainer.AddToClassList("modules-debug--add-component--new-component");
+                _newStructContainer = new VisualElement();
+                _mainContainer.Add(_newStructContainer);
+                _newStructContainer.AddToClassList("modules-debug--add-component--new-component");
             }
             else
             {
-                _newComponentContainer.Clear();
+                _newStructContainer.Clear();
             }
             var newData = Activator.CreateInstance(type);
-            DrawNewStruct(type, newData, _newComponentContainer);
+            DrawNewStruct(type, newData, _newStructContainer);
 
             var createBtnContainer = new VisualElement();
             createBtnContainer.AddToClassList("modules-debug--add-component--component-buttons");
-            _newComponentContainer.Add(createBtnContainer);
+            _newStructContainer.Add(createBtnContainer);
 
             var createBtn = new Button();
             createBtn.text = "Create";

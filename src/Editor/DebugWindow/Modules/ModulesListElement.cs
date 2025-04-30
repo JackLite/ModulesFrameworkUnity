@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ModulesFramework;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -85,7 +86,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         public void SetModule(Type moduleType)
         {
             ModuleType = moduleType;
-            _foldout.text = moduleType.Name + " ";
+            _foldout.text = moduleType.GetTypeName() + " ";
         }
 
         public void AddChild(ModulesListElement child)

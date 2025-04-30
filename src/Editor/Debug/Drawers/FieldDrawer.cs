@@ -1,6 +1,7 @@
 using ModulesFrameworkUnity.Debug.Drawers.Special;
 using ModulesFrameworkUnity.Debug.Drawers.Widgets;
 using System;
+using ModulesFramework.Utils.Types;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -101,7 +102,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
 
         protected virtual string GetTypeLabel()
         {
-            return _type.Name;
+            return _type.GetTypeName();
         }
     }
 

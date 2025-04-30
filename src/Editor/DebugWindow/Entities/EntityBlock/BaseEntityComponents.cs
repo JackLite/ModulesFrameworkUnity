@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFramework.Utils.Types;
 using UnityEngine.UIElements;
 
 namespace ModulesFrameworkUnity.Debug.Entities
@@ -21,14 +22,14 @@ namespace ModulesFrameworkUnity.Debug.Entities
 
         protected void UpdatePinStatus(Type componentType)
         {
-            if (pinnedComponents.Contains(componentType.Name))
+            if (pinnedComponents.Contains(componentType.GetTypeName()))
             {
-                pinnedComponents.Remove(componentType.Name);
+                pinnedComponents.Remove(componentType.GetTypeName());
                 GetDrawer(componentType).SetPinned(false);
             }
             else
             {
-                pinnedComponents.Add(componentType.Name);
+                pinnedComponents.Add(componentType.GetTypeName());
                 GetDrawer(componentType).SetPinned(true);
             }
 
