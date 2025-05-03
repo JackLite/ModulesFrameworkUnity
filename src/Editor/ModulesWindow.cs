@@ -1,6 +1,8 @@
+using System;
 using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace ModulesFrameworkUnity
@@ -82,21 +84,28 @@ namespace ModulesFrameworkUnity
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
 
+            if (EditorApplication.isCompiling)
+            {
+                GUILayout.Label("Compiling...");
+            }
+            else
+            {
 #if MODULES_PERFORMANCE
-            if (GUILayout.Button("Turn off performance monitor"))
-                ScriptDefineUtils.Remove("MODULES_PERFORMANCE");
+                if (GUILayout.Button("Turn off performance monitor"))
+                    ScriptDefineUtils.Remove("MODULES_PERFORMANCE");
 #else
-            if (GUILayout.Button("Turn on performance monitor"))
-                ScriptDefineUtils.Add("MODULES_PERFORMANCE");
+                if (GUILayout.Button("Turn on performance monitor"))
+                    ScriptDefineUtils.Add("MODULES_PERFORMANCE");
 #endif
 
 #if MODULES_DEBUG
-            if (GUILayout.Button("Turn off debug"))
-                ScriptDefineUtils.Remove("MODULES_DEBUG");
+                if (GUILayout.Button("Turn off debug"))
+                    ScriptDefineUtils.Remove("MODULES_DEBUG");
 #else
-            if (GUILayout.Button("Turn on debug"))
-                ScriptDefineUtils.Add("MODULES_DEBUG");
+                if (GUILayout.Button("Turn on debug"))
+                    ScriptDefineUtils.Add("MODULES_DEBUG");
 #endif
+            }
 
             EditorGUILayout.EndHorizontal();
 

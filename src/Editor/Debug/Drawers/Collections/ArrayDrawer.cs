@@ -24,7 +24,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             parent.Add(_container);
             _foldout = new Foldout
             {
-                text = $"{labelText} {_type.GetElementType().Name}[0]",
+                text = $"{labelText} {_type.GetElementType().GetTypeName()}[0]",
                 value = false,
             };
 
@@ -37,7 +37,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
             _oldRef = (Array)fieldValue;
 
-            _foldout.text = $"{labelText} {_type.GetElementType().Name}[{_oldRef.Length}]";
+            _foldout.text = $"{labelText} {_type.GetElementType().GetTypeName()}[{_oldRef.Length}]";
 
             DrawArray(labelText, _elements);
         }
@@ -48,7 +48,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             if (_isNull)
                 return;
             var array = (Array)valueGetter();
-            _foldout.text = $"{_fieldName} {_type.GetElementType().Name}[{_oldRef.Length}]";
+            _foldout.text = $"{_fieldName} {_type.GetElementType().GetTypeName()}[{_oldRef.Length}]";
 
             if (!ReferenceEquals(_oldRef, array))
             {

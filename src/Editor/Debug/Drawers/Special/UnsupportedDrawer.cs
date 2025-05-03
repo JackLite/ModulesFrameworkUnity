@@ -1,4 +1,5 @@
 using System;
+using ModulesFramework.Utils.Types;
 using UnityEngine.UIElements;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
@@ -15,7 +16,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Special
 
         protected override void Draw(string labelText, object value, VisualElement parent)
         {
-            var label = new Label($"{value.GetType().Name} is not supported. You can create your own drawer");
+            var label = new Label($"{value.GetType().GetTypeName()} is not supported. You can create your own drawer");
             parent.Add(label);
         }
 

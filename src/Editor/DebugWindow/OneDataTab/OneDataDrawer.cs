@@ -84,7 +84,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             _structsDrawer.Reset();
             _structsDrawer.SetGetter(oneData.GetDataObject);
             var dataObject = oneData.GetDataObject();
-            var typeName = dataObject.GetType().Name;
+            var typeName = dataObject.GetType().GetTypeName();
             var gen = $" [Gen {oneData.generation.ToString(CultureInfo.InvariantCulture)}]";
             _structsDrawer.Draw(typeName + gen, dataType, dataObject, root);
         }
