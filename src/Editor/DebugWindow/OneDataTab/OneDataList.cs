@@ -308,5 +308,10 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
                 pinBtn.text = isPinned ? "Unpin" : "Pin";
             }
         }
+
+        public void Reset()
+        {
+            _scrollView.Clear();
+        }
     }
 }

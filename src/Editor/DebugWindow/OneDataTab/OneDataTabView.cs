@@ -17,11 +17,9 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
     {
         private Dictionary<Type, OneDataDrawer> _drawers = new();
 
-        [SerializeField]
-        private string _searchStr;
+        [SerializeField] private string _searchStr;
 
-        [SerializeField]
-        private List<string> _pinnedSerializedData = new();
+        [SerializeField] private List<string> _pinnedSerializedData = new();
 
         private HashSet<string> _pinnedData = new();
 
@@ -136,8 +134,14 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             _root.style.display = DisplayStyle.Flex;
             EditorApplication.playModeStateChanged += OnPlayModeChanges;
 
-            if (MF.IsInitialized)
-                Subscribe();
+            if (!MF.IsInitialized)
+                return;
+
+            Subscribe();
+            if (Application.isPlaying)
+            {
+               Refresh();
+            }
         }
 
         public void Hide()
