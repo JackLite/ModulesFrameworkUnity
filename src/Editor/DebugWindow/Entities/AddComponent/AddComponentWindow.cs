@@ -1,4 +1,3 @@
-using ModulesFramework;
 using ModulesFrameworkUnity.DebugWindow.Common;
 using System;
 using ModulesFrameworkUnity.Debug.Utils;
@@ -25,35 +24,22 @@ namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
             base.ShowWindow();
         }
 
-        protected override void OnChoose(Type type)
+        protected override void OnCreateStruct(Type type, object data)
         {
-            if (_newStructContainer == null)
-            {
-                _newStructContainer = new VisualElement();
-                _mainContainer.Add(_newStructContainer);
-                _newStructContainer.AddToClassList("modules-debug--add-component--new-component");
-            }
-            else
-            {
-                _newStructContainer.Clear();
-            }
-            var newComponent = Activator.CreateInstance(type);
-            DrawNewStruct(type, newComponent, _newStructContainer);
-
             var addButtonsContainer = new VisualElement();
-            addButtonsContainer.AddToClassList("modules-debug--add-component--component-buttons");
+            addButtonsContainer.AddToClassList("modules-debug--create-struct--component-buttons");
             _newStructContainer.Add(addButtonsContainer);
 
             var addBtn = new Button();
             addBtn.text = "Add";
-            addBtn.clicked += () => AddComponent(type, newComponent);
-            addBtn.AddToClassList("modules-debug--add-component--component-add");
+            addBtn.clicked += () => AddComponent(type, data);
+            addBtn.AddToClassList("modules-debug--create-struct--component-add");
             addButtonsContainer.Add(addBtn);
 
             var addMultipleBtn = new Button();
             addMultipleBtn.text = "Add as multiple";
-            addMultipleBtn.clicked += () => AddMultipleComponent(type, newComponent);
-            addMultipleBtn.AddToClassList("modules-debug--add-component--component-add");
+            addMultipleBtn.clicked += () => AddMultipleComponent(type, data);
+            addMultipleBtn.AddToClassList("modules-debug--create-struct--component-add");
             addButtonsContainer.Add(addMultipleBtn);
         }
 

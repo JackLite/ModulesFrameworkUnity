@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 #if !UNITY_2022_1_OR_NEWER
 using UnityEditor.UIElements;
 #endif
@@ -41,6 +43,17 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 _foldout.Clear();
                 Draw(_fieldName, valueGetter(), _container);
             }
+        }
+
+        protected virtual object CreateNewInsideCollection(Type type)
+        {
+            if (type == typeof(string))
+                return string.Empty;
+
+            if (typeof(Object).IsAssignableFrom(type))
+                return null;
+
+            return Activator.CreateInstance(type);
         }
     }
 }

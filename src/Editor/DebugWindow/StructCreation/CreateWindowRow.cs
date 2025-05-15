@@ -24,7 +24,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Entities.AddComponent
         {
             this.type = type;
             _label.text = type.GetTypeName();
-            tooltip = type.FullName;
+            tooltip = type.Namespace + "." + type.GetTypeName();
         }
     }
 }

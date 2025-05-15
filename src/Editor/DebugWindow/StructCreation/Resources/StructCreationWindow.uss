@@ -1,19 +1,23 @@
-﻿.modules-debug--add-component {
+﻿.modules-debug--create-struct {
     padding: 10px 5px;
     overflow: scroll;
 }
 
 /* search */
-.modules-debug--add-component--search-input {
+.modules-debug--create-struct--search-input {
     margin: 0 0 10px 0;
 }
 
-.modules-debug--add-component--search-input > unity-label {
+.modules-debug--create-struct--search-input > unity-label {
     min-width: auto;
 }
 
+.modules-debug--create-struct--rows-container {
+    margin: 0 0 10px 0;
+}
+
 /* list */
-AddComponentOneRow {
+CreateStructOneRow {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -29,19 +33,19 @@ AddComponentOneRow {
     border-top-color: #555555;
 }
 
-AddComponentOneRow:hover {
+CreateStructOneRow:hover {
     background-color: rgba(43, 131, 206, 0.5);
     color: white;
 }
 
 /* new component drawer */
-.modules-debug--add-component--new-component {
+.modules-debug--create-struct--new-component {
     padding-top: 10px;
     border-top-width: 2px;
     border-top-color: #555555;
 }
 
-.modules-debug--add-component--component-buttons {
+.modules-debug--create-struct--component-buttons {
     margin: 10px 0;
     padding: 10px 0;
     border-bottom-width: 2px;
@@ -53,7 +57,7 @@ AddComponentOneRow:hover {
     justify-content: space-around;
 }
 
-.modules-debug--add-component--component-buttons > Button {
+.modules-debug--create-struct--component-buttons > Button {
     min-width: 80px;
     height: 20px;
 }

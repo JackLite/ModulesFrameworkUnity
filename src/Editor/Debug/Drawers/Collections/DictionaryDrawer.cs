@@ -84,7 +84,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                     return;
                 }
 
-                var newValue = Activator.CreateInstance(valueType);
+                var newValue = CreateNewInsideCollection(valueType);
                 _oldRef[newKey] = newValue;
                 _newKeys.Remove(cacheKey);
                 _elements.Clear();
@@ -112,13 +112,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 {
                     var newKey = _newKeys[cacheKey];
                     var valueType = _oldRef.GetType().GetGenericArguments()[1];
-                    if (!valueType.IsValueType && valueType.GetConstructor(Type.EmptyTypes) == null)
-                    {
-                        UnityEngine.Debug.LogError($"There is no parameterless constructor for {valueType.GetTypeName()}");
-                        return;
-                    }
-
-                    var newValue = Activator.CreateInstance(valueType);
+                    var newValue = CreateNewInsideCollection(valueType);
                     _oldRef[newKey] = newValue;
                     _newKeys.Remove(cacheKey);
                     _elements.Clear();
@@ -176,7 +170,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
                 var val = _oldRef[key];
                 var memberName = $"{fieldName} [{key}]";
-                var valuesType = val.GetType();
                 var drawer = mainDrawer.Draw(
                     memberName,
                     valueType,
@@ -213,8 +206,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 {
                     if (_oldRef.Contains(key))
                         return _oldRef[key];
-                    if (valuesType.IsValueType)
-                        return Activator.CreateInstance(valuesType);
+                    if (valueType.IsValueType)
+                        return Activator.CreateInstance(valueType);
                     return null;
                 }
             }

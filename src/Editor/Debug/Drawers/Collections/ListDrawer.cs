@@ -47,22 +47,9 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             addBtn.clicked += () =>
             {
                 var innerType = _oldRef.GetType().GetGenericArguments()[0];
-                if (innerType == typeof(string))
-                {
-                    _oldRef.Add(string.Empty);
-                    _foldout.contentContainer.Clear();
-                    DrawList(labelText, _foldout.contentContainer);
-                }
-                else if (!innerType.IsValueType && innerType.GetConstructor(Type.EmptyTypes) == null)
-                {
-                    UnityEngine.Debug.LogError($"There is no parameterless constructor for {innerType.GetTypeName()}");
-                }
-                else
-                {
-                    _oldRef.Add(Activator.CreateInstance(innerType));
-                    _foldout.contentContainer.Clear();
-                    DrawList(labelText, _foldout.contentContainer);
-                }
+                _oldRef.Add(CreateNewInsideCollection(innerType));
+                _foldout.contentContainer.Clear();
+                DrawList(labelText, _foldout.contentContainer);
             };
             _foldout.Add(addBtn);
         }
@@ -110,15 +97,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var v = _oldRef[i];
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
-                var drawer = mainDrawer.Draw(memberName, elementType, v, elementContainer, (_, newVal) =>
-                {
-                    _oldRef[index] = newVal;
-                }, () =>
-                {
-                    if (index < _oldRef.Count)
-                        return _oldRef[index];
-                    return default;
-                }, Level + 1, false);
+                var drawer = mainDrawer.Draw(memberName, elementType, v, elementContainer,
+                    (_, newVal) => { _oldRef[index] = newVal; }, () =>
+                    {
+                        if (index < _oldRef.Count)
+                            return _oldRef[index];
+                        return default;
+                    }, Level + 1, false);
                 _drawers.Add(drawer);
                 var removeBtn = DrawersUtil.CreateRemoveBtn();
 

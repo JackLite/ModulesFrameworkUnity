@@ -10,37 +10,25 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 {
     public class CreateOneDataWindow : CreateWindow
     {
-        protected override string RecentTypesKey { get; } = "ModulesDebug.CreateNewOneData.RecentTypes";
+        protected override string RecentTypesKey => "ModulesDebug.CreateNewOneData.RecentTypes";
 
         public override void ShowWindow()
         {
             titleContent = new GUIContent("Create One Data");
+            
             base.ShowWindow();
         }
 
-        protected override void OnChoose(Type type)
+        protected override void OnCreateStruct(Type type, object data)
         {
-            if (_newStructContainer == null)
-            {
-                _newStructContainer = new VisualElement();
-                _mainContainer.Add(_newStructContainer);
-                _newStructContainer.AddToClassList("modules-debug--add-component--new-component");
-            }
-            else
-            {
-                _newStructContainer.Clear();
-            }
-            var newData = Activator.CreateInstance(type);
-            DrawNewStruct(type, newData, _newStructContainer);
-
             var createBtnContainer = new VisualElement();
-            createBtnContainer.AddToClassList("modules-debug--add-component--component-buttons");
+            createBtnContainer.AddToClassList("modules-debug--create-struct--component-buttons");
             _newStructContainer.Add(createBtnContainer);
 
             var createBtn = new Button();
             createBtn.text = "Create";
-            createBtn.clicked += () => CreateOneData(type, newData);
-            createBtn.AddToClassList("modules-debug--add-component--component-add");
+            createBtn.clicked += () => CreateOneData(type, data);
+            createBtn.AddToClassList("modules-debug--create-struct--component-add");
             createBtnContainer.Add(createBtn);
         }
 

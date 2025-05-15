@@ -19,42 +19,17 @@ namespace ModulesFrameworkUnity.Debug.Events
             base.ShowWindow();
         }
 
-        protected override void OnChoose(Type type)
+        protected override void OnCreateStruct(Type type, object data)
         {
-            if (type.IsGenericTypeDefinition)
-            {
-                DrawChooseGenericTypes(type);
-                return;
-            }
-            if (_newStructContainer == null)
-            {
-                _newStructContainer = new VisualElement();
-                _mainContainer.Add(_newStructContainer);
-                _newStructContainer.AddToClassList("modules-debug--add-component--new-component");
-            }
-            else
-            {
-                _newStructContainer.Clear();
-            }
-
-            var ev = Activator.CreateInstance(type);
-            DrawNewStruct(type, ev, _newStructContainer);
-
             var addButtonsContainer = new VisualElement();
-            addButtonsContainer.AddToClassList("modules-debug--add-component--component-buttons");
+            addButtonsContainer.AddToClassList("modules-debug--create-struct--component-buttons");
             _newStructContainer.Add(addButtonsContainer);
 
             var addBtn = new Button();
             addBtn.text = "Rise";
-            addBtn.clicked += () => RiseEvent(type, ev);
-            addBtn.AddToClassList("modules-debug--add-component--component-add");
+            addBtn.clicked += () => RiseEvent(type, data);
+            addBtn.AddToClassList("modules-debug--create-struct--component-add");
             addButtonsContainer.Add(addBtn);
-        }
-
-        private void DrawChooseGenericTypes(Type type)
-        {
-            var targetType = type.MakeGenericType(typeof(string));
-            OnChoose(targetType);
         }
 
         private void RiseEvent(Type type, object ev)
