@@ -54,6 +54,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
             _foldout.RegisterValueChangedCallback(ev =>
             {
+                if (ev.target != _foldout)
+                    return;
                 if (ev.newValue && !_wasDrawn)
                 {
                     DrawDict(_fieldName);
