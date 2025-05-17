@@ -15,6 +15,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
     {
         private VisualElement _elements;
         private VisualElement _addBlock;
+        private bool _wasDrawn;
         private readonly Dictionary<string, object> _newKeys = new();
 
         public override bool CanDraw(Type type, object value)
@@ -45,9 +46,22 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _addBlock = CreateAddBlock();
             _foldout.Add(_addBlock);
 
-            DrawDict(labelText);
+            if (_wasDrawn)
+            {
+                DrawDict(_fieldName);
+                DrawAddBlock(_fieldName);
+            }
 
-            DrawAddBlock(labelText);
+            _foldout.RegisterValueChangedCallback(ev =>
+            {
+                if (ev.newValue && !_wasDrawn)
+                {
+                    DrawDict(_fieldName);
+                    DrawAddBlock(_fieldName);
+                }
+            });
+            
+            
         }
 
         private void DrawAddBlock(string fieldName)

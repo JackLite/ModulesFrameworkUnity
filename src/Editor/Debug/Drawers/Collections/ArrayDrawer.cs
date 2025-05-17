@@ -11,6 +11,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
     public class ArrayDrawer : BaseCollectionDrawer<Array>
     {
         private VisualElement _elements;
+        private bool _wasDrawn;
 
         public override bool CanDraw(Type type, object value)
         {
@@ -39,7 +40,14 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
             _foldout.text = $"{labelText} {_type.GetElementType().GetTypeName()}[{_oldRef.Length}]";
 
-            DrawArray(labelText, _elements);
+            if (_wasDrawn)
+                DrawArray(_fieldName, _elements);
+
+            _foldout.RegisterValueChangedCallback(ev =>
+            {
+                if (ev.newValue && !_wasDrawn)
+                    DrawArray(_fieldName, _elements);
+            });
         }
 
         public override void Update()
@@ -68,6 +76,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
         private void DrawArray(string fieldName, VisualElement container)
         {
+            _wasDrawn = true;
             var elementType = _type.GetElementType();
             for (var i = 0; i < _oldRef.Length; i++)
             {
@@ -81,15 +90,13 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var v = _oldRef.GetValue(i);
                 var memberName = $"{fieldName} [{i}]";
                 var index = i;
-                var drawer = mainDrawer.Draw(memberName, elementType, v, elementContainer, (prev, newVal) =>
-                {
-                    _oldRef.SetValue(newVal, index);
-                }, () =>
-                {
-                    if (index < _oldRef.Length)
-                        return _oldRef.GetValue(index);
-                    return default;
-                }, Level + 1, false);
+                var drawer = mainDrawer.Draw(memberName, elementType, v, elementContainer,
+                    (prev, newVal) => { _oldRef.SetValue(newVal, index); }, () =>
+                    {
+                        if (index < _oldRef.Length)
+                            return _oldRef.GetValue(index);
+                        return default;
+                    }, Level + 1, false);
                 _drawers.Add(drawer);
                 container.Add(elementContainer);
             }

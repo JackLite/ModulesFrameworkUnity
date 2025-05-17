@@ -11,6 +11,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 {
     public class ListDrawer : BaseCollectionDrawer<IList>
     {
+        private bool _wasDrawn;
+
         public override bool CanDraw(Type type, object value)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
@@ -35,7 +37,14 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
 
             _container.Add(_foldout);
 
-            DrawList(labelText, _foldout.contentContainer);
+            if (_wasDrawn)
+                DrawList(_fieldName, _foldout.contentContainer);
+
+            _foldout.RegisterValueChangedCallback(ev =>
+            {
+                if (ev.newValue && !_wasDrawn)
+                    DrawList(_fieldName, _foldout.contentContainer);
+            });
         }
 
         private void DrawAddBtn(string labelText)
