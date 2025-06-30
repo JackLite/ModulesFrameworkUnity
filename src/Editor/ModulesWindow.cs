@@ -165,8 +165,11 @@ namespace ModulesFrameworkUnity
             var textAreaStyle = EditorStyles.textArea;
             textAreaStyle.stretchHeight = true;
             textAreaStyle.wordWrap = false; ;
-            var newValue = EditorGUILayout.TextArea(string.Join(Environment.NewLine, Settings.assemblyFilters), textAreaStyle);
-            Settings.assemblyFilters = newValue.Split(Environment.NewLine).ToList();
+            var newValue = EditorGUILayout.TextArea(string.Join('\n', Settings.assemblyFilters), textAreaStyle);
+            Settings.assemblyFilters = newValue.Split('\n')
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
         }
     }
 }
