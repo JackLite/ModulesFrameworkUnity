@@ -23,24 +23,25 @@ namespace ModulesFrameworkUnity.Utils
             {
                 var isStartsWithWildcard = filterString.StartsWith(Wildcard);
                 var isEndsWithWildcard = filterString.EndsWith(Wildcard);
+                var filter = filterString.Replace("*", string.Empty);
                 if (isStartsWithWildcard && isEndsWithWildcard)
                 {
-                    if (assembly.FullName.Contains(filterString))
+                    if (assembly.FullName.Contains(filter))
                         return false;
                 }
                 else if (isStartsWithWildcard)
                 {
-                    if (assembly.FullName.EndsWith(filterString))
+                    if (assembly.FullName.EndsWith(filter))
                         return false;
                 }
 
                 if (isEndsWithWildcard)
                 {
-                    if (assembly.FullName.StartsWith(filterString))
+                    if (assembly.FullName.StartsWith(filter))
                         return false;
                 }
 
-                if (assembly.FullName == filterString)
+                if (assembly.FullName == filter)
                     return false;
             }
 
