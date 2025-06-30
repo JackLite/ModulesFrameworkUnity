@@ -72,9 +72,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         private void DrawModules()
         {
             _root.Clear();
-            var filter = new UnityAssemblyFilter();
             var currentWorld = DebugUtils.GetCurrentWorldName();
-            var modules = AppDomain.CurrentDomain.GetAssemblies().Where(filter.Filter)
+            var modules = AssemblyUtils.GetAssemblies()
                 .SelectMany(a => a.GetTypes()
                     .Where(t => t != typeof(EmbeddedGlobalModule) && ModulesUtil.FilterModule(t, currentWorld))
                     .Where(t => t.IsSubclassOf(typeof(EcsModule)) && !t.IsAbstract)

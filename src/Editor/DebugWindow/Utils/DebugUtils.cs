@@ -41,9 +41,7 @@ namespace ModulesFrameworkUnity.Debug.Utils
             if (MF.IsInitialized)
                 return MF.GetAllWorlds().Select(w => w.WorldName).ToHashSet();
 
-            var filter = new UnityAssemblyFilter();
-            var worlds = from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                where filter.Filter(assembly)
+            var worlds = from assembly in AssemblyUtils.GetAssemblies()
                 from type in assembly.GetTypes()
                 where type.IsSubclassOf(typeof(EcsModule)) && type != typeof(EmbeddedGlobalModule)
                 let worldAttribute = type.GetCustomAttribute<WorldBelongingAttribute>()

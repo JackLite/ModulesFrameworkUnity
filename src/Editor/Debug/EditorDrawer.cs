@@ -3,6 +3,7 @@ using ModulesFrameworkUnity.Debug.Drawers.Special;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ModulesFrameworkUnity.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -28,7 +29,8 @@ namespace ModulesFrameworkUnity.Debug
         {
             if (_defaultDrawers == null)
             {
-                var drawers = from type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(asm => asm.GetTypes())
+                var drawers = from type in AssemblyUtils.GetAssemblies()
+                        .SelectMany(asm => asm.GetTypes())
                               where type.IsSubclassOf(typeof(FieldDrawer)) && !type.IsAbstract
                               select Activator.CreateInstance(type) as FieldDrawer;
 
