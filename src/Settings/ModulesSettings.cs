@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using ModulesFramework;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace ModulesFrameworkUnity.Settings
         public LogFilter logFilter = LogFilter.Full;
 
         public DebugSettings debugSettings;
+        public List<string> assemblyFilters = new();
         public PerformanceSettings performanceSettings;
 
         public bool deleteEmptyEntities;

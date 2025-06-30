@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Text;
 using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
 using UnityEditor;
@@ -41,6 +43,7 @@ namespace ModulesFrameworkUnity
             DrawStartMethod();
             DrawLogType();
             DrawCheckEntity();
+            DrawAssemblyFilter();
             DrawDebug();
             DrawPerformanceSettings();
             DrawSaveButton();
@@ -145,6 +148,7 @@ namespace ModulesFrameworkUnity
                 Settings.Save();
                 UnityEngine.Debug.Log("Saved!");
             }
+            EditorGUILayout.Space(20);
         }
 
         private void DrawStartMethod()
@@ -152,6 +156,17 @@ namespace ModulesFrameworkUnity
             var label = new GUIContent("Start method");
             var chosen = EditorGUILayout.EnumPopup(label, Settings.startMethod);
             Settings.startMethod = (StartMethod)chosen;
+        }
+
+        private void DrawAssemblyFilter()
+        {
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("Exclude assemblies (wildcards supported, use *)");
+            var textAreaStyle = EditorStyles.textArea;
+            textAreaStyle.stretchHeight = true;
+            textAreaStyle.wordWrap = false; ;
+            var newValue = EditorGUILayout.TextArea(string.Join(Environment.NewLine, Settings.assemblyFilters), textAreaStyle);
+            Settings.assemblyFilters = newValue.Split(Environment.NewLine).ToList();
         }
     }
 }
