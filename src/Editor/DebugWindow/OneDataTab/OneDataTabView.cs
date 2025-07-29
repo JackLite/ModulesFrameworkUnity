@@ -140,7 +140,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             Subscribe();
             if (Application.isPlaying)
             {
-               Refresh();
+                Refresh();
             }
         }
 
@@ -183,7 +183,13 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         public void Refresh()
         {
+            foreach (var (_, d) in _drawers)
+            {
+                d.SetVisible(false);
+            }
+
             _drawers.Clear();
+
             if (!MF.IsInitialized)
                 return;
 

@@ -176,6 +176,7 @@ namespace ModulesFrameworkUnity.Debug.Entities
             if (!MF.IsInitialized)
                 return;
             _entitiesList.Reset();
+            _entityDrawer.Destroy();
             CreateViewersForExisted();
         }
     }
