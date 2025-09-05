@@ -1,0 +1,60 @@
+GridBackground {
+    --grid-background-color: rgb(19, 19, 19);
+    --line-color: rgba(73, 73, 73, 0.1);
+    --thick-line-color: rgba(100, 100, 100, 0.3);
+    --spacing: 10;
+}
+
+.modules-tab--graph-root {
+    margin-top: 74px;
+}
+
+.graphView > VisualElement {
+    overflow: hidden;
+}
+
+.modules-tab--graph--composed-of-container
+{
+    padding: 8px 0 8px 8px;
+    background-color: rgba(46, 46, 46, 0.8039);
+    border-bottom-color: #474747;
+    border-bottom-width: 1px;
+}
+
+ModuleNode > ** > #title > #title-label {
+    font-size: 18px;
+    -unity-font-style: bold;
+}
+
+ModuleNode > ** #input > ** #type {
+    font-size: 16px;
+}
+
+
+ModuleNode > ** #output > ** #type {
+    font-size: 16px;
+}
+
+ModuleNode > ** #output > .port {
+    margin: 5px 0;
+}
+
+ModuleNode > ** #title-button-container > ** Button {
+    font-size: 14px;
+}
+
+ModuleSystemsList {
+    position: absolute;
+    right: 0;
+    background-color: darkslategrey;
+    padding: 10px 5px 10px 5px;
+    max-height: 400px;
+}
+
+ModuleSystemsList > Label {
+    margin-bottom: 3px;
+}
+
+.modules-tab--systems-list--no-systems {
+    -unity-font-style: italic;
+}

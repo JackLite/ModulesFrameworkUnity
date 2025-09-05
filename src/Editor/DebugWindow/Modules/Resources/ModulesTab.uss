@@ -1,0 +1,23 @@
+ModulesTab {
+    padding-top: 30px;
+}
+
+.modules-tab--list {
+    position: relative;
+}
+
+.modules-tab--mode-switcher {
+    height: 20px;
+    width: 150px;
+}
+
+.modules-tab--top-bar {
+    height: 30px;
+    width: 100%;
+    background-color: rgba(46, 46, 46, 1);
+    margin-top: 15px;
+    justify-content: center;
+    align-items: flex-end;
+    padding-right: 5px;
+    position: absolute;
+}

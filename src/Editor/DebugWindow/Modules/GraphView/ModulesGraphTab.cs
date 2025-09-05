@@ -22,8 +22,19 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
     {
         private ModulesGraphView _graph;
         private readonly VisualElement _root = new();
+        private readonly ModuleSystemsList _systemsList;
 
         public VisualElement Root => _root;
+
+        public ModulesGraphTab()
+        {
+            _root.AddToClassList("modules-tab--graph-root");
+            var styleSheet = Resources.Load<StyleSheet>("ModulesGraph");
+            _root.styleSheets.Add(styleSheet);
+
+            _systemsList = new();
+            _root.Add(_systemsList);
+        }
 
         public void Show()
         {
@@ -80,6 +91,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 ).ToList();
 
             _graph = new ModulesGraphView();
+            _graph.OnModuleSelected += OnModuleSelected;
+            _graph.OnModuleUnselected += OnModuleUnselected;
             _graph.StretchToParentSize();
 
             var composedOfModules = new Dictionary<Type, List<Type>>();
@@ -149,6 +162,17 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
             _graph.RefreshNodesPositions();
             _root.Add(_graph);
+            _root.Add(_systemsList);
+        }
+
+        private void OnModuleSelected(Type moduleType)
+        {
+            _systemsList.Init(moduleType);
+        }
+
+        private void OnModuleUnselected(Type moduleType)
+        {
+            _systemsList.Clear();
         }
 
         private int CalculateLvl(Type module, int startLevel = 0)

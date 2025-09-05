@@ -20,13 +20,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
             _switchButton = new Button
             {
-                text = GetButtonMode(),
-                style =
-                {
-                    alignSelf = Align.FlexEnd,
-                    marginTop = 50,
-                    marginLeft = 10
-                }
+                text = GetButtonMode()
             };
             _switchButton.AddToClassList("modules-tab--mode-switcher");
             _switchButton.clicked += () => OnSwitchClick?.Invoke();

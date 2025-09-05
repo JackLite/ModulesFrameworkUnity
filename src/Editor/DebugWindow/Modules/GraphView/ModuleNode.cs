@@ -26,6 +26,9 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
         public bool IsParent => _submodules.Count > 0;
         public int SubmodulesCount => _submodules.Count;
 
+        public event Action OnSelectedEvent;
+        public event Action OnUnselectedEvent;
+
         public ModuleNode(int level, Type moduleType)
         {
             Level = level;
@@ -33,6 +36,20 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             _modulesNodeTitle = new ModulesNodeTitle(titleButtonContainer);
             _modulesNodeTitle.OnInitDestroyClick += OnInitClicked;
             _modulesNodeTitle.OnActivateClick += OnActivateClicked;
+        }
+
+        public override void OnSelected()
+        {
+            base.OnSelected();
+            UnityEngine.Debug.Log($"Select {ModuleType.Name}");
+            OnSelectedEvent?.Invoke();
+        }
+
+        public override void OnUnselected()
+        {
+            base.OnUnselected();
+            UnityEngine.Debug.Log($"Unselect {ModuleType.Name}");
+            OnUnselectedEvent?.Invoke();
         }
 
         private void OnActivateClicked()
@@ -63,7 +80,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public void RefreshWidth()
         {
-            const float buttonsMax = 160;
+            const float buttonsMax = 250;
             Width = 10 * title.Length + buttonsMax;
             var inputPortMaxWidth = GetMaxWidth(inputContainer.Children().Where(v => v is Port).Cast<Port>());
             var outputPortMaxWidth = GetMaxWidth(outputContainer.Children().Where(v => v is Port).Cast<Port>());
@@ -91,6 +108,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 mainContainer.Add(_composedOfContainer);
                 _composedOfContainer.PlaceInFront(titleContainer);
             }
+
             var label = new Label
             {
                 text = moduleName
@@ -105,8 +123,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public void RefreshAdjustedHeight()
         {
-            float defaultHeight = Level == 0 &&_submodules.Count == 0 ? 40 : 65;
-            const float submoduleHeight = 24;
+            float defaultHeight = Level == 0 && _submodules.Count == 0 ? 40 : 65;
+            const float submoduleHeight = 32;
             AdjustedHeight = defaultHeight;
             SelfHeight = defaultHeight;
 
@@ -211,6 +229,39 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             titleContainer.style.unityFontStyleAndWeight = FontStyle.Normal;
             _modulesNodeTitle.UpdateInit(false);
             style.opacity = 0.5f;
+        }
+
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+            var status = MF.IsInitialized ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+            if (!MF.IsInitialized)
+            {
+                evt.menu.AppendAction("Init Module", _ => OnInitClicked(), status);
+                evt.menu.AppendAction("Activate Module", _ => OnActivateClicked(), status);
+                evt.menu.AppendSeparator();
+                return;
+            }
+
+            var world = DebugUtils.GetCurrentWorld();
+            var module = world.GetModule(ModuleType);
+            if (!module.IsInitialized)
+            {
+                evt.menu.AppendAction("Init Module", _ => OnInitClicked());
+                evt.menu.AppendAction("Activate Module", _ => OnActivateClicked(),
+                    DropdownMenuAction.Status.Disabled);
+            }
+            else if (!module.IsActive)
+            {
+                evt.menu.AppendAction("Destroy Module", _ => OnInitClicked());
+                evt.menu.AppendAction("Activate Module", _ => OnActivateClicked());
+            }
+            else
+            {
+                evt.menu.AppendAction("Destroy Module", _ => OnInitClicked());
+                evt.menu.AppendAction("Deactivate Module", _ => OnActivateClicked());
+            }
+
+            evt.menu.AppendSeparator();
         }
     }
 }

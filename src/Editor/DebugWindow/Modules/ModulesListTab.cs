@@ -21,6 +21,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public void Show()
         {
+            Root.styleSheets.Add(Resources.Load<StyleSheet>("ModulesList"));
             DrawList();
             EditorApplication.playModeStateChanged += OnPlayModeChanges;
             if (Application.isPlaying)
@@ -40,13 +41,8 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 .OrderBy(t => t.Name)
                 .ToArray();
 
-            var modulesRoot = new VisualElement
-            {
-                style =
-                {
-                    marginTop = 10
-                }
-            };
+            var modulesRoot = new VisualElement();
+            modulesRoot.AddToClassList("modules-tab--list-view");
 
             var elements = new Dictionary<Type, ModulesListElement>();
             foreach (var moduleType in modules)

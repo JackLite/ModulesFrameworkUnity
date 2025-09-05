@@ -16,19 +16,17 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public IReadOnlyCollection<ModuleNode> Nodes => _nodes.Values;
 
+        public event Action<Type> OnModuleSelected;
+        public event Action<Type> OnModuleUnselected;
+        
         public ModulesGraphView()
         {
-            var styleSheet = Resources.Load<StyleSheet>("ModulesGraphUSS");
-            styleSheets.Add(styleSheet);
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new ContentZoomer());
-            this.AddManipulator(new RectangleSelector());
 
             var grid = new GridBackground();
             Insert(0, grid);
-            grid.StretchToParentSize();
-
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
         }
 
@@ -38,10 +36,17 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 return createdNode;
             var node = new ModuleNode(level, module)
             {
-                title = module.Name
+                title = module.Name,
+                expanded = false
             };
+
+            node.OnSelectedEvent += () => OnModuleSelected?.Invoke(node.ModuleType);
+            node.OnUnselectedEvent += () => OnModuleUnselected?.Invoke(node.ModuleType);
+
             node.RefreshExpandedState();
             node.RefreshPorts();
+            node.capabilities = Capabilities.Selectable;
+            
             AddElement(node);
             _nodes.Add(module, node);
             return node;

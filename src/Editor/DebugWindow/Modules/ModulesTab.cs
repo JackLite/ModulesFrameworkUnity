@@ -20,10 +20,10 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
 
         public ModulesTab(ModulesTabMode mode)
         {
-            var styleSheet = Resources.Load<StyleSheet>("ModulesTabUSS");
+            var styleSheet = Resources.Load<StyleSheet>("ModulesTab");
             styleSheets.Add(styleSheet);
             _currentMode = mode;
-
+            
             _graphTab = new ModulesGraphTab();
             Add(_graphTab.Root);
             _graphTab.Root.StretchToParentSize();
@@ -34,9 +34,13 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             _listTab.Root.AddToClassList("modules-tab--list");
             _listTab.Hide();
 
+            var topBar = new VisualElement();
+            topBar.AddToClassList("modules-tab--top-bar");
+            Add(topBar);
+
             _modeSwitcher = new ModulesTabModeSwitcher();
             _modeSwitcher.OnSwitchClick += SwitchMode;
-            _modeSwitcher.Draw(this, _currentMode);
+            _modeSwitcher.Draw(topBar, _currentMode);
         }
 
         public void Show()
