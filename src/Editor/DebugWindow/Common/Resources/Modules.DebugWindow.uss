@@ -1,5 +1,13 @@
-.modules--debug-window--worlds-switcher {
+DebugWindowTopBar {
     position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.modules--debug-window--worlds-switcher {
     margin-top: 5px;
     justify-content: center;
     align-items: center;
@@ -17,7 +25,6 @@
     padding: 5px;
     background-color: #646464;
     justify-content: space-around;
-    position: absolute;
     align-self: flex-end;
 }
 
@@ -27,4 +34,13 @@
 
 .modules--debug-window--rise-event-btn:hover {
     background-color: #646464;
+}
+
+DebugWindowPauseWidget {
+    align-self: center;
+    justify-content: center;
+    flex-direction: row;
+    border-width: 2px;
+    border-color: #646464;
+    padding: 5px;
 }

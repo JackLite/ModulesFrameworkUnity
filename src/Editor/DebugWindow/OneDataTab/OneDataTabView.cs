@@ -2,6 +2,9 @@ using ModulesFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using ModulesFramework.Data;
+using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -105,6 +108,9 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 
         private void OnCreated(Type dataType, OneData _)
         {
+            if (dataType.GetCustomAttribute<HideInInspector>() != null)
+                return;
+            
             if (!_drawers.TryGetValue(dataType, out var drawer))
             {
                 drawer = new OneDataDrawer(dataType, _drawersRoot);
@@ -189,6 +195,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             }
 
             _drawers.Clear();
+            _list.Reset();
 
             if (!MF.IsInitialized)
                 return;

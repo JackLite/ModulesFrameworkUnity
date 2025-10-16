@@ -24,7 +24,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
             if (Application.isPlaying)
             {
                 var module = DebugUtils.GetCurrentWorld().GetModule(moduleType);
-                return module.Systems.ToList();
+                return module.SystemTypes.ToList();
             }
 
             _cacheSystems ??= EcsUtilities.FindSystems(new UnityAssemblyFilter().Filter);

@@ -12,7 +12,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
     public class StructsDrawer : FieldDrawer
     {
         public override int Order => 100;
-        private readonly List<FieldDrawer> _drawers = new();
+        protected readonly List<FieldDrawer> _drawers = new();
 
         public Foldout Foldout { get; } = new();
         public bool IsDrawn { get; protected set; }
@@ -49,7 +49,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Complex
             parent.Add(Foldout);
         }
 
-        public void DrawFields(object value)
+        public virtual void DrawFields(object value)
         {
             IsDrawn = true;
             foreach (var fieldInfo in value.GetType().GetFields())

@@ -87,5 +87,10 @@ namespace ModulesFrameworkUnity.Debug.Utils
         {
             return EditorPrefs.GetString(CurrentWorldKey, "Default");
         }
+
+        public static DataWorld GetWorld(string worldName)
+        {
+            return MF.GetWorld(worldName);
+        }
     }
 }

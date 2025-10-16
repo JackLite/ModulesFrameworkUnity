@@ -71,35 +71,6 @@ namespace ModulesFrameworkUnity.Debug
             return _unsupportedDrawer;
         }
 
-        public FieldDrawer Draw(
-            string fieldName,
-            Type fieldType,
-            object fieldValue,
-            VisualElement parent,
-            Action<object, object> onChanged,
-            Func<object> getter,
-            bool updateDrawer = true)
-        {
-            _level++;
-            var drawer = Draw(fieldName, fieldType, fieldValue, parent, onChanged, getter, _level, updateDrawer);
-            _level--;
-            return drawer;
-        }
-
-        public void Update()
-        {
-            for (var index = 0; index < _createdDrawers.Count; index++)
-            {
-                var drawer = _createdDrawers[index];
-                drawer.Update();
-            }
-        }
-
-        public void Clear()
-        {
-            _createdDrawers.Clear();
-        }
-
         public void RemoveDrawer(FieldDrawer drawer)
         {
             _createdDrawers.Remove(drawer);

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using ModulesFramework;
+using ModulesFramework.Data;
 using ModulesFramework.Modules;
 using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.Entities;
@@ -23,6 +24,7 @@ namespace ModulesFrameworkUnity.DebugWindow
         private DebugWindowTabs _tabs;
         private DebugWindowWorldsWidget _worldsWidget;
         private ModulesTab _modulesTab;
+        private DebugWindowTopBar _topBar;
 
         [SerializeField]
         private OneDataTabView _oneDataTab;
@@ -39,6 +41,8 @@ namespace ModulesFrameworkUnity.DebugWindow
         [SerializeField]
         private string _currentWorldName;
 
+        public DataWorld CurrentWorld { get; private set; }
+
         [MenuItem("Modules/Data Viewer")]
         private static void ShowWindow()
         {
@@ -51,6 +55,7 @@ namespace ModulesFrameworkUnity.DebugWindow
         {
             var styleSheet = Resources.Load<StyleSheet>("Modules.DebugWindow");
             rootVisualElement.styleSheets.Add(styleSheet);
+            _worldsWidget = new DebugWindowWorldsWidget();
 
             var debugSettings = ModulesSettings.Load().debugSettings;
             hideFlags = HideFlags.HideAndDontSave;
@@ -71,35 +76,33 @@ namespace ModulesFrameworkUnity.DebugWindow
             rootVisualElement.Add(entitiesRoot);
             _entitiesTab.Draw(entitiesRoot, debugSettings);
 
-            _tabs ??= new DebugWindowTabs();
-            _tabs.Draw(rootVisualElement);
-            _tabs.SwitchTab += SwitchTab;
-
-            DrawWorldsWidget();
-
+            DrawTopBar();
             ShowTab(_currentTab);
+        }
+
+        private void DrawTopBar()
+        {
+            _topBar = new DebugWindowTopBar();
+            rootVisualElement.Add(_topBar);
+            _topBar.Draw();
+
+            _topBar.OnWorldChanged += worldName =>
+            {
+                _currentWorldName = worldName;
+                if (EditorApplication.isPlaying)
+                    CurrentWorld = DebugUtils.GetWorld(worldName);
+                _topBar.Refresh(CurrentWorld);
+                _entitiesTab.Refresh(CurrentWorld);
+                _oneDataTab.Refresh();
+                _modulesTab.Refresh();
+            };
+            _topBar.OnSwitchTab += SwitchTab;
         }
 
         private void Update()
         {
             if (_currentWorldName != DebugUtils.GetCurrentWorldName())
                 _worldsWidget.value = DebugUtils.GetCurrentWorldName();
-        }
-
-        private void DrawWorldsWidget()
-        {
-            _worldsWidget ??= new DebugWindowWorldsWidget();
-            var allWorlds = DebugUtils.GetAllWorldNames();
-            _worldsWidget.Init(allWorlds, DebugUtils.GetCurrentWorldName());
-            _worldsWidget.RegisterValueChangedCallback(ev =>
-            {
-                DebugUtils.SetCurrentModule(ev.newValue);
-                _currentWorldName = ev.newValue;
-                _entitiesTab.Refresh();
-                _oneDataTab.Refresh();
-                _modulesTab.Refresh();
-            });
-            rootVisualElement.Add(_worldsWidget);
         }
 
         private void SwitchTab(DebugTabType type)
@@ -117,7 +120,7 @@ namespace ModulesFrameworkUnity.DebugWindow
                 case DebugTabType.Entities:
                     _modulesTab.Hide();
                     _oneDataTab.Hide();
-                    _entitiesTab.Show();
+                    _entitiesTab.Show(CurrentWorld);
                     break;
                 case DebugTabType.OneData:
                     _modulesTab.Hide();

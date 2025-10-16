@@ -6,7 +6,9 @@ using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Settings;
 using ModulesFrameworkUnity.Utils;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
+using ModulesFrameworkUnity.Debug.UpdateDebugging;
 using ModulesFrameworkUnity.EmptyEntities;
 using UnityEngine;
 #if MODULES_PERFORMANCE
@@ -19,8 +21,8 @@ namespace ModulesFrameworkUnity
     {
         private readonly MF _modules;
         private double _elapsedTimeMs;
-        private int _frames;
 #if MODULES_PERFORMANCE
+        private int _frames;
         private readonly Stopwatch _stopwatch = new();
 #endif
         private readonly ModulesSettings _settings;
@@ -45,6 +47,7 @@ namespace ModulesFrameworkUnity
         public void Start()
         {
             _modules.Start().Forget();
+
         }
 
         public async Task StartAsync()
@@ -54,18 +57,31 @@ namespace ModulesFrameworkUnity
 
         public void Update()
         {
+
 #if MODULES_PERFORMANCE
             _stopwatch.Start();
 #endif
 
+#if MODULES_DEBUG
+            foreach (var world in _modules.Worlds)
+            {
+                ref var debugData = ref world.OneData<DebugData>();
+                if (!debugData.isPause)
+                {
+                    debugData.currentRoot = default;
+                    world.Run();
+                }
+            }
+#else
             _modules.Run();
-
+#endif
 #if MODULES_PERFORMANCE
-
             _stopwatch.Stop();
             _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
             _stopwatch.Reset();
-
+#endif
+#if UNITY_EDITOR
+            DebugEventBus.RiseUpdate();
 #endif
         }
 

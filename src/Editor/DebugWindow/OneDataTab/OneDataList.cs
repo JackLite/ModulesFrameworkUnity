@@ -13,6 +13,8 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
 {
     public class OneDataList
     {
+        private const string SelectedLabelClassName = "modules--one-data-tab--data-selected";
+        
         private ScrollView _scrollView;
         private readonly LinkedDictionary<Type, OneDataLabel> _dataLabels = new();
         private readonly HashSet<Type> _filtered = new();
@@ -105,6 +107,7 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             {
                 var label = _dataLabels[type].Value;
                 label.UpdateText();
+                _scrollView.Add(label);
                 UpdateList();
                 return;
             }
@@ -167,9 +170,9 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             if (_currentSelected == label)
                 return;
             OnDataSelected?.Invoke(dataType);
-            const string className = "modules--one-data-tab--data-selected";
-            label.AddToClassList(className);
-            _currentSelected?.RemoveFromClassList(className);
+            
+            label.AddToClassList(SelectedLabelClassName);
+            _currentSelected?.RemoveFromClassList(SelectedLabelClassName);
             _currentSelected = label;
             _scrollView.Focus();
         }
@@ -263,6 +266,13 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             UpdateSelectionType(newType);
         }
 
+        public void Reset()
+        {
+            _scrollView.Clear();
+            _currentSelected?.RemoveFromClassList(SelectedLabelClassName);
+            _currentSelected = null;
+        }
+
         private class OneDataLabel : VisualElement
         {
             public readonly Type type;
@@ -307,11 +317,6 @@ namespace ModulesFrameworkUnity.DebugWindow.OneDataTab
             {
                 pinBtn.text = isPinned ? "Unpin" : "Pin";
             }
-        }
-
-        public void Reset()
-        {
-            _scrollView.Clear();
         }
     }
 }

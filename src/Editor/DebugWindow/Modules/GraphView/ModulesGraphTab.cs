@@ -7,6 +7,7 @@ using ModulesFramework.Attributes;
 using ModulesFramework.Modules;
 using ModulesFramework.Utils;
 using ModulesFrameworkUnity.Debug.Utils;
+using ModulesFrameworkUnity.DebugWindow.Attributes;
 using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -88,6 +89,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Modules
                 .SelectMany(a => a.GetTypes()
                     .Where(t => t != typeof(EmbeddedGlobalModule) && ModulesUtil.FilterModule(t, currentWorld))
                     .Where(t => t.IsSubclassOf(typeof(EcsModule)) && !t.IsAbstract)
+                    .Where(t => t.GetCustomAttribute<HideInDebugAttribute>() == null)
                 ).ToList();
 
             _graph = new ModulesGraphView();

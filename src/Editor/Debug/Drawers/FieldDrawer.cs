@@ -57,7 +57,7 @@ namespace ModulesFrameworkUnity.Debug.Drawers
     public abstract class FieldRefDrawer : FieldDrawer
     {
         protected bool _isNull;
-        protected VisualElement _container;
+        protected VisualElement _container = new();
 
         protected void ProceedNull()
         {
