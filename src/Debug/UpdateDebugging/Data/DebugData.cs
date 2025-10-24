@@ -11,6 +11,5 @@ namespace ModulesFrameworkUnity.Debug
     internal struct DebugData
     {
         public bool isPause;
-        public ModuleDebugContainer currentRoot;
     }
 }

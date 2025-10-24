@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ModulesFrameworkUnity.DebugWindow.Attributes
+namespace ModulesFrameworkUnity.Debug.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class HideInDebugAttribute : Attribute

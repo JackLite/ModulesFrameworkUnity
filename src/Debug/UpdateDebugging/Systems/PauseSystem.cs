@@ -1,13 +1,10 @@
 ﻿using ModulesFramework.Attributes;
 using ModulesFramework.Data;
 using ModulesFramework.Systems.Subscribes;
-using ModulesFrameworkUnity.Debug;
-using ModulesFrameworkUnity.Debug.UpdateDebugging;
+using ModulesFrameworkUnity.Debug.UpdateDebugging.Events;
 using ModulesFrameworkUnity.Debug.UpdateDebugging.Service;
-using ModulesFrameworkUnity.DebugWindow.Events;
-using ModulesFrameworkUnity.DebugWindow.Service;
 
-namespace ModulesFrameworkUnity.DebugWindow.Systems
+namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Systems
 {
     [EcsSystem(typeof(UpdateDebuggingModule))]
     public class PauseSystem : ISubscribeInitSystem<PauseChangedEvent>

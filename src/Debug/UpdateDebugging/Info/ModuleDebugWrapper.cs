@@ -15,13 +15,18 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Info
         public ModuleDebugWrapper(EcsModule module)
         {
             this.module = module;
-            step = ModuleInternalStep.Composed;
             composed = module.ComposedModules.Select(m => new ModuleDebugWrapper(m)).ToQueue();
+            step = composed.Count > 0 ? ModuleInternalStep.Composed : ModuleInternalStep.Self;
             var submodulesOrder = module.GetSubmodulesOrder();
             submodules = module.Submodules
                 .OrderBy(s => submodulesOrder.GetValueOrDefault(s.GetType(), 0))
                 .Select(m => new ModuleDebugWrapper(m))
                 .ToQueue();
+        }
+
+        public bool IsFinished()
+        {
+            return step is ModuleInternalStep.Submodules && submodules.Count == 0;
         }
     }
 }

@@ -2,10 +2,10 @@
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.Debug.UpdateDebugging;
-using ModulesFrameworkUnity.DebugWindow.Events;
+using ModulesFrameworkUnity.Debug.UpdateDebugging.Events;
 using UnityEngine.UIElements;
 
-namespace ModulesFrameworkUnity.DebugWindow
+namespace ModulesFrameworkUnity.UpdateDebuggingEditor.View
 {
     /// <summary>
     ///     Widget to pause/resume MF
@@ -16,7 +16,8 @@ namespace ModulesFrameworkUnity.DebugWindow
         private Button _pauseBtn;
         private Button _stepSystemBtn;
         private Button _stepModuleBtn;
-        private readonly DataWorld _world;
+        private Label _currentStepLabel;
+        private DataWorld _world;
 
         public DebugWindowPauseWidget(DataWorld world)
         {
@@ -52,24 +53,33 @@ namespace ModulesFrameworkUnity.DebugWindow
             };
             Add(_stepModuleBtn);
             _stepModuleBtn.clicked += OnStepModuleClick;
-            UpdateButtonsVisibility();
+
+            _currentStepLabel = new Label();
+            _currentStepLabel.AddToClassList("mf--pause-widget--run-type-label");
+            Add(_currentStepLabel);
+            UpdateElementsVisibility(IsPaused());
         }
 
         public void Show()
         {
             style.display = DisplayStyle.Flex;
-            UpdateButtonsVisibility();
+            UpdateElementsVisibility(IsPaused());
         }
 
         public void Hide()
         {
             style.display = DisplayStyle.None;
-            UpdateButtonsVisibility();
+        }
+
+        public void SetWorld(DataWorld world)
+        {
+            _world = world;
+            Refresh();
         }
 
         public void Refresh()
         {
-            UpdateButtonsVisibility();
+            UpdateElementsVisibility(IsPaused());
         }
 
         private void OnPauseClick()
@@ -78,7 +88,6 @@ namespace ModulesFrameworkUnity.DebugWindow
             {
                 IsPaused = true
             });
-            UpdateButtonsVisibility();
         }
 
         private void OnResumeClick()
@@ -87,7 +96,6 @@ namespace ModulesFrameworkUnity.DebugWindow
             {
                 IsPaused = false
             });
-            UpdateButtonsVisibility();
         }
 
         private void OnStepModuleClick()
@@ -100,15 +108,15 @@ namespace ModulesFrameworkUnity.DebugWindow
             _world.GetModule<UpdateDebuggingModule>().NextSystem();
         }
 
-        private void UpdateButtonsVisibility()
+        private void UpdateElementsVisibility(bool isPaused)
         {
-            var isPaused = IsPaused();
             var pauseDisplay = isPaused ? DisplayStyle.None : DisplayStyle.Flex;
             var resumeDisplay = isPaused ? DisplayStyle.Flex : DisplayStyle.None;
             _pauseBtn.style.display = pauseDisplay;
             _resumeBtn.style.display = resumeDisplay;
             _stepSystemBtn.style.display = resumeDisplay;
             _stepModuleBtn.style.display = resumeDisplay;
+            _currentStepLabel.style.display = resumeDisplay;
         }
 
         private bool IsPaused()
@@ -117,6 +125,22 @@ namespace ModulesFrameworkUnity.DebugWindow
                 return false;
             var debugData = _world.OneData<DebugData>();
             return debugData.isPause;
+        }
+
+        public void SetPause(bool isPause)
+        {
+            UpdateElementsVisibility(isPause);
+        }
+
+        internal void SetModuleRunType(ModuleRunType moduleRunType)
+        {
+            _currentStepLabel.text = moduleRunType switch
+            {
+                ModuleRunType.Run => "Run type: Run",
+                ModuleRunType.PostRun => "Run type: Post Run",
+                ModuleRunType.FrameEnd => "Run type: Frame End",
+                _ => _currentStepLabel.text
+            };
         }
     }
 }

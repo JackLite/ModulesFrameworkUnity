@@ -68,7 +68,6 @@ namespace ModulesFrameworkUnity
                 ref var debugData = ref world.OneData<DebugData>();
                 if (!debugData.isPause)
                 {
-                    debugData.currentRoot = default;
                     world.Run();
                 }
             }

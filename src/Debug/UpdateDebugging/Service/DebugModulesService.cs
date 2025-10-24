@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using ModulesFramework.Data;
 using ModulesFramework.Modules;
-using ModulesFramework.Systems;
-using ModulesFramework.Systems.Events;
-using ModulesFrameworkUnity.Debug;
-using ModulesFrameworkUnity.Debug.UpdateDebugging;
+using ModulesFrameworkUnity.Debug.Attributes;
+using ModulesFrameworkUnity.Debug.UpdateDebugging.Events;
 using ModulesFrameworkUnity.Debug.UpdateDebugging.Info;
-using ModulesFrameworkUnity.Utils;
 
-namespace ModulesFrameworkUnity.DebugWindow.Service
+namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
 {
     internal class DebugModulesService
     {
@@ -22,19 +20,25 @@ namespace ModulesFrameworkUnity.DebugWindow.Service
 
         public void CreateData()
         {
+            var roots = _world.GetAllModules()
+                .Where(m => m.IsRoot)
+                .Where(m => m.GetType().GetCustomAttribute<HideInDebugAttribute>() == null)
+                .ToList();
+            
             var data = new ModulesPauseDebugData
             {
                 currentModuleRunType = ModuleRunType.Run,
-                currentRootIndex = -1,
-                nextCallModule = _world.EmbeddedGlobalModule,
-                currentRoot = new ModuleDebugWrapper(_world.EmbeddedGlobalModule),
-                roots = _world.GetAllModules().Where(m => m.IsRoot).ToList(),
+                currentRootIndex = 0,
+                nextCallModule = roots.FirstOrDefault(),
+                currentRoot = new ModuleDebugWrapper(roots.FirstOrDefault()),
+                roots = roots,
             };
 
             _world.CreateOneData(data);
+            _world.RiseEvent<UpdateDebuggingModuleChangedSignal>();
         }
 
-        public void Stop()
+        public void Reset()
         {
             _world.RemoveOneData<ModulesPauseDebugData>();
         }
@@ -53,7 +57,7 @@ namespace ModulesFrameworkUnity.DebugWindow.Service
             var isLast = StepModule(data.currentModuleRunType, data.currentRoot);
             if (!isLast)
             {
-                data.nextCallModule = GetNextModule().module;
+                SetNextCallModule(GetNextModule().module);
                 return;
             }
 
@@ -62,16 +66,17 @@ namespace ModulesFrameworkUnity.DebugWindow.Service
                 return;
 
             data.currentRoot = new ModuleDebugWrapper(data.roots[data.currentRootIndex]);
-            data.nextCallModule = GetNextModule().module;
+            SetNextCallModule(GetNextModule().module);
         }
 
         public void SwitchToNextRunType()
         {
             ref var data = ref _world.OneData<ModulesPauseDebugData>();
-            data.currentRootIndex = -1;
-            data.currentRoot = new ModuleDebugWrapper(_world.EmbeddedGlobalModule);
-            data.nextCallModule = data.currentRoot.module;
+            data.currentRootIndex = 0;
+            data.currentRoot = new ModuleDebugWrapper(data.roots[0]);
+            SetNextCallModule(GetNextModule().module);
             data.currentModuleRunType = data.currentModuleRunType.Next();
+            _world.RiseEvent<UpdateDebuggingModuleChangedSignal>();
         }
 
         public bool IsEmpty()
@@ -181,34 +186,56 @@ namespace ModulesFrameworkUnity.DebugWindow.Service
         public void SwitchToNextModule()
         {
             ref var data = ref _world.OneData<ModulesPauseDebugData>();
-            var wrapper = data.currentRoot;
+            if (SkipStep(data.currentRoot))
+            {
+                SwitchToNextRoot();
+                return;
+            }
+
+            SetNextCallModule(GetNextModule().module);
+        }
+
+        /// <summary>
+        ///     Return true if it's last skip for wrapper
+        /// </summary>
+        private bool SkipStep(ModuleDebugWrapper wrapper)
+        {
             if (wrapper.step == ModuleInternalStep.Composed)
             {
                 if (wrapper.composed.Count > 0)
                 {
-                    wrapper.composed.Dequeue();
-                    data.nextCallModule = GetNextModule().module;
-                    return;
+                    var composedModule = wrapper.composed.Peek();
+                    if (SkipStep(composedModule))
+                        wrapper.composed.Dequeue();
                 }
 
-                wrapper.step = ModuleInternalStep.Self;
+                if (wrapper.composed.Count == 0)
+                {
+                    wrapper.step = ModuleInternalStep.Self;
+                }
+
+                return false;
             }
 
             if (wrapper.step == ModuleInternalStep.Self)
             {
-                if (wrapper.submodules.Count == 0)
-                    SwitchToNextRoot();
-                else
-                    wrapper.step = ModuleInternalStep.Submodules;
-            }
-            else if (wrapper.step == ModuleInternalStep.Submodules)
-            {
-                wrapper.submodules.Dequeue();
-                if (wrapper.submodules.Count == 0)
-                    SwitchToNextRoot();
+                wrapper.step = ModuleInternalStep.Submodules;
+                return wrapper.submodules.Count == 0;
             }
 
-            data.nextCallModule = GetNextModule().module;
+            if (wrapper.step == ModuleInternalStep.Submodules)
+            {
+                if (wrapper.submodules.Count > 0)
+                {
+                    var submoduleWrapper = wrapper.submodules.Peek();
+                    if (SkipStep(submoduleWrapper))
+                        wrapper.submodules.Dequeue();
+                    else
+                        return false;
+                }
+            }
+
+            return wrapper.submodules.Count == 0;
         }
 
         private void SwitchToNextRoot()
@@ -217,15 +244,15 @@ namespace ModulesFrameworkUnity.DebugWindow.Service
             data.currentRootIndex++;
             if (data.currentRootIndex >= data.roots.Count)
             {
-                data.currentRootIndex = -1;
-                data.currentRoot = new ModuleDebugWrapper(_world.EmbeddedGlobalModule);
-                data.nextCallModule = data.currentRoot.module;
+                data.currentRootIndex = 0;
+                data.currentRoot = new ModuleDebugWrapper(data.roots[0]);
                 data.currentModuleRunType = data.currentModuleRunType.Next();
+                SetNextCallModule(data.currentRoot.module);
                 return;
             }
 
             data.currentRoot = new ModuleDebugWrapper(data.roots[data.currentRootIndex]);
-            data.nextCallModule = GetNextModule().module;
+            SetNextCallModule(GetNextModule().module);
         }
 
         public void ProceedAllRemains()
@@ -242,6 +269,13 @@ namespace ModulesFrameworkUnity.DebugWindow.Service
                 while (!IsEmpty())
                     RunNextModule();
             }
+        }
+
+        private void SetNextCallModule(EcsModule module)
+        {
+            ref var data = ref _world.OneData<ModulesPauseDebugData>();
+            data.nextCallModule = module;
+            _world.RiseEvent<UpdateDebuggingModuleChangedSignal>();
         }
     }
 }

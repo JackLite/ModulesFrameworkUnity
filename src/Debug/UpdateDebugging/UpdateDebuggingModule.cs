@@ -4,14 +4,13 @@ using System.Threading.Tasks;
 using ModulesFramework;
 using ModulesFramework.Attributes;
 using ModulesFramework.Modules;
+using ModulesFrameworkUnity.Debug.Attributes;
 using ModulesFrameworkUnity.Debug.UpdateDebugging.Service;
-using ModulesFrameworkUnity.DebugWindow.Attributes;
-using ModulesFrameworkUnity.DebugWindow.Service;
 
-namespace ModulesFrameworkUnity.DebugWindow
+namespace ModulesFrameworkUnity.Debug.UpdateDebugging
 {
     [GlobalModule]
-    // [HideInDebug]
+    [HideInDebug]
     internal class UpdateDebuggingModule : EcsModule
     {
         private Dictionary<Type, object> _dependencies;

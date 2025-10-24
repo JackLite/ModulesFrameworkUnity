@@ -1,5 +1,4 @@
 ﻿using ModulesFramework.Data;
-using ModulesFrameworkUnity.DebugWindow.Service;
 
 namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
 {
@@ -25,11 +24,12 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
 
         public void Resume()
         {
-            // proceed all remain systems
             var moduleRunType = _world.OneData<ModulesPauseDebugData>().currentModuleRunType;
             _debugSystemsService.ProceedAllRemains(moduleRunType);
-            // proceed all remain modules
+            
             _debugModulesService.ProceedAllRemains();
+            _debugSystemsService.Reset();
+            _debugModulesService.Reset();
         }
 
         public void RunNextModule()

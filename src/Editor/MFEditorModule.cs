@@ -1,6 +1,6 @@
 ﻿using ModulesFramework.Attributes;
 using ModulesFramework.Modules;
-using ModulesFrameworkUnity.DebugWindow.Attributes;
+using ModulesFrameworkUnity.Debug.Attributes;
 
 namespace ModulesFrameworkUnity
 {

@@ -4,6 +4,7 @@ using ModulesFramework.Modules;
 using ModulesFramework.Systems;
 using ModulesFramework.Systems.Events;
 using ModulesFramework.Utils.Types;
+using ModulesFrameworkUnity.Debug.UpdateDebugging.Events;
 using ModulesFrameworkUnity.Debug.UpdateDebugging.Info;
 using ModulesFrameworkUnity.Utils;
 
@@ -24,19 +25,22 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
             {
                 currentModule = module,
             };
+
             if (moduleRunType == ModuleRunType.Run)
                 FillRunData(ref data);
-            else if(moduleRunType ==  ModuleRunType.PostRun)
+            else if (moduleRunType == ModuleRunType.PostRun)
                 FillPostRunData(ref data);
-            else if(moduleRunType == ModuleRunType.FrameEnd)
+            else if (moduleRunType == ModuleRunType.FrameEnd)
                 FillFrameEndData(ref data);
 
-            if (data.eventRunners.Count > 0)
-                data.nextSystem = data.eventSystemsWrapper.GetNext();
-            else if (data.updateSystems.Count > 0)
-                data.nextSystem = data.updateSystems.Peek();
-
             _world.CreateOneData(data);
+
+            UpdateNextRunSystem();
+        }
+
+        public void Reset()
+        {
+            _world.RemoveOneData<SystemsPauseDebugData>();
         }
 
         private void FillRunData(ref SystemsPauseDebugData data)
@@ -49,6 +53,7 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
                     new EventSystemsDebugWrapper<IRunEventSystem>(data.currentModule, data.eventRunners.Peek());
             }
         }
+
         private void FillPostRunData(ref SystemsPauseDebugData data)
         {
             data.eventRunners = data.currentModule.GetEventRunners(typeof(IPostRunEventSystem)).ToQueue();
@@ -59,7 +64,7 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
                     new EventSystemsDebugWrapper<IPostRunEventSystem>(data.currentModule, data.eventRunners.Peek());
             }
         }
-        
+
         private void FillFrameEndData(ref SystemsPauseDebugData data)
         {
             data.eventRunners = data.currentModule.GetEventRunners(typeof(IPostRunEventSystem)).ToQueue();
@@ -84,9 +89,12 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
         private void NextFrameEnd()
         {
             ref var data = ref _world.OneData<SystemsPauseDebugData>();
-            if (data.eventSystemsWrapper == null) 
+            if (data.eventSystemsWrapper == null)
+            {
+                UpdateNextRunSystem();
                 return;
-            
+            }
+
             var eventSystemsWrapper = data.eventSystemsWrapper;
             eventSystemsWrapper.RunNext(ModuleRunType.FrameEnd);
             if (eventSystemsWrapper.IsEmpty())
@@ -109,6 +117,10 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
             var system = (IPostRunSystem)data.updateSystems.Dequeue();
             UnityEngine.Debug.Log($"[Modules.Adapter] Post run system {system.GetType().GetTypeName()}");
             system.PostRun();
+
+            if (data.updateSystems.Count > 0)
+                UpdateNextRunSystem();
+
             RefreshEventSystems<IPostRunEventSystem>(ref data);
         }
 
@@ -128,6 +140,7 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
             var system = (IRunSystem)data.updateSystems.Dequeue();
             UnityEngine.Debug.Log($"[Modules.Adapter] Run system {system.GetType().GetTypeName()}");
             system.Run();
+
             RefreshEventSystems<IRunEventSystem>(ref data);
         }
 
@@ -137,9 +150,11 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
             data.eventSystemsWrapper = null;
             if (data.eventRunners.Count > 0)
             {
-                data.eventSystemsWrapper = new EventSystemsDebugWrapper<TEventSystem>(data.currentModule, data.eventRunners.Peek());
-                data.nextSystem = data.eventSystemsWrapper.GetNext();
+                data.eventSystemsWrapper =
+                    new EventSystemsDebugWrapper<TEventSystem>(data.currentModule, data.eventRunners.Peek());
             }
+
+            UpdateNextRunSystem();
         }
 
         public bool IsEmpty()
@@ -154,6 +169,18 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Service
             {
                 RunNextSystem(runType);
             }
+        }
+
+        private void UpdateNextRunSystem()
+        {
+            ref var data = ref _world.OneData<SystemsPauseDebugData>();
+            if (data.eventRunners.Count > 0)
+                data.nextSystem = data.eventSystemsWrapper.GetNext();
+            else if (data.updateSystems.Count > 0)
+                data.nextSystem = data.updateSystems.Peek();
+            else
+                data.nextSystem = null;
+            _world.RiseEvent<UpdateDebuggingSystemChangedSignal>();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ModulesFrameworkUnity.DebugWindow.Events
+﻿namespace ModulesFrameworkUnity.Debug.UpdateDebugging.Events
 {
     /// <summary>
     ///     Risen when MF pause changed
