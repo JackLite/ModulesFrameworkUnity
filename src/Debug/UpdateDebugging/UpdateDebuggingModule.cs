@@ -26,7 +26,6 @@ namespace ModulesFrameworkUnity.Debug.UpdateDebugging
                 { typeof(DebugSystemsService), debugSystemsService },
                 { typeof(UpdateDebuggingService), debugService }
             };
-            world.Logger.LogDebug("Test1", LogFilter.Full);
             return base.Setup();
         }
 
