@@ -30,6 +30,8 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
         private List<string> _pinnedComponents = new();
         
         private DataWorld _currentWorld;
+        
+        public DataWorld CurrentWorld => _currentWorld ?? DebugUtils.GetCurrentWorld();
 
         public void Draw(VisualElement root, DebugSettings debugSettings)
         {
@@ -46,7 +48,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             _dataContainer.AddToClassList("modules--entities-tab--data");
 
             _entitiesList.Draw(_dataContainer, debugSettings.entitiesFullName);
-            _entitiesList.OnEntitySelected += eid => OnEntitySelected(eid, _currentWorld);
+            _entitiesList.OnEntitySelected += eid => OnEntitySelected(eid, CurrentWorld);
             DrawSearchField(_entitiesList.componentsFilter);
 
             _settings ??= new EntityDrawerSettings();
@@ -85,10 +87,10 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             _entitiesList.Reset();
             if (!MF.IsInitialized)
                 return;
-            CreateViewersForExisted(_currentWorld);
+            CreateViewersForExisted(CurrentWorld);
 
             if (EditorApplication.isPlaying)
-                Subscribe(_currentWorld);
+                Subscribe(CurrentWorld);
         }
 
         public void Hide()
@@ -96,7 +98,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             _root.style.display = DisplayStyle.None;
             EditorApplication.playModeStateChanged -= OnPlayModeChanges;
             if (EditorApplication.isPlaying)
-                Unsubscribe(_currentWorld ?? DebugUtils.GetCurrentWorld());
+                Unsubscribe(CurrentWorld);
         }
 
         private void OnEntitySelected(int eid, DataWorld world)
@@ -115,8 +117,8 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
         {
             if (change == PlayModeStateChange.EnteredPlayMode)
             {
-                Subscribe(_currentWorld);
-                CreateViewersForExisted(_currentWorld);
+                Subscribe(CurrentWorld);
+                CreateViewersForExisted(CurrentWorld);
             }
         }
 
