@@ -30,11 +30,9 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
 
         private bool _isFullName;
 
-        [SerializeField]
-        public string componentsFilter = string.Empty;
+        [SerializeField] public string componentsFilter = string.Empty;
 
-        [SerializeField]
-        private string _listFilter = string.Empty;
+        [SerializeField] private string _listFilter = string.Empty;
 
         private bool FilterActive =>
             !string.IsNullOrWhiteSpace(componentsFilter)
@@ -60,7 +58,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
                 _scrollView = new ScrollView();
                 _scrollView.focusable = true;
                 _scrollView.mode = ScrollViewMode.VerticalAndHorizontal;
-                #if !UNITY_2022_1_OR_NEWER
+#if !UNITY_2022_1_OR_NEWER
                 _scrollView.RegisterCallback((KeyDownEvent ev, EntitiesList list) =>
                 {
                     if (ev.target != _scrollView)
@@ -70,12 +68,12 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
                     else if (ev.keyCode == KeyCode.UpArrow || ev.keyCode == KeyCode.W)
                         list.OnNavigation(NavigationMoveEvent.Direction.Up);
                 }, this);
-                #else
+#else
                 _scrollView.RegisterCallback(
                     (NavigationMoveEvent ev, EntitiesList list) => list.OnNavigation(ev.direction),
                     this
                 );
-                #endif
+#endif
             }
 
             if (_entitiesCount == null)
@@ -102,20 +100,30 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             entityLabel.UpdateName(_stringBuilder, _isFullName);
             _entityLabels[eid] = entityLabel;
             entityLabel.AddToClassList("modules--entities-tab--one-list-item");
-            entityLabel.RegisterCallback((ClickEvent _, int eid) =>
-            {
-                UpdateSelectionIndex(eid);
-            }, eid);
+            entityLabel.RegisterCallback((ClickEvent _, int eid) => { UpdateSelectionIndex(eid); }, eid);
 
             _scrollView.Add(entityLabel);
             UpdateEntityComponents(eid);
-            UpdateList();
+            Filter(eid);
+            UpdateVisibility(eid);
         }
 
         public void OnEntityChanged(int eid)
         {
-            UpdateList();
             UpdateEntityComponents(eid);
+            Filter(eid);
+            UpdateVisibility(eid);
+        }
+
+        private void UpdateVisibility(int eid)
+        {
+            if (FilterActive)
+            {
+                if (_filtered.Contains(eid))
+                    _entityLabels[eid].style.display = DisplayStyle.Flex;
+                else
+                    _entityLabels[eid].style.display = DisplayStyle.None;
+            }
         }
 
         public void OnCustomIdChanged(int eid)
@@ -182,19 +190,19 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
 
         private void UpdateList()
         {
-            Filter();
-            UpdateVisibility();
+            FilterAll();
+            UpdateVisibilityAll();
             _entitiesCount.text = $"Entities: {_entities.Count}";
         }
 
         public void FilterByComponent(string componentName)
         {
             componentsFilter = componentName;
-            Filter();
-            UpdateVisibility();
+            FilterAll();
+            UpdateVisibilityAll();
         }
 
-        private void Filter()
+        private void FilterAll()
         {
             if (!FilterActive)
                 return;
@@ -212,7 +220,19 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             }
         }
 
-        private void UpdateVisibility()
+        private void Filter(int eid)
+        {
+            var displayName = _entityLabels[eid].displayName;
+            var fullName = _entityComponentsMap[eid];
+            var isInComponents = fullName.Contains(componentsFilter, StringComparison.InvariantCultureIgnoreCase);
+            var isInList = displayName.Contains(_listFilter, StringComparison.InvariantCultureIgnoreCase);
+            if (isInComponents && isInList)
+                _filtered.Add(eid);
+            else
+                _filtered.Remove(eid);
+        }
+
+        private void UpdateVisibilityAll()
         {
             foreach (var (eid, label) in _entityLabels)
             {
