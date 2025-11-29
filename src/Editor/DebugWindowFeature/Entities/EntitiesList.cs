@@ -207,8 +207,8 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
 
         private void UpdateEntitiesCount()
         {
-            if(FilterActive)
-                _entitiesCount.text = $"Entities: {_filtered.Count}";
+            if (FilterActive)
+                _entitiesCount.text = $"Entities: {_filtered.Count}/{_entities.Count}";
             else
                 _entitiesCount.text = $"Entities: {_entities.Count}";
         }
