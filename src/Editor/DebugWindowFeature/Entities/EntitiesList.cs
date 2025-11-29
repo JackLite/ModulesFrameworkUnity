@@ -106,6 +106,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             UpdateEntityComponents(eid);
             Filter(eid);
             UpdateVisibility(eid);
+            UpdateEntitiesCount();
         }
 
         public void OnEntityChanged(int eid)
@@ -113,6 +114,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             UpdateEntityComponents(eid);
             Filter(eid);
             UpdateVisibility(eid);
+            UpdateEntitiesCount();
         }
 
         private void UpdateVisibility(int eid)
@@ -149,7 +151,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             label.RemoveFromHierarchy();
             _entityLabels.Remove(eid);
             _entityComponentsMap.Remove(eid);
-            UpdateList();
+            UpdateEntitiesCount();
         }
 
         private void UpdateSelectionIndex(int eid)
@@ -192,7 +194,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
         {
             FilterAll();
             UpdateVisibilityAll();
-            _entitiesCount.text = $"Entities: {_entities.Count}";
+            UpdateEntitiesCount();
         }
 
         public void FilterByComponent(string componentName)
@@ -200,6 +202,15 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             componentsFilter = componentName;
             FilterAll();
             UpdateVisibilityAll();
+            UpdateEntitiesCount();
+        }
+
+        private void UpdateEntitiesCount()
+        {
+            if(FilterActive)
+                _entitiesCount.text = $"Entities: {_filtered.Count}";
+            else
+                _entitiesCount.text = $"Entities: {_entities.Count}";
         }
 
         private void FilterAll()
