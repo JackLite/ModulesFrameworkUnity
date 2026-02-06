@@ -37,14 +37,14 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             _elements = new VisualElement();
             _foldout.Add(_elements);
             _container.Add(_foldout);
+            _addBlock = CreateAddBlock();
+            _foldout.Add(_addBlock);
 
             if (fieldValue == null)
                 return;
 
             var value = (IDictionary)fieldValue;
             _oldRef = value;
-            _addBlock = CreateAddBlock();
-            _foldout.Add(_addBlock);
 
             if (_wasDrawn)
             {
