@@ -8,8 +8,8 @@ using ModulesFrameworkUnity.Utils;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using ModulesFrameworkUnity.Debug.UpdateDebugging;
 using ModulesFrameworkUnity.EmptyEntities;
+using ModulesFrameworkUnity.Systems;
 using UnityEngine;
 #if MODULES_PERFORMANCE
 using System.Diagnostics;
@@ -33,6 +33,10 @@ namespace ModulesFrameworkUnity
             _settings = settings;
             EntitiesTagStorage.Initialize();
             _modules = new MF(new UnityAssemblyFilter());
+            _modules.MainWorld.RegisterSystemType<IRunPhysicSystem>();
+            _modules.MainWorld.RegisterSystemType<IPostRunSystem>();
+            _modules.MainWorld.RegisterEventSystem<IPostRunEventSystem>(new PostRunEventInvoker());
+            _modules.MainWorld.RegisterEventSystem<IFrameEndEventSystem>(new FrameEndEventInvoker());
             _modules.MainWorld.OnEntityDestroyed += EntitiesTagStorage.Storage.RemoveEntity;
             if (_settings.deleteEmptyEntities)
             {
@@ -47,7 +51,6 @@ namespace ModulesFrameworkUnity
         public void Start()
         {
             _modules.Start().Forget();
-
         }
 
         public async Task StartAsync()
@@ -57,23 +60,10 @@ namespace ModulesFrameworkUnity
 
         public void Update()
         {
-
 #if MODULES_PERFORMANCE
             _stopwatch.Start();
 #endif
-
-#if MODULES_DEBUG
-            foreach (var world in _modules.Worlds)
-            {
-                ref var debugData = ref world.OneData<DebugData>();
-                if (!debugData.isPause)
-                {
-                    world.Run();
-                }
-            }
-#else
             _modules.Run();
-#endif
 #if MODULES_PERFORMANCE
             _stopwatch.Stop();
             _elapsedTimeMs += _stopwatch.ElapsedMilliseconds;
@@ -86,7 +76,21 @@ namespace ModulesFrameworkUnity
 
         public void FixedUpdate()
         {
-            _modules.RunPhysic();
+            foreach (var world in _modules.Worlds)
+            {
+                if (world.GetEventSystemTypes().ContainsKey(typeof(IPhysicRunEventSystem)))
+                {
+                    world.CallEventSystems<IPhysicRunEventSystem>();
+                }
+            }
+
+            foreach (var world in _modules.Worlds)
+            {
+                if (world.GetSystemTypes().Contains(typeof(IRunPhysicSystem)))
+                {
+                    world.CallSystems<IRunPhysicSystem>(s => s.RunPhysic(), true);
+                }
+            }
         }
 
         public void LateUpdate()
@@ -94,8 +98,30 @@ namespace ModulesFrameworkUnity
 #if MODULES_PERFORMANCE
             _stopwatch.Start();
 #endif
+            foreach (var world in _modules.Worlds)
+            {
+                if (world.GetEventSystemTypes().ContainsKey(typeof(IPostRunEventSystem)))
+                {
+                    world.CallEventSystems<IPostRunEventSystem>();
+                }
+            }
 
-            _modules.PostRun();
+            foreach (var world in _modules.Worlds)
+            {
+                if (world.GetSystemTypes().Contains(typeof(IPostRunSystem)))
+                {
+                    world.CallSystems<IPostRunSystem>(s => s.PostRun(), true);
+                }
+            }
+
+            foreach (var world in _modules.Worlds)
+            {
+                if (world.GetEventSystemTypes().ContainsKey(typeof(IFrameEndEventSystem)))
+                {
+                    world.CallEventSystems<IFrameEndEventSystem>();
+                }
+            }
+
             foreach (var service in _emptyEntitiesServices)
                 service.RemoveEmpty();
 

@@ -76,7 +76,6 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
             TopBar.OnWorldChanged += worldName =>
             {
                 _currentWorldName = worldName;
-                TopBar.Refresh(GetWorld());
                 _entitiesTab.Refresh(GetWorld());
                 _oneDataTab.Refresh();
                 ModulesTab.Refresh();
@@ -134,11 +133,6 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
             _entitiesTab.Hide();
             ModulesTab.OnSwitchMode -= OnSwitchMode;
             rootVisualElement.Clear();
-        }
-
-        public void SetPause(bool isPause)
-        {
-            TopBar.SetPause(isPause);
         }
 
         public DataWorld GetWorld()
