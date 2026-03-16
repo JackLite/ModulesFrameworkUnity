@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using ModulesFramework;
-using ModulesFramework.Data;
 using ModulesFrameworkUnity.Debug;
 using ModulesFrameworkUnity.EntitiesTags;
 using ModulesFrameworkUnity.Settings;
 using ModulesFrameworkUnity.Utils;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
+using ModulesFramework.Systems;
+using ModulesFramework.Systems.Events;
 using ModulesFrameworkUnity.EmptyEntities;
 using ModulesFrameworkUnity.Systems;
 using UnityEngine;
@@ -157,15 +156,6 @@ namespace ModulesFrameworkUnity
         public void OnDestroy()
         {
             _modules.Destroy();
-        }
-
-        private static void CheckEmptiness(Entity entity)
-        {
-            if (!entity.IsAlive())
-                return;
-
-            if (entity.IsEmpty())
-                entity.Destroy();
         }
     }
 }

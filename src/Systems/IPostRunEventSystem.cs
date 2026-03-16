@@ -1,22 +1,4 @@
-﻿using System;
-using ModulesFramework.Systems.Events;
-
-namespace ModulesFramework.Systems.Events
-{
-    [Obsolete("Will be deleted in 1.5.0. Use ModulesFrameworkUnity.Systems.IPostRunSystem")]
-    public interface IPostRunEventSystem : IEventSystem
-    {
-        
-    }
-
-    [Obsolete("Will be deleted in 1.5.0. Use ModulesFrameworkUnity.Systems.IPostRunSystem")]
-    public interface IPostRunEventSystem<T> : IPostRunEventSystem where T : struct
-    {
-        public void PostRunEvent(T ev);
-    }
-}
-
-namespace ModulesFrameworkUnity.Systems
+﻿namespace ModulesFramework.Systems.Events
 {
     public interface IPostRunEventSystem : IEventSystem
     {
