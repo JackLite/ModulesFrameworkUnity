@@ -185,5 +185,10 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             _entityDrawer.Destroy();
             CreateViewersForExisted(currentWorld);
         }
+
+        public void ChooseEntity(Entity entity)
+        {
+            _entitiesList.ChooseEntity(entity);
+        }
     }
 }

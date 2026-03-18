@@ -5,17 +5,17 @@ namespace ModulesFrameworkUnity.Debug
 {
     public class UnityLogger : IModulesLogger
     {
-        private LogFilter _logFilter = LogFilter.Full;
+        public LogFilter LogFilter { get; private set; } = LogFilter.Full;
 
         public void LogDebug(string msg, LogFilter logFilter)
         {
-            if((_logFilter & logFilter) != LogFilter.None && UnityEngine.Debug.isDebugBuild)
+            if((LogFilter & logFilter) != LogFilter.None && UnityEngine.Debug.isDebugBuild)
                 UnityEngine.Debug.Log($"[Modules] {msg}");
         }
 
         public void LogDebug(object msg, LogFilter logFilter)
         {
-            if((_logFilter & logFilter) != LogFilter.None && UnityEngine.Debug.isDebugBuild)
+            if((LogFilter & logFilter) != LogFilter.None && UnityEngine.Debug.isDebugBuild)
                 UnityEngine.Debug.Log($"[Modules] {msg}");
         }
 
@@ -46,7 +46,7 @@ namespace ModulesFrameworkUnity.Debug
 
         public void SetLogType(LogFilter logFilter)
         {
-            _logFilter = logFilter;
+            LogFilter = logFilter;
         }
     }
 }

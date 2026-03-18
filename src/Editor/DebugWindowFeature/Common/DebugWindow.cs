@@ -145,5 +145,12 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
 
             return MF.IsWorldExists(_currentWorldName) ? MF.GetWorld(_currentWorldName) : MF.World;
         }
+
+        public void ChooseEntity(Entity entity)
+        {
+            if (_currentTab != DebugTabType.Entities)
+                SwitchTab(DebugTabType.Entities);
+            _entitiesTab.ChooseEntity(entity);
+        }
     }
 }

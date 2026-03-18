@@ -306,5 +306,13 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             if (_entityLabels.TryGetValue(eid, out var label))
                 label.UpdateName(_stringBuilder, _isFullName);
         }
+
+        public void ChooseEntity(Entity entity)
+        {
+            if (_currentSelectedEid == entity.Id)
+                return;
+
+            UpdateSelectionIndex(entity.Id);
+        }
     }
 }

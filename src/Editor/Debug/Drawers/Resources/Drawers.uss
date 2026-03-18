@@ -7,3 +7,10 @@ CreateRefWidget {
 CreateRefWidget > IntegerField {
     width: 60px;
 }
+
+.modules--entity-drawer--choose-entity-btn {
+    width: 100px;
+    margin-left: 0;
+    margin-top: 8px;
+    margin-bottom: 5px;
+}
