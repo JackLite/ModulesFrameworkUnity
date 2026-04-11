@@ -15,7 +15,6 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
     {
         private VisualElement _elements;
         private VisualElement _addBlock;
-        private bool _wasDrawn;
         private readonly Dictionary<string, object> _newKeys = new();
 
         public override bool CanDraw(Type type, object value)
@@ -46,28 +45,21 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             var value = (IDictionary)fieldValue;
             _oldRef = value;
 
-            if (_wasDrawn)
-            {
-                DrawDict(_fieldName);
-                DrawAddBlock(_fieldName);
-            }
-
             _foldout.RegisterValueChangedCallback(ev =>
             {
                 if (ev.target != _foldout)
                     return;
-                if (ev.newValue && !_wasDrawn)
+                if (ev.newValue)
                 {
                     DrawDict(_fieldName);
                     DrawAddBlock(_fieldName);
                 }
             });
-            
-            
         }
 
         private void DrawAddBlock(string fieldName)
         {
+            _addBlock.Clear();
             TryDrawValueOrSimpleAdd(fieldName);
             TryDrawStringAdd(fieldName);
         }
@@ -85,10 +77,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
             }
 
             var keyType = _newKeys[cacheKey].GetType();
-            mainDrawer.Draw($"New key [{keyType.GetTypeName()}]", keyType, _newKeys[cacheKey], _addBlock, (_, newVal) =>
-            {
-                _newKeys[cacheKey] = newVal;
-            }, () => _newKeys[cacheKey], Level + 1, false);
+            mainDrawer.Draw($"New key [{keyType.GetTypeName()}]", keyType, _newKeys[cacheKey], _addBlock,
+                (_, newVal) => { _newKeys[cacheKey] = newVal; }, () => _newKeys[cacheKey], Level + 1, false);
 
             DrawAddBtn(() =>
             {
@@ -119,10 +109,8 @@ namespace ModulesFrameworkUnity.Debug.Drawers.Collections
                 var cacheKey = _oldRef.GetType().FullName + fieldName;
                 _newKeys.TryAdd(cacheKey, string.Empty);
 
-                mainDrawer.Draw("New key [string]", typeof(string), _newKeys[cacheKey], _addBlock, (_, newVal) =>
-                {
-                    _newKeys[cacheKey] = newVal;
-                }, () => _newKeys[cacheKey], Level + 1, false);
+                mainDrawer.Draw("New key [string]", typeof(string), _newKeys[cacheKey], _addBlock,
+                    (_, newVal) => { _newKeys[cacheKey] = newVal; }, () => _newKeys[cacheKey], Level + 1, false);
 
                 DrawAddBtn(() =>
                 {
