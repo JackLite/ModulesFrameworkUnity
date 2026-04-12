@@ -22,7 +22,7 @@ namespace ModulesFrameworkUnity.EntitiesTags
                 return entity;
             }
 
-            EntitiesTagStorage.Storage.AddTag(entity.Id, tag);
+            EntitiesTagStorage.Storage.AddTag(entity.Id, entity.World.WorldIndex, tag);
             #endif
             return entity;
         }
@@ -41,7 +41,7 @@ namespace ModulesFrameworkUnity.EntitiesTags
                 return entity;
             }
 
-            EntitiesTagStorage.Storage.RemoveTag(entity.Id, tag);
+            EntitiesTagStorage.Storage.RemoveTag(entity.Id, entity.World.WorldIndex, tag);
             #endif
             return entity;
         }
@@ -60,7 +60,7 @@ namespace ModulesFrameworkUnity.EntitiesTags
                 return Array.Empty<string>();
             }
 
-            return EntitiesTagStorage.Storage.GetTags(entity.Id);
+            return EntitiesTagStorage.Storage.GetTags(entity.Id, entity.World.WorldIndex);
             #endif
             return Array.Empty<string>();
         }

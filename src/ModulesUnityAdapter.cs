@@ -36,7 +36,7 @@ namespace ModulesFrameworkUnity
             _modules.MainWorld.RegisterSystemType<IPostRunSystem>();
             _modules.MainWorld.RegisterEventSystem<IPostRunEventSystem>(new PostRunEventInvoker());
             _modules.MainWorld.RegisterEventSystem<IFrameEndEventSystem>(new FrameEndEventInvoker());
-            _modules.MainWorld.OnEntityDestroyed += EntitiesTagStorage.Storage.RemoveEntity;
+            _modules.MainWorld.OnEntityDestroyed += (eid) => EntitiesTagStorage.Storage.RemoveEntity(eid, _modules.MainWorld.WorldIndex);
             if (_settings.deleteEmptyEntities)
             {
                 foreach (var world in _modules.Worlds)

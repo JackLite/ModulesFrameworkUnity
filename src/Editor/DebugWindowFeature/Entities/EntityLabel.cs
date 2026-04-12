@@ -29,7 +29,8 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             // try tags
             if (EntitiesTagStorage.IsInitialized)
             {
-                var tags = EntitiesTagStorage.Storage.GetTags(eid);
+                var currentWorld = DebugUtils.GetCurrentWorld();
+                var tags = EntitiesTagStorage.Storage.GetTags(eid, currentWorld.WorldIndex);
                 if (tags.Count > 0)
                 {
                     stringBuilder.Append(string.Join(" | ", tags));

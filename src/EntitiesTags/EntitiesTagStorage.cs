@@ -8,45 +8,55 @@ namespace ModulesFrameworkUnity.EntitiesTags
         public static bool IsInitialized => Storage != null;
         public static EntitiesTagStorage Storage { get; private set; }
 
-        private readonly Dictionary<int, SortedSet<string>> _tags = new();
+        private readonly Dictionary<int, EntitiesWorldTagStorage> _worldStorages = new();
 
-        public event Action<int> OnTagChanged;
+        /// <summary>
+        ///     Arg 1: Entity ID
+        ///     Arg 2: World Index
+        /// </summary>
+        public event Action<int, int> OnTagChanged;
 
         public static void Initialize()
         {
             Storage = new EntitiesTagStorage();
         }
 
-        public void AddTag(int eid, string tag)
+        public void AddTag(int eid, int worldIndex, string tag)
         {
-            if (!_tags.TryGetValue(eid, out var tags))
+            EnsureWorldStorage(worldIndex);
+            var storage = _worldStorages[worldIndex];
+            storage.AddTag(eid, tag);
+        }
+
+        private void EnsureWorldStorage(int worldIndex)
+        {
+            if (!_worldStorages.ContainsKey(worldIndex))
             {
-                tags = new SortedSet<string>();
-                _tags.Add(eid, tags);
+                var storage = new EntitiesWorldTagStorage(worldIndex);
+                storage.OnTagChanged += (eid, idx) => OnTagChanged?.Invoke(eid, idx);
+                _worldStorages.Add(worldIndex, storage);
             }
-
-            tags.Add(tag);
-            OnTagChanged?.Invoke(eid);
         }
 
-        public void RemoveEntity(int eid)
+        public void RemoveEntity(int eid, int worldIndex)
         {
-            _tags.Remove(eid);
+            EnsureWorldStorage(worldIndex);
+            var storage = _worldStorages[worldIndex];
+            storage.RemoveEntity(eid);
         }
 
-        public void RemoveTag(int eid, string tag)
+        public void RemoveTag(int eid, int worldIndex, string tag)
         {
-            if (!_tags.TryGetValue(eid, out var tags))
-                return;
-            tags.Remove(tag);
-            OnTagChanged?.Invoke(eid);
+            EnsureWorldStorage(worldIndex);
+            var storage = _worldStorages[worldIndex];
+            storage.RemoveTag(eid, tag);
         }
 
-        public IReadOnlyCollection<string> GetTags(int eid)
+        public IReadOnlyCollection<string> GetTags(int eid, int worldIndex)
         {
-            if (!_tags.TryGetValue(eid, out var tags))
-                return Array.Empty<string>();
-            return tags;
+            EnsureWorldStorage(worldIndex);
+            var storage = _worldStorages[worldIndex];
+            return storage.GetTags(eid);
         }
     }
 }

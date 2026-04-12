@@ -301,8 +301,12 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             _currentSelectedEid = -1;
         }
 
-        public void OnTagChanged(int eid)
+        public void OnTagChanged(int eid, int worldIndex)
         {
+            var currentWorld = DebugUtils.GetCurrentWorld();
+            if (currentWorld.WorldIndex != worldIndex)
+                return;
+
             if (_entityLabels.TryGetValue(eid, out var label))
                 label.UpdateName(_stringBuilder, _isFullName);
         }
