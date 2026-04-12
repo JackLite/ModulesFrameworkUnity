@@ -309,6 +309,8 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
 
             if (_entityLabels.TryGetValue(eid, out var label))
                 label.UpdateName(_stringBuilder, _isFullName);
+
+            UpdateList();
         }
 
         public void ChooseEntity(Entity entity)
