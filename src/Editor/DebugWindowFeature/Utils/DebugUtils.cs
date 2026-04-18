@@ -41,7 +41,14 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Utils
         public static HashSet<string> GetAllWorldNames()
         {
             if (MF.IsInitialized)
-                return MF.GetAllWorlds().Select(w => w.WorldName).ToHashSet();
+            {
+                var result = new HashSet<string>();
+                foreach (var world in MF.GetAllWorlds())
+                {
+                    result.Add(world.WorldName);
+                    return result;
+                }
+            }
 
             var worlds = from assembly in AssemblyUtils.GetAssemblies()
                 from type in assembly.GetTypes()
