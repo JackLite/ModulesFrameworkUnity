@@ -32,6 +32,7 @@ EntitiesListSearch {
     flex-direction: row;
     margin-right: 10px;
     margin-left: 5px;
+    min-height: 20px;
 }
 
 .modules--entities-list--search-field {

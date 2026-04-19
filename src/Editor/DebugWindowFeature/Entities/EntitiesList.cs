@@ -57,7 +57,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
             {
                 _scrollView = new ScrollView();
                 _scrollView.focusable = true;
-                _scrollView.mode = ScrollViewMode.VerticalAndHorizontal;
+                _scrollView.mode = ScrollViewMode.Vertical;
 #if !UNITY_2022_1_OR_NEWER
                 _scrollView.RegisterCallback((KeyDownEvent ev, EntitiesList list) =>
                 {
@@ -319,6 +319,11 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Entities
                 return;
 
             UpdateSelectionIndex(entity.Id);
+
+            if (!_filtered.Contains(_currentSelectedEid) && FilterActive)
+                return;
+            
+            _scrollView.ScrollTo(_currentSelected);
         }
     }
 }
