@@ -23,7 +23,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.OneDataTab
         {
             var createBtnContainer = new VisualElement();
             createBtnContainer.AddToClassList("modules-debug--create-struct--component-buttons");
-            _newStructContainer.Add(createBtnContainer);
+            newStructContainer.Add(createBtnContainer);
 
             var createBtn = new Button();
             createBtn.text = "Create";
@@ -41,7 +41,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.OneDataTab
             }
 
             var methodInfo = GetType().GetMethod(nameof(CreateOneDataWrapper), BindingFlags.NonPublic | BindingFlags.Instance);
-            var method = methodInfo.MakeGenericMethod(type);
+            var method = methodInfo!.MakeGenericMethod(type);
             method.Invoke(this, new[] { newComponent });
             AddToRecent(type);
         }

@@ -7,12 +7,12 @@ namespace ModulesFrameworkUnity
 {
     public class MFEntryPoint : MonoBehaviour
     {
-        protected ModulesUnityAdapter _adapter;
-        protected static bool _created;
+        protected ModulesUnityAdapter adapter;
+        protected static bool created;
 
         protected virtual void Awake()
         {
-            if (_created)
+            if (created)
             {
                 DestroyImmediate(gameObject);
                 return;
@@ -23,9 +23,9 @@ namespace ModulesFrameworkUnity
                 return;
 
             DontDestroyOnLoad(gameObject);
-            _adapter = new ModulesUnityAdapter(settings);
-            _adapter.Start();
-            _created = true;
+            adapter = new ModulesUnityAdapter(settings);
+            adapter.Start();
+            created = true;
         }
 
         protected virtual IEnumerator Start()
@@ -38,23 +38,23 @@ namespace ModulesFrameworkUnity
 
         protected virtual void Update()
         {
-            _adapter.Update();
+            adapter.Update();
         }
 
         protected virtual void FixedUpdate()
         {
-            _adapter.FixedUpdate();
+            adapter.FixedUpdate();
         }
 
         protected virtual void LateUpdate()
         {
-            _adapter.LateUpdate();
+            adapter.LateUpdate();
         }
 
         protected virtual void OnDestroy()
         {
-            if (_adapter != null)
-                _adapter.OnDestroy();
+            if (adapter != null)
+                adapter.OnDestroy();
         }
     }
 }

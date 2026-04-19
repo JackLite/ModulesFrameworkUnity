@@ -1,12 +1,9 @@
-using System;
 using System.Linq;
-using System.Text;
 using ModulesFramework;
 using ModulesFrameworkUnity.Settings;
+using ModulesFrameworkUnity.Utils;
 using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEngine;
-
 namespace ModulesFrameworkUnity
 {
     public class ModulesWindow : EditorWindow
@@ -164,7 +161,7 @@ namespace ModulesFrameworkUnity
             EditorGUILayout.LabelField("Exclude assemblies (wildcards supported, use *)");
             var textAreaStyle = EditorStyles.textArea;
             textAreaStyle.stretchHeight = true;
-            textAreaStyle.wordWrap = false; ;
+            textAreaStyle.wordWrap = false;
             var newValue = EditorGUILayout.TextArea(string.Join('\n', Settings.assemblyFilters), textAreaStyle);
             Settings.assemblyFilters = newValue.Split('\n')
                 .Select(s => s.Trim())

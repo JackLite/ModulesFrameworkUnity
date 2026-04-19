@@ -1,10 +1,8 @@
-using System.Linq;
 using ModulesFramework;
 using ModulesFramework.Data;
 using ModulesFrameworkUnity.DebugWindowFeature.Common.Data;
 using ModulesFrameworkUnity.DebugWindowFeature.Entities;
 using ModulesFrameworkUnity.DebugWindowFeature.Modules;
-using ModulesFrameworkUnity.DebugWindowFeature.Modules.Data;
 using ModulesFrameworkUnity.DebugWindowFeature.OneDataTab;
 using ModulesFrameworkUnity.DebugWindowFeature.Utils;
 using ModulesFrameworkUnity.Settings;
@@ -21,7 +19,6 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
 
         [SerializeField] private OneDataTabView _oneDataTab;
         [SerializeField] private EntitiesTab _entitiesTab;
-        [SerializeField] private ModulesTabMode _modulesTabMode;
         [SerializeField] private DebugTabType _currentTab;
         [SerializeField] private string _currentWorldName;
 
@@ -46,10 +43,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
 
             var debugSettings = ModulesSettings.Load().debugSettings;
             hideFlags = HideFlags.HideAndDontSave;
-            if (EditorPrefs.HasKey("MF.ModulesTabMode") && _modulesTabMode == ModulesTabMode.Undefined)
-                _modulesTabMode = (ModulesTabMode)EditorPrefs.GetInt("MF.ModulesTabMode");
-            ModulesTab ??= new ModulesTab(_modulesTabMode);
-            ModulesTab.OnSwitchMode += OnSwitchMode;
+            ModulesTab ??= new ModulesTab();
             rootVisualElement.Add(ModulesTab);
 
             var oneDataRoot = new VisualElement();
@@ -120,18 +114,11 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
             }
         }
 
-        private void OnSwitchMode(ModulesTabMode mode)
-        {
-            _modulesTabMode = mode;
-            EditorPrefs.SetInt("MF.ModulesTabMode", (int)mode);
-        }
-
         private void OnDisable()
         {
             ModulesTab.Hide();
             _oneDataTab.Hide();
             _entitiesTab.Hide();
-            ModulesTab.OnSwitchMode -= OnSwitchMode;
             rootVisualElement.Clear();
         }
 

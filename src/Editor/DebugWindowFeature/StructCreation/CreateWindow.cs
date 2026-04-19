@@ -15,29 +15,29 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
     {
         protected abstract string RecentTypesKey { get; }
 
-        protected EditorDrawer _mainDrawer;
-        protected VisualElement _newStructContainer;
-        protected ScrollView _mainContainer;
-        protected SearchStructWidget _searchWidget;
-        protected VisualElement _genericSearchContainer;
+        protected EditorDrawer mainDrawer;
+        protected VisualElement newStructContainer;
+        protected ScrollView mainContainer;
+        protected SearchStructWidget searchWidget;
+        protected VisualElement genericSearchContainer;
         private StructsDrawer _drawer;
 
         public virtual void ShowWindow()
         {
             var styles = Resources.Load<StyleSheet>("StructCreationWindow");
-            _mainDrawer = new EditorDrawer();
-            _mainContainer = new ScrollView();
-            _mainContainer.styleSheets.Add(styles);
-            _mainContainer.AddToClassList("modules-debug--create-struct");
-            rootVisualElement.Add(_mainContainer);
-            _searchWidget = new SearchStructWidget();
-            _searchWidget.Init(RecentTypesKey, OnChoose);
-            _searchWidget.OnSearch += () => _newStructContainer?.Clear();
-            _searchWidget.DrawSearch();
-            _mainContainer.Add(_searchWidget);
+            mainDrawer = new EditorDrawer();
+            mainContainer = new ScrollView();
+            mainContainer.styleSheets.Add(styles);
+            mainContainer.AddToClassList("modules-debug--create-struct");
+            rootVisualElement.Add(mainContainer);
+            searchWidget = new SearchStructWidget();
+            searchWidget.Init(RecentTypesKey, OnChoose);
+            searchWidget.OnSearch += () => newStructContainer?.Clear();
+            searchWidget.DrawSearch();
+            mainContainer.Add(searchWidget);
 
-            _genericSearchContainer = new VisualElement();
-            _mainContainer.Add(_genericSearchContainer);
+            genericSearchContainer = new VisualElement();
+            mainContainer.Add(genericSearchContainer);
 
             ShowAuxWindow();
         }
@@ -51,24 +51,24 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
         {
             if (type.IsGenericTypeDefinition)
             {
-                ProceedGenericCreation(type, _genericSearchContainer, OnChoose);
+                ProceedGenericCreation(type, genericSearchContainer, OnChoose);
                 return;
             }
 
-            _genericSearchContainer.Clear();
-            if (_newStructContainer == null)
+            genericSearchContainer.Clear();
+            if (newStructContainer == null)
             {
-                _newStructContainer = new VisualElement();
-                _mainContainer.Add(_newStructContainer);
-                _newStructContainer.AddToClassList("modules-debug--create-struct--new-component");
+                newStructContainer = new VisualElement();
+                mainContainer.Add(newStructContainer);
+                newStructContainer.AddToClassList("modules-debug--create-struct--new-component");
             }
             else
             {
-                _newStructContainer.Clear();
+                newStructContainer.Clear();
             }
 
             var newData = Activator.CreateInstance(type);
-            DrawNewStruct(type, newData, _newStructContainer);
+            DrawNewStruct(type, newData, newStructContainer);
 
             OnCreateStruct(type, newData);
         }
@@ -94,7 +94,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
                 var search = new SearchStructWidget();
                 var argumentPosition = i;
                 search.Init(RecentTypesKey, Choose, true);
-                search.OnSearch += () => _newStructContainer?.Clear();
+                search.OnSearch += () => newStructContainer?.Clear();
                 search.DrawSearch();
                 parent.Add(search);
                 parent.Add(innerContainer);
@@ -125,13 +125,13 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
 
         protected void AddToRecent(Type type)
         {
-            _searchWidget.AddToRecent(type);
+            searchWidget.AddToRecent(type);
         }
 
         protected void DrawNewStruct(Type type, object newComponent, VisualElement parent)
         {
             _drawer = new StructsDrawer();
-            _drawer.Init(_mainDrawer, (_, newVal) => { newComponent = newVal; }, () => newComponent);
+            _drawer.Init(mainDrawer, (_, newVal) => { newComponent = newVal; }, () => newComponent);
             _drawer.SetVisible(true);
             _drawer.Draw($"{type.GetTypeName()} (new)", type, newComponent, parent);
             _drawer.Foldout.AddToClassList("modules-debug--create-struct--component-drawer");

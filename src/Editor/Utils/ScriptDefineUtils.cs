@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using UnityEditor;
 using UnityEditor.Compilation;
-
-namespace ModulesFrameworkUnity
+#pragma warning disable CS0618 // Type or member is obsolete
+namespace ModulesFrameworkUnity.Utils
 {
     internal class ScriptDefineUtils
     {

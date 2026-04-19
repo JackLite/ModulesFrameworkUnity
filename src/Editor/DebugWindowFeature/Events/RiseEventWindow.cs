@@ -22,7 +22,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Events
         {
             var addButtonsContainer = new VisualElement();
             addButtonsContainer.AddToClassList("modules-debug--create-struct--component-buttons");
-            _newStructContainer.Add(addButtonsContainer);
+            newStructContainer.Add(addButtonsContainer);
 
             var addBtn = new Button();
             addBtn.text = "Rise";

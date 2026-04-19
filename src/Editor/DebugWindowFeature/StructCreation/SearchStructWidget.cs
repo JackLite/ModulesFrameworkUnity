@@ -17,9 +17,9 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
         protected virtual int MaxSearchResults { get; } = 10;
         protected virtual int RecentTypesCount { get; } = 5;
 
-        protected readonly List<CreateWindowRow> _rows = new List<CreateWindowRow>();
-        protected List<Type> _allTypes = new List<Type>();
-        protected List<string> _recentTypes = new();
+        protected readonly List<CreateWindowRow> rows = new List<CreateWindowRow>();
+        protected List<Type> allTypes = new List<Type>();
+        protected List<string> recentTypes = new();
 
         private Action<Type> _onChoose;
         private string _recentTypeKey;
@@ -41,25 +41,25 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
                 return;
 
             var str = EditorPrefs.GetString(_recentTypeKey);
-            _recentTypes = str.Split(';').ToList();
+            recentTypes = str.Split(';').ToList();
         }
 
         public void AddToRecent(Type type)
         {
-            var existedIdx = _recentTypes.FindIndex(t => t == type.FullName);
+            var existedIdx = recentTypes.FindIndex(t => t == type.FullName);
             if (existedIdx >= 0)
             {
-                _recentTypes.RemoveAt(existedIdx);
-                _recentTypes.Insert(0, type.FullName);
+                recentTypes.RemoveAt(existedIdx);
+                recentTypes.Insert(0, type.FullName);
             }
             else
             {
-                _recentTypes.Add(type.FullName);
-                if (_recentTypes.Count > RecentTypesCount)
-                    _recentTypes.RemoveAt(0);
+                recentTypes.Add(type.FullName);
+                if (recentTypes.Count > RecentTypesCount)
+                    recentTypes.RemoveAt(0);
             }
 
-            var saveStr = string.Join(";", _recentTypes);
+            var saveStr = string.Join(";", recentTypes);
             EditorPrefs.SetString(_recentTypeKey, saveStr);
         }
 
@@ -72,15 +72,15 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
         protected virtual void DrawRecent()
         {
             var rowIdx = 0;
-            for (var i = _recentTypes.Count - 1; i >= 0; i--)
+            for (var i = recentTypes.Count - 1; i >= 0; i--)
             {
-                var typeName = _recentTypes[i];
-                var typeIdx = _allTypes.FindIndex(t => t.FullName == typeName);
+                var typeName = recentTypes[i];
+                var typeIdx = allTypes.FindIndex(t => t.FullName == typeName);
                 if (typeIdx == -1)
                     continue;
 
-                var type = _allTypes[typeIdx];
-                var row = _rows[rowIdx++];
+                var type = allTypes[typeIdx];
+                var row = rows[rowIdx++];
                 InitRow(row, type);
             }
         }
@@ -94,13 +94,13 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
 
             var rowsContainer = new VisualElement();
             rowsContainer.AddToClassList("modules-debug--create-struct--rows-container");
-            _rows.Clear();
+            rows.Clear();
             for (var i = 0; i < MaxSearchResults; i++)
             {
                 var row = new CreateWindowRow();
                 row.style.display = DisplayStyle.None;
                 row.OnChoose += _onChoose;
-                _rows.Add(row);
+                rows.Add(row);
                 rowsContainer.Add(row);
             }
 
@@ -119,7 +119,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
             }
 
             var filtered = new List<Type>(MaxSearchResults);
-            foreach (var type in _allTypes)
+            foreach (var type in allTypes)
             {
                 if (type.GetTypeName().Equals(newValue, StringComparison.InvariantCultureIgnoreCase))
                     filtered.Add(type);
@@ -129,7 +129,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
 
             if (filtered.Count < filtered.Capacity)
             {
-                foreach (var type in _allTypes)
+                foreach (var type in allTypes)
                 {
                     if (filtered.Contains(type))
                         continue;
@@ -142,7 +142,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
 
             if (filtered.Count < filtered.Capacity)
             {
-                foreach (var type in _allTypes)
+                foreach (var type in allTypes)
                 {
                     if (filtered.Contains(type))
                         continue;
@@ -158,7 +158,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
             for (var i = 0; i < filtered.Count; i++)
             {
                 var type = filtered[i];
-                var row = _rows[i];
+                var row = rows[i];
                 InitRow(row, type);
             }
         }
@@ -171,7 +171,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
 
         private void ResetRows()
         {
-            foreach (var row in _rows)
+            foreach (var row in rows)
                 row.style.display = DisplayStyle.None;
         }
 
@@ -188,14 +188,14 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
             {
                 var filter = new AssemblyFilter();
                 assemblies = assemblies.Where(filter.Filter).ToArray();
-                _allTypes = assemblies
+                allTypes = assemblies
                     .Where(filter.Filter)
                     .SelectMany(assembly => assembly.GetTypes().Where(t => t.IsValueType))
                     .ToList();
             }
             else
             {
-                _allTypes = assemblies
+                allTypes = assemblies
                     .SelectMany(assembly => assembly.GetTypes())
                     .Where(t => !t.IsInterface && !t.IsAbstract)
                     .ToList();

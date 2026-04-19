@@ -6,7 +6,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
 {
     public class CreateWindowRow : Button
     {
-        public Type type;
+        private Type _type;
 
         private readonly Label _label;
 
@@ -17,14 +17,14 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.StructCreation
             _label = new Label();
             Add(_label);
 
-            clicked += () => OnChoose?.Invoke(type);
+            clicked += () => OnChoose?.Invoke(_type);
         }
 
-        public void Init(Type type)
+        public void Init(Type structType)
         {
-            this.type = type;
-            _label.text = type.GetTypeName();
-            tooltip = type.Namespace + "." + type.GetTypeName();
+            _type = structType;
+            _label.text = structType.GetTypeName();
+            tooltip = structType.Namespace + "." + structType.GetTypeName();
         }
     }
 }

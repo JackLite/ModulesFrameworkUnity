@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ModulesFramework.Systems;
 using ModulesFramework.Utils;
-using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.DebugWindowFeature.Utils;
 using ModulesFrameworkUnity.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
-
 namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
 {
     public class ModuleSystemsList : ScrollView
@@ -20,6 +17,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
         {
             var systems = GetSystems(moduleType);
             DrawSystems(systems);
+            style.display = DisplayStyle.Flex;
         }
 
         private ICollection<Type> GetSystems(Type moduleType)
@@ -59,6 +57,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
         {
             _labels.Clear();
             Clear();
+            style.display = DisplayStyle.None;
         }
 
         public void Highlight(Type systemType)
