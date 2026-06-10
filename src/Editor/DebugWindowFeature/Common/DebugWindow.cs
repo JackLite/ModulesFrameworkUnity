@@ -6,6 +6,7 @@ using ModulesFrameworkUnity.DebugWindowFeature.Modules;
 using ModulesFrameworkUnity.DebugWindowFeature.OneDataTab;
 using ModulesFrameworkUnity.DebugWindowFeature.Utils;
 using ModulesFrameworkUnity.Settings;
+using ModulesFrameworkUnity.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -33,6 +34,8 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
             var window = CreateWindow<DebugWindow>();
             window.titleContent = new GUIContent("MF Data Viewer");
             window.Show();
+            UnityEngine.Debug.Log("DebugWindow opened");
+            
         }
 
         private void OnEnable()
@@ -59,6 +62,21 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Common
 
             DrawTopBar();
             ShowTab(_currentTab);
+            UnityEngine.Debug.Log("DebugWindow enabled");
+            var test = new LinkedDictionary<string, int>();
+            test.Add("1", 1);
+            test.Add("3", 3);
+            test.Add("2", 2);
+            test.Add("0", 0);
+            foreach (var item in test.Values)
+            {
+                UnityEngine.Debug.Log(item); 
+            }
+            test.Sort((n1, n2) => n1.CompareTo(n2));
+            foreach (var item in test.Values)
+            {
+                UnityEngine.Debug.Log(item);
+            }
         }
 
         private void DrawTopBar()

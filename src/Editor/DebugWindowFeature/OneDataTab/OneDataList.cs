@@ -14,7 +14,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.OneDataTab
     public class OneDataList
     {
         private const string SelectedLabelClassName = "modules--one-data-tab--data-selected";
-        
+
         private ScrollView _scrollView;
         private readonly LinkedDictionary<Type, OneDataLabel> _dataLabels = new();
         private readonly HashSet<Type> _filtered = new();
@@ -170,7 +170,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.OneDataTab
             if (_currentSelected == label)
                 return;
             OnDataSelected?.Invoke(dataType);
-            
+
             label.AddToClassList(SelectedLabelClassName);
             _currentSelected?.RemoveFromClassList(SelectedLabelClassName);
             _currentSelected = label;
@@ -186,15 +186,24 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.OneDataTab
 
         private void Sort()
         {
-            var sorted = _dataLabels.Values
-                .OrderByDescending(label => _pinnedData.Contains(label.type.FullName))
-                .ThenBy(label => label.type.GetTypeName());
+            _dataLabels.Sort(static (l1, l2)
+                => string.Compare(l1.label.text, l2.label.text, StringComparison.Ordinal)
+            );
             OneDataLabel lastPinned = null;
-            foreach (var label in sorted)
+            foreach (var label in _dataLabels.Values)
             {
                 label.RemoveFromClassList("modules--one-data-tab--last-pinned-item");
+                if (!_pinnedData.Contains(label.type.FullName))
+                    continue;
+
+                lastPinned = label;
+                label.BringToFront();
+            }
+            foreach (var label in _dataLabels.Values)
+            {
                 if (_pinnedData.Contains(label.type.FullName))
-                    lastPinned = label;
+                    continue;
+
                 label.BringToFront();
             }
 
@@ -215,8 +224,9 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.OneDataTab
                 return;
 
             _filtered.Clear();
-            foreach (var (type, _) in _dataLabels)
+            foreach (var label in _dataLabels)
             {
+                var type = label.type;
                 if (type.GetTypeName().Contains(_currentFilter, StringComparison.InvariantCultureIgnoreCase))
                     _filtered.Add(type);
             }
@@ -224,9 +234,9 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.OneDataTab
 
         private void UpdateVisibility()
         {
-            foreach (var (type, label) in _dataLabels)
+            foreach (var label in _dataLabels)
             {
-                if (_filtered.Contains(type) || string.IsNullOrWhiteSpace(_currentFilter))
+                if (_filtered.Contains(label.type) || string.IsNullOrWhiteSpace(_currentFilter))
                     label.style.display = DisplayStyle.Flex;
                 else
                     label.style.display = DisplayStyle.None;
