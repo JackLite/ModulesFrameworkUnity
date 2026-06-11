@@ -59,87 +59,73 @@ namespace ModulesFrameworkUnity.Utils
             if (_linkedList.Count < 2)
                 return;
 
-            QSort(_linkedList.First, _linkedList.Last, comparer);
+            MergeSort(_linkedList.First, _linkedList.Last, comparer);
         }
 
-        private void QSort(LinkedListNode<T> left, LinkedListNode<T> right, Func<T, T, int> comparer)
+        private (LinkedListNode<T> newLeft, LinkedListNode<T> newRight) MergeSort(
+            LinkedListNode<T> left, 
+            LinkedListNode<T> right,
+            Func<T, T, int> comparer)
         {
+            // one element subset
             if (left == right)
-                return;
+                return (left, right);
 
+            // 2-elements subset
             if (left.Next == right)
             {
                 if (comparer(left.Value, right.Value) <= 0)
-                    return;
+                    return (left, right);
 
                 _linkedList.Remove(left);
                 _linkedList.AddAfter(right, left);
-                return;
+                return (right, left);
             }
 
-            // choose pivot
             var pivot = ChoosePivot(left, right);
-            // ensure that left <= pivot && right >= pivot
-            while (comparer(left.Value, pivot.Value) > 0 && left != pivot)
-            {
-                var next = left.Next;
-                _linkedList.Remove(left);
-                _linkedList.AddAfter(pivot, left);
-                left = next;
-            }
 
-            while (comparer(right.Value, pivot.Value) < 0 && right != pivot)
-            {
-                var prev = right.Previous;
-                _linkedList.Remove(right);
-                _linkedList.AddBefore(pivot, right);
-                right = prev;
-            }
+            var (firstLeft, _) = MergeSort(left, pivot.Previous, comparer);
+            var (secondLeft, secondRight) = MergeSort(pivot, right, comparer);
 
-            SortLeftPart(pivot, left, comparer);
-            SortRightPart(pivot, right, comparer);
-
-            QSort(left, pivot, comparer);
-            QSort(pivot, right, comparer);
+            return Merge(firstLeft, secondLeft, secondRight, comparer);
         }
 
-        private void SortLeftPart(LinkedListNode<T> pivot, LinkedListNode<T> left, Func<T, T, int> comparer)
+        private (LinkedListNode<T> newLeft, LinkedListNode<T> newRight) Merge(
+            LinkedListNode<T> firstLeft,
+            LinkedListNode<T> secondLeft,
+            LinkedListNode<T> secondRight,
+            Func<T, T, int> comparer)
         {
-            if (left == pivot)
-                return;
-
-            var current = left.Next;
-            var infinitySafe = 100;
-            while (current != null && current != pivot && infinitySafe-- > 0)
+            var head = firstLeft;
+            var head2 = secondLeft;
+            var resultHead = firstLeft;
+            var resultTail = secondRight;
+            var head2Next = secondRight.Next;
+            
+            while (head2 != head2Next && head != head2)
             {
-                var next = current.Next;
-                if (comparer(current.Value, pivot.Value) > 0)
+                var comparisonResult = comparer(head2.Value, head.Value);
+                if (comparisonResult < 0)
                 {
-                    _linkedList.Remove(current);
-                    _linkedList.AddAfter(pivot, current);
-                }
-                current = next;
-            }
-        }
+                    var newHead2 = head2.Next;
+                    if (head2 == secondRight)
+                        resultTail = secondRight.Previous;
 
-        private void SortRightPart(LinkedListNode<T> pivot, LinkedListNode<T> right, Func<T, T, int> comparer)
-        {
-            if (right == pivot)
-                return;
-            var current = right.Previous;
-            var infinitySafe = 100;
-            while (current != null && current != pivot && infinitySafe-- > 0)
-            {
-                var prev = current.Previous;
-                if (comparer(current.Value, pivot.Value) < 0)
+                    _linkedList.Remove(head2);
+                    _linkedList.AddBefore(head, head2);
+                    if (comparer(head2.Value, resultHead.Value) < 0)
+                        resultHead = head2;
+                    head2 = newHead2;
+                }
+                else
                 {
-                    _linkedList.Remove(current);
-                    _linkedList.AddBefore(pivot, current);
+                    head = head.Next;
                 }
-                current = prev;
             }
-        }
 
+            return (resultHead, resultTail);
+        }
+        
         private LinkedListNode<T> ChoosePivot(LinkedListNode<T> left, LinkedListNode<T> right)
         {
             if (left == right || left.Next == right)
