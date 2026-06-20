@@ -12,11 +12,19 @@ namespace ModulesFrameworkUnity
 
         private void Awake()
         {
+            #if UNITY_6000_5_OR_NEWER
+            if (FindAnyObjectByType<MFUnityLoopProvider>() != this)
+            {
+                DestroyImmediate(gameObject);
+                return;
+            }
+            #else 
             if (FindObjectOfType<MFUnityLoopProvider>() != this)
             {
                 DestroyImmediate(gameObject);
                 return;
             }
+            #endif
             DontDestroyOnLoad(gameObject);
         }
 
