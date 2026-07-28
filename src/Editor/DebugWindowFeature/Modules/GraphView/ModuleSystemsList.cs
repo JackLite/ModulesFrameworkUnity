@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using ModulesFramework.Attributes;
+using ModulesFramework.Systems;
 using ModulesFramework.Utils;
+using ModulesFramework.Utils.Types;
 using ModulesFrameworkUnity.DebugWindowFeature.Utils;
 using ModulesFrameworkUnity.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
+
 namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
 {
     public class ModuleSystemsList : ScrollView
@@ -28,10 +33,35 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
                 return module.SystemTypes.ToList();
             }
 
-            _cacheSystems ??= EcsUtilities.FindSystems(new UnityAssemblyFilter().Filter);
+            EnsureSystemsFound();
             if (_cacheSystems.TryGetValue(moduleType, out var systems))
                 return systems;
             return Array.Empty<Type>();
+        }
+
+        private void EnsureSystemsFound()
+        {
+            if (_cacheSystems != null)
+                return;
+
+            _cacheSystems = new Dictionary<Type, List<Type>>();
+            var allTypes = TypeUtilities.GetTypes(new UnityAssemblyFilter().Filter);
+            foreach (var type in allTypes)
+            {
+                if (!typeof(ISystem).IsAssignableFrom(type))
+                    continue;
+
+                var moduleAttribute = type.GetCustomAttribute<EcsSystemAttribute>();
+                if (moduleAttribute == null)
+                    continue;
+
+                if (!_cacheSystems.TryGetValue(moduleAttribute.module, out var systemsList))
+                {
+                    systemsList = new List<Type>();
+                    _cacheSystems[moduleAttribute.module] = systemsList;
+                }
+                systemsList.Add(type);
+            }
         }
 
         private void DrawSystems(ICollection<Type> systems)
