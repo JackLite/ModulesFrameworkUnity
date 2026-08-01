@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using ModulesFramework.Attributes;
 using ModulesFramework.Modules;
-using ModulesFramework.Systems;
 using ModulesFrameworkUnity.Debug.Attributes;
 using ModulesFrameworkUnity.DebugWindowFeature.Utils;
 using ModulesFrameworkUnity.Utils;
@@ -23,6 +22,9 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
         private ModulesGraphView _graph;
         private readonly VisualElement _root = new();
         private readonly ModuleSystemsList _systemsList;
+
+        private const string PositionSaveKey = "MF.Debug.ModulesTab.GraphPosition";
+        private const string ScaleSaveKey = "MF.Debug.ModulesTab.GraphScale";
 
         public VisualElement Root => _root;
 
@@ -91,10 +93,7 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
                     .Where(t => t.GetCustomAttribute<HideInDebugAttribute>() == null)
                 ).ToList();
 
-            _graph = new ModulesGraphView();
-            _graph.OnModuleSelected += OnModuleSelected;
-            _graph.OnModuleUnselected += OnModuleUnselected;
-            _graph.StretchToParentSize();
+            CreateGraph();
 
             var composedOfModules = new Dictionary<Type, List<Type>>();
 
@@ -165,6 +164,27 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
             _root.Add(_graph);
             _root.Add(_systemsList);
         }
+        private void CreateGraph()
+        {
+            _graph = new ModulesGraphView();
+            _graph.OnModuleSelected += OnModuleSelected;
+            _graph.OnModuleUnselected += OnModuleUnselected;
+            _graph.StretchToParentSize();
+            _graph.viewTransformChanged += view =>
+            {
+                var position = view.viewTransform.matrix.GetPosition();
+                var scale = view.viewTransform.matrix.lossyScale;
+                var serializedPosition = EditorJsonUtility.ToJson(position);
+                var serializedScale = EditorJsonUtility.ToJson(scale);
+                EditorPrefs.SetString(PositionSaveKey, serializedPosition);
+                EditorPrefs.SetString(ScaleSaveKey, serializedScale);
+            };
+
+            var position = RestoreSavedVector3(PositionSaveKey, Vector3.zero);
+            var scale = RestoreSavedVector3(ScaleSaveKey, Vector3.one);
+            _graph.UpdateViewTransform(position, scale);
+        }
+
 
         private void OnModuleSelected(Type moduleType)
         {
@@ -230,6 +250,25 @@ namespace ModulesFrameworkUnity.DebugWindowFeature.Modules.GraphView
         public void HighlightSystem(Type systemType)
         {
             _systemsList.Highlight(systemType);
+        }
+
+        private static Vector3 RestoreSavedVector3(string key, Vector3 defaultValue)
+        {
+            if (!EditorPrefs.HasKey(key))
+                return defaultValue;
+
+            var result = defaultValue;
+            var serializedPosition = EditorPrefs.GetString(key);
+            try
+            {
+                result = JsonUtility.FromJson<Vector3>(serializedPosition);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
+
+            return result;
         }
     }
 }
