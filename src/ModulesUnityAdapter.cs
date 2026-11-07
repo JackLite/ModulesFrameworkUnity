@@ -43,9 +43,12 @@ namespace ModulesFrameworkUnity
                     _emptyEntitiesServices.Add(new EmptyEntitiesService(world));
             }
 
-            _modules.MainWorld.SetLogger(new UnityLogger());
-            _modules.MainWorld.SetStringifier(new UnityEntitiesStringifier());
-            _modules.MainWorld.SetLogType(_settings.logFilter);
+            foreach (var world in _modules.Worlds)
+            {
+                world.SetLogger(new UnityLogger());
+                world.SetStringifier(new UnityEntitiesStringifier());
+                world.SetLogType(_settings.logFilter);
+            }
         }
 
         public void Start()
