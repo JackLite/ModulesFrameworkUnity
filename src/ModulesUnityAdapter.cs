@@ -44,6 +44,7 @@ namespace ModulesFrameworkUnity
             }
 
             _modules.MainWorld.SetLogger(new UnityLogger());
+            _modules.MainWorld.SetStringifier(new UnityEntitiesStringifier());
             _modules.MainWorld.SetLogType(_settings.logFilter);
         }
 
